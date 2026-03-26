@@ -1,8 +1,7 @@
 <!doctype html>
 {% load static %}
-<html lang="en">
+<html lang="vi">
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
 
@@ -15,149 +14,655 @@
 
     <title>{% block title %}DAHUKA{% endblock title %}</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Montserrat', sans-serif;
             color: #333;
+            background-color: #fff;
         }
-        /* Navbar */
+
+        /* ===== NAVBAR ===== */
         .navbar {
             background-color: #fff !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            padding: 15px 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 12px 30px;
+            border-bottom: 1px solid #eee;
         }
         .navbar-brand img {
-            height: 40px;
+            height: 45px;
         }
         .nav-link {
-            color: #00665b !important;
-            font-weight: 500;
-            font-size: 14px;
+            color: #0B6E4F !important;
+            font-weight: 400;
+            font-size: 13px;
             text-transform: uppercase;
-            margin: 0 10px;
+            margin: 0 8px;
             letter-spacing: 0.5px;
+            padding: 8px 12px !important;
+            position: relative;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
         }
         .nav-link:hover {
-            color: #004d44 !important;
+            color: #0B6E4F !important;
+            font-weight: 700;
+            text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         }
-        .nav-icons .fa {
-            color: #00665b;
-            font-size: 18px;
-            margin-left: 20px;
-            cursor: pointer;
+        .nav-link.active {
+            color: #0B6E4F !important;
+            font-weight: 700;
         }
-        .nav-icons .badge {
+        .nav-link.active::after {
+            content: "";
             position: absolute;
-            top: 10px;
+            bottom: 0;
+            left: 12px;
+            right: 12px;
+            height: 3px;
+            background-color: #0B6E4F;
+            border-radius: 2px;
+        }
+        .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .nav-icons .icon-item {
+            color: #0B6E4F;
+            font-size: 22px;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+        .nav-icons .icon-item:hover {
+            color: #094d38;
+        }
+        .nav-icons .icon-item .badge {
+            position: absolute;
+            top: -6px;
             right: -10px;
-            background-color: red;
+            background-color: #e74c3c;
             color: white;
             border-radius: 50%;
             font-size: 10px;
             padding: 2px 5px;
-        }
-        
-        /* Banner */
-        .main-banner {
-            width: 100%;
-            height: auto;
-        }
-        
-        /* Two Products Section */
-        .section-title {
+            min-width: 18px;
             text-align: center;
-            font-weight: 700;
-            font-size: 24px;
-            margin: 40px 0 20px;
+        }
+
+        /* ===== BREADCRUMB ===== */
+        .breadcrumb-section {
+            padding: 20px 0 10px;
+        }
+        .breadcrumb-section .breadcrumb {
+            background: none;
+            padding: 0;
+            margin: 0;
+            font-size: 13px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .breadcrumb-section .breadcrumb a {
+            color: #666;
+            text-decoration: none;
+        }
+        .breadcrumb-section .breadcrumb a:hover {
+            color: #0B6E4F;
+        }
+        .breadcrumb-section .breadcrumb .active {
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* ===== PAGE TITLE ===== */
+        .page-title {
+            font-size: 26px;
+            font-weight: 800;
             color: #000;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            font-family: 'Montserrat', sans-serif;
         }
-        .product-card {
+
+        /* ===== PRODUCT DETAIL ===== */
+        .product-detail-wrapper {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .product-images {
+            flex: 0 0 300px;
+            max-width: 300px;
+        }
+        .product-main-image {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
             text-align: center;
+            background: #fafafa;
+            position: relative;
+        }
+        .product-main-image img {
+            max-width: 100%;
+            height: auto;
+            max-height: 300px;
+            object-fit: contain;
+        }
+        .product-main-image .main-label {
+            text-align: center;
+            background-color: #0B6E4F;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px;
+            margin: 10px -15px -15px;
+            border-radius: 0 0 8px 8px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        /* Edit button on hover */
+        .product-main-image .edit-image-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #0B6E4F;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            z-index: 2;
+        }
+        .product-main-image:hover .edit-image-btn {
+            opacity: 1;
+        }
+        .product-main-image .edit-image-btn:hover {
+            background: #094d38;
+        }
+
+        /* Image Accordion Sections */
+        .image-accordion {
+            margin-top: 10px;
+        }
+        .image-accordion .accordion-item {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            overflow: hidden;
+        }
+        .image-accordion .accordion-header {
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background 0.2s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .image-accordion .accordion-header:hover {
+            background: #f8f8f8;
+        }
+        .image-accordion .accordion-header .chevron {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        .image-accordion .accordion-header.active .chevron {
+            transform: rotate(180deg);
+        }
+        .image-accordion .accordion-body {
+            padding: 10px 14px;
+            display: none;
+            border-top: 1px solid #eee;
+        }
+        .image-accordion .accordion-body.show {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .image-accordion .accordion-body img {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .image-accordion .accordion-body .add-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px dashed #bbb;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #0B6E4F;
+            font-size: 18px;
+            background: #fff;
+            transition: border-color 0.2s;
+        }
+        .image-accordion .accordion-body .add-btn:hover {
+            border-color: #0B6E4F;
+        }
+
+        /* ===== FORM SECTION ===== */
+        .product-form {
+            flex: 1;
+        }
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .form-section-title .icon {
+            color: #0B6E4F;
+            margin-right: 8px;
+        }
+        .form-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 6px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 2px;
+        }
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #333;
+            background-color: #fafafa;
+            transition: border-color 0.2s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .form-control:focus {
+            border-color: #0B6E4F;
+            box-shadow: 0 0 0 2px rgba(11,110,79,0.1);
+            background-color: #fff;
+        }
+        .form-control[readonly] {
+            background-color: #f0f0f0;
+            color: #888;
+            cursor: not-allowed;
+        }
+        .input-unit {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            color: #888;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .input-with-unit {
+            position: relative;
+        }
+        .input-with-unit .form-control {
+            padding-right: 50px;
+        }
+
+        /* ===== CUSTOM DROPDOWN ===== */
+        .custom-dropdown-wrapper {
+            position: relative;
+        }
+        .custom-dropdown-trigger {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #333;
+            background-color: #fafafa;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: border-color 0.2s;
+            font-family: 'Montserrat', sans-serif;
+            user-select: none;
+        }
+        .custom-dropdown-trigger:hover {
+            border-color: #0B6E4F;
+        }
+        .custom-dropdown-trigger .dropdown-arrow {
+            font-size: 10px;
+            color: #888;
+            transition: transform 0.2s;
+        }
+        .custom-dropdown-trigger.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        .custom-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .custom-dropdown-menu.show {
+            display: block;
+        }
+        .custom-dropdown-menu .dropdown-item {
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-family: 'Montserrat', sans-serif;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .custom-dropdown-menu .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .custom-dropdown-menu .dropdown-item:hover {
+            background: #f8f8f8;
+        }
+        .custom-dropdown-menu .dropdown-item.selected {
+            color: #0B6E4F;
+            font-weight: 600;
+        }
+
+        /* ===== ACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
             margin-bottom: 30px;
         }
-        .product-card img {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        .product-title {
-            font-weight: 600;
-            margin-top: 15px;
+        .btn-back {
+            background: #fff;
             color: #333;
-            font-size: 16px;
-        }
-        .product-subtitle {
+            border: 1px solid #ddd;
+            padding: 10px 24px;
+            border-radius: 6px;
             font-size: 14px;
-            color: #666;
-        }
-
-        /* Mutosi Pro Section */
-        .mutosi-pro-logo {
-            text-align: center;
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin: 60px 0 40px;
-        }
-        .btn-outline-dark {
-            border-radius: 0;
-            padding: 10px 30px;
             font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: 'Montserrat', sans-serif;
         }
-
-        /* Khám phá Section */
-        .khampha-img {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 15px;
+        .btn-back:hover {
+            background: #f5f5f5;
+            border-color: #bbb;
+            text-decoration: none;
+            color: #333;
         }
-        .khampha-title {
+        .btn-save {
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
             font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-            min-height: 42px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .btn-save:hover {
+            background: #0B6E4F;
+            color: #fff;
+            text-decoration: none;
         }
 
-        /* News Section */
-        .news-img {
-            max-width: 100%;
-            margin-bottom: 15px;
-        }
-        .news-title {
-            font-size: 15px;
-            font-weight: 500;
-            line-height: 1.4;
-            text-align: center;
-        }
-        
-        /* Experience Banner */
-        .experience-banner {
-            background-image: url('{% static "img/BANNER.png" %}');
-            background-size: cover;
-            background-position: center;
+        /* ===== TOGGLE SWITCH ===== */
+        .toggle-switch {
             position: relative;
-            padding: 100px 0;
-            color: white;
-            text-align: center;
-            margin-top: 50px;
+            width: 48px;
+            height: 26px;
+            display: inline-block;
         }
-        .experience-banner::before {
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+        .toggle-slider::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
         }
-        .experience-content {
-            position: relative;
-            z-index: 1;
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #0B6E4F;
         }
-        .experience-content h3 {
-            font-size: 28px;
-            font-style: italic;
-            font-weight: 300;
-            margin-bottom: 20px;
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(22px);
         }
-        
-        /* Footer */
+        .toggle-label {
+            font-size: 14px;
+            color: #0B6E4F;
+            font-weight: 500;
+            margin-left: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* ===== MODAL (Edit Image) ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: 10px;
+            width: 480px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header-custom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-header-custom h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .modal-close-btn:hover {
+            color: #333;
+        }
+        .modal-body-custom {
+            padding: 24px;
+        }
+        .modal-body-custom p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 16px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .upload-dropzone {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafafa;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .upload-dropzone:hover {
+            border-color: #0B6E4F;
+            background: #f0faf5;
+        }
+        .upload-dropzone.has-image {
+            padding: 15px;
+        }
+        .upload-dropzone .upload-icon {
+            font-size: 40px;
+            color: #bbb;
+            margin-bottom: 12px;
+        }
+        .upload-dropzone .upload-text {
+            font-size: 13px;
+            color: #888;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .upload-dropzone .preview-img {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        .modal-footer-custom {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid #eee;
+        }
+        .modal-btn-cancel {
+            background: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.2s;
+        }
+        .modal-btn-cancel:hover {
+            background: #f5f5f5;
+        }
+        .modal-btn-save {
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .modal-btn-save:hover {
+            background: #0B6E4F;
+        }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast-notification {
+            display: none;
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0B6E4F;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Montserrat', sans-serif;
+            z-index: 9999;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            align-items: center;
+            gap: 10px;
+            animation: toastSlideIn 0.4s ease;
+        }
+        .toast-notification.show {
+            display: flex;
+        }
+        @keyframes toastSlideIn {
+            from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        @keyframes toastSlideOut {
+            from { transform: translateX(-50%) translateY(0); opacity: 1; }
+            to { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+        }
+        .toast-notification .toast-icon {
+            font-size: 20px;
+        }
+
+        /* ===== FOOTER ===== */
         footer {
             margin-top: 30px;
         }
@@ -165,6 +670,8 @@
             background-color: #fff;
             padding: 50px 0;
             font-size: 14px;
+            border-top: 1px solid #eee;
+            font-family: 'Montserrat', sans-serif;
         }
         .footer-top h5 {
             font-size: 16px;
@@ -181,6 +688,10 @@
         .footer-top ul li a {
             color: #333;
             text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-top ul li a:hover {
+            color: #0B6E4F;
         }
         .footer-bottom {
             background-color: #0b1517;
@@ -194,10 +705,58 @@
         .footer-bottom span {
             font-size: 16px;
             font-style: italic;
+            font-family: 'Montserrat', sans-serif;
         }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .product-detail-wrapper {
+                flex-direction: column;
+            }
+            .product-images {
+                flex: 1;
+                max-width: 100%;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        {% block extra_css %}{% endblock extra_css %}
     </style>
 </head>
 <body>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toastNotification">
+    <span class="toast-icon">✓</span>
+    <span>Lưu thông tin thành công</span>
+</div>
+
+<!-- Edit Image Modal -->
+<div class="modal-overlay" id="editImageModal">
+    <div class="modal-box">
+        <div class="modal-header-custom">
+            <h4>Sửa ảnh chính sản phẩm</h4>
+            <button class="modal-close-btn" onclick="closeEditModal()">✕</button>
+        </div>
+        <div class="modal-body-custom">
+            <p>Nhấn để chọn ảnh mới hoặc kéo thả file vào đây</p>
+            <div class="upload-dropzone" id="uploadDropzone" onclick="document.getElementById('fileInput').click()">
+                <div id="uploadPlaceholder">
+                    <div class="upload-icon"><i class="fa fa-image"></i></div>
+                    <div class="upload-text">Nhấn để chọn ảnh (JPG, PNG)</div>
+                </div>
+                <img id="previewImage" class="preview-img" style="display:none;" alt="Preview">
+            </div>
+            <input type="file" id="fileInput" accept="image/jpeg,image/png" style="display:none;" onchange="previewFile(this)">
+        </div>
+        <div class="modal-footer-custom">
+            <button class="modal-btn-cancel" onclick="closeEditModal()">Hủy</button>
+            <button class="modal-btn-save" onclick="saveEditImage()"><i class="fa fa-check"></i> Lưu thay đổi</button>
+        </div>
+    </div>
+</div>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light sticky-top">
@@ -226,12 +785,12 @@
                 <a class="nav-link" href="#">ĐIỂM BÁN - BẢO HÀNH</a>
             </li>
         </ul>
-        <div class="nav-icons position-relative d-none d-lg-block">
-            <i class="fa fa-search"></i>
-            <i class="fa fa-phone"></i>
-            <i class="fa fa-shopping-cart"></i>
-            <i class="fa fa-user-circle-o"></i>
-            <span class="position-relative">
+        <div class="nav-icons d-none d-lg-flex">
+            <span class="icon-item"><i class="fa fa-search"></i></span>
+            <span class="icon-item"><i class="fa fa-phone"></i></span>
+            <span class="icon-item"><i class="fa fa-shopping-cart"></i></span>
+            <span class="icon-item"><i class="fa fa-user-circle-o"></i></span>
+            <span class="icon-item">
                 <i class="fa fa-bell-o"></i>
                 <span class="badge">0</span>
             </span>
@@ -241,98 +800,6 @@
 
 <!-- Main content area -->
 {% block content %}
-    <img src="{% static 'img/BANNER.png' %}" class="main-banner" alt="Banner">
-
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="product-card">
-                    <img src="{% static 'img/1.png' %}" alt="Máy lọc nước">
-                    <div class="product-title">Máy lọc nước</div>
-                    <div class="product-subtitle">Hơn cả sạch là tốt cho sức khỏe</div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="product-card">
-                    <img src="{% static 'img/2.png' %}" alt="Cây nước nóng lạnh">
-                    <div class="product-title">Cây nước nóng lạnh</div>
-                    <div class="product-subtitle">Hơn cả ngon là tận hưởng hạnh phúc</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="mutosi-pro-logo">MUTOSI&nbsp;&nbsp;<span style="font-size:20px;">•</span>&nbsp;&nbsp;PRO</div>
-
-        <div class="row align-items-center mb-5 mt-5">
-            <div class="col-md-4 pl-4">
-                <h2 style="font-weight: 800; font-size: 32px; color: #000; line-height: 1.2;">Mutosi<br>Hydrogen Pro</h2>
-                <p class="mt-4" style="font-size: 15px; color: #333;">Mutosi Pro mới, với công nghệ Hydrogen Pro vượt trội giúp hỗ trợ cân bằng axit dư trong cơ thể, phục hồi năng lượng, ngăn ngừa lão hóa và tăng cường bảo vệ sức khỏe</p>
-                <p style="font-size: 15px; color: #333;">Tận tâm tạo tác từng giọt nước dùng mỗi ngày. Để bảo vệ sức khỏe gia đình tốt hơn Chuẩn Nhật</p>
-                <p style="font-weight: 700; font-style: italic; color: #000; margin-top: 20px;">Uống nước mỗi ngày - Khoẻ vượt kỳ vọng</p>
-                <button class="btn btn-outline-dark mt-3">Khám phá ngay</button>
-            </div>
-            <div class="col-md-8 text-right">
-                <img src="{% static 'img/MUTOSI PRO.png' %}" style="max-width: 100%; height: auto;" alt="Mutosi Pro Image">
-            </div>
-        </div>
-
-        <h3 class="section-title mt-5 pt-4">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h3>
-        <div class="row mt-4 text-center">
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 1.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen nguội lạnh Mutosi MP-P89K</div>
-            </div>
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 2.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-T888</div>
-            </div>
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 3.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-666</div>
-            </div>
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 4.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-S1021H</div>
-            </div>
-        </div>
-
-        <div class="text-center mt-3">
-            <span style="display:inline-block; width:10px; height:10px; background:#000; border-radius:50%; margin:0 5px;"></span>
-            <span style="display:inline-block; width:10px; height:10px; background:#ccc; border-radius:50%; margin:0 5px;"></span>
-        </div>
-
-        <h3 class="section-title mt-5 pt-4">Tin tiêu điểm</h3>
-        <div class="row mt-4">
-            <div class="col-md-4 text-center">
-                <img src="{% static 'img/Tin tiêu điểm 1.png' %}" class="news-img" alt="News">
-                <div class="news-title mt-2">Hướng dẫn sử dụng và lắp đặt<br>máy lọc nước điện giải Mutosi</div>
-            </div>
-            <div class="col-md-4 text-center">
-                <img src="{% static 'img/Tin tiêu điểm 2.png' %}" class="news-img" alt="News">
-                <div class="news-title mt-2">Công nghệ lọc nước RO và công<br>nghệ điện phân đột phá từ Mutosi</div>
-            </div>
-            <div class="col-md-4 text-center">
-                <img src="{% static 'img/Tin tiêu điểm 3.png' %}" class="news-img" alt="News">
-                <div class="news-title mt-2">Hướng dẫn do nhiệt độ nước tại bầu<br>nóng máy lọc nước Mutosi</div>
-            </div>
-        </div>
-        <div class="text-center mt-4">
-            <button class="btn btn-outline-dark">Xem tất cả</button>
-        </div>
-        <div class="text-center mt-3 mb-5">
-            <span style="display:inline-block; width:10px; height:10px; background:#000; border-radius:50%; margin:0 5px;"></span>
-            <span style="display:inline-block; width:10px; height:10px; background:#ccc; border-radius:50%; margin:0 5px;"></span>
-            <span style="display:inline-block; width:10px; height:10px; background:#ccc; border-radius:50%; margin:0 5px;"></span>
-        </div>
-    </div>
-
-    <!-- Experience Banner -->
-    <div class="experience-banner">
-        <div class="experience-content container">
-            <h3>“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
-            <button class="btn btn-outline-light mt-3" style="border-radius:0; padding:10px 30px;">Khám phá ngay</button>
-        </div>
-    </div>
 {% endblock content %}
 
 <!-- Footer -->
@@ -421,5 +888,171 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
+
+<script>
+/* Accordion toggle */
+function toggleAccordion(btn) {
+    var body = btn.nextElementSibling;
+    btn.classList.toggle('active');
+    if (body.classList.contains('show')) {
+        body.classList.remove('show');
+        body.style.display = 'none';
+        btn.querySelector('span').textContent = '› ' + btn.querySelector('span').textContent.replace(/[▾›]\s*/, '');
+    } else {
+        body.classList.add('show');
+        body.style.display = 'flex';
+        btn.querySelector('span').textContent = '▾ ' + btn.querySelector('span').textContent.replace(/[▾›]\s*/, '');
+    }
+}
+
+/* Custom Dropdown */
+function toggleDropdown(id) {
+    var wrapper = document.getElementById(id);
+    var trigger = wrapper.querySelector('.custom-dropdown-trigger');
+    var menu = wrapper.querySelector('.custom-dropdown-menu');
+
+    // Close all other dropdowns first
+    document.querySelectorAll('.custom-dropdown-wrapper').forEach(function(w) {
+        if (w.id !== id) {
+            w.querySelector('.custom-dropdown-trigger').classList.remove('open');
+            w.querySelector('.custom-dropdown-menu').classList.remove('show');
+        }
+    });
+
+    trigger.classList.toggle('open');
+    menu.classList.toggle('show');
+}
+
+function selectDropdownItem(item, wrapperId) {
+    var wrapper = document.getElementById(wrapperId);
+    var valueSpan = wrapper.querySelector('.dropdown-value');
+    var trigger = wrapper.querySelector('.custom-dropdown-trigger');
+    var menu = wrapper.querySelector('.custom-dropdown-menu');
+
+    // Update selected
+    wrapper.querySelectorAll('.dropdown-item').forEach(function(el) {
+        el.classList.remove('selected');
+    });
+    item.classList.add('selected');
+    valueSpan.textContent = item.textContent;
+
+    // Close dropdown
+    trigger.classList.remove('open');
+    menu.classList.remove('show');
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.custom-dropdown-wrapper')) {
+        document.querySelectorAll('.custom-dropdown-wrapper').forEach(function(w) {
+            w.querySelector('.custom-dropdown-trigger').classList.remove('open');
+            w.querySelector('.custom-dropdown-menu').classList.remove('show');
+        });
+    }
+});
+
+/* Edit Image Modal */
+function openEditModal() {
+    document.getElementById('editImageModal').classList.add('show');
+    // Reset to placeholder
+    document.getElementById('previewImage').style.display = 'none';
+    document.getElementById('uploadPlaceholder').style.display = '';
+    document.getElementById('fileInput').value = '';
+}
+
+function closeEditModal() {
+    document.getElementById('editImageModal').classList.remove('show');
+}
+
+function previewFile(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var preview = document.getElementById('previewImage');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            document.getElementById('uploadPlaceholder').style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function saveEditImage() {
+    var preview = document.getElementById('previewImage');
+    if (preview.style.display !== 'none' && preview.src) {
+        document.getElementById('mainProductImage').src = preview.src;
+    }
+    closeEditModal();
+    showToast();
+}
+
+// Close modal on overlay click
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'editImageModal') {
+        closeEditModal();
+    }
+});
+
+// Drag & drop support
+var dropzone = document.getElementById('uploadDropzone');
+if (dropzone) {
+    ['dragenter', 'dragover'].forEach(function(evt) {
+        dropzone.addEventListener(evt, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.style.borderColor = '#0B6E4F';
+            dropzone.style.background = '#f0faf5';
+        });
+    });
+    ['dragleave', 'drop'].forEach(function(evt) {
+        dropzone.addEventListener(evt, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.style.borderColor = '#ddd';
+            dropzone.style.background = '#fafafa';
+        });
+    });
+    dropzone.addEventListener('drop', function(e) {
+        var file = e.dataTransfer.files[0];
+        if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var preview = document.getElementById('previewImage');
+                preview.src = ev.target.result;
+                preview.style.display = 'block';
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+/* Toast Notification */
+function showToast() {
+    var toast = document.getElementById('toastNotification');
+    toast.classList.add('show');
+    setTimeout(function() {
+        toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+        setTimeout(function() {
+            toast.classList.remove('show');
+            toast.style.animation = '';
+        }, 300);
+    }, 2500);
+}
+
+/* Toggle Status Label */
+function updateToggleLabel(checkbox) {
+    var label = document.getElementById('toggleStatusLabel');
+    if (checkbox.checked) {
+        label.textContent = 'Hiển thị trên website';
+        label.style.color = '#0B6E4F';
+    } else {
+        label.textContent = 'Ẩn khỏi website';
+        label.style.color = '#999';
+    }
+}
+</script>
+
+{% block extra_js %}{% endblock extra_js %}
 </body>
 </html>

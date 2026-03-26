@@ -1,5 +1,7 @@
 from django.shortcuts import render
 
-# Create your views here.
 def index(request):
-    return render(request, 'base.html')
+    return render(request, 'product_list.html')
+
+def product_detail(request, product_id):
+    return render(request, 'product_detail.html')
