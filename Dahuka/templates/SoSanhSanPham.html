@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>So sánh sản phẩm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'common/dahuka.css' %}">
+    <link rel="stylesheet" href="{% static 'SoSanhSanPham/SoSanhSanPham.css' %}">
+</head>
+<body>
+    {% include 'partials/site_header.html' with active_nav='water' %}
+    <main class="compare-page container-shell">
+        <div class="page-breadcrumbs">Trang chủ / <b>So sánh sản phẩm</b></div>
+        <div class="section-title-row compare-title-row"><div class="line"></div><h1>So sánh sản phẩm</h1><div class="line"></div></div>
+        <section class="compare-table-wrap">
+            <div class="compare-header-row compare-grid">
+                <article class="compare-product-card">
+                    <div class="compare-product-visual"><div class="product-silhouette theme-dark"></div></div>
+                    <h3>Máy lọc nước RO 12 cấp Mutosi MP-S126</h3>
+                    <p class="price">5,790,000đ</p>
+                    <div class="compare-card-actions"><a class="dark-button small-btn" href="/chi-tiet-san-pham/">Tìm hiểu thêm</a><button class="cart-mini" type="button"><i class="fa fa-shopping-cart"></i></button></div>
+                </article>
+                <article class="compare-product-card">
+                    <div class="compare-product-visual"><div class="product-silhouette theme-mp-s96"></div></div>
+                    <h3>Máy lọc nước Mutosi MP-S610K</h3>
+                    <p class="price">12,800,000đ</p>
+                    <div class="rating-stars small">★★★★★</div>
+                    <div class="compare-card-actions"><a class="dark-button small-btn" href="/chi-tiet-san-pham/">Tìm hiểu thêm</a><button class="cart-mini" type="button"><i class="fa fa-shopping-cart"></i></button></div>
+                </article>
+                <article class="compare-add-card"><button type="button"><i class="fa fa-plus-circle"></i> Thêm sản phẩm</button></article>
+            </div>
+            <div class="compare-grid spec-row"><div class="spec-label">Công suất lọc</div><div>20L/giờ</div><div>10-15L/giờ</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Loại máy</div><div>Máy lọc nước ion kiềm</div><div>Máy lọc nước RO</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Công nghệ lọc</div><div>RO kết hợp điện phân tạo nước ion kiềm hydrogen</div><div>Thẩm thấu ngược RO</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Dung tích bình chứa</div><div>Tổng 8 lít (Nước nóng 1L, Nước lạnh 1L, Nước RO 6L)</div><div>7.5L</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Nhiệt độ nước nóng</div><div>Nóng 80 - 95°C</div><div>Nóng 70 - 85°C</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Nhiệt độ nước lạnh</div><div>Lạnh 6 - 10°C</div><div>Lạnh 6 - 10°C</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Năm ra mắt</div><div>2025</div><div>2026</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Số lõi lọc</div><div>9</div><div>11</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Kích thước</div><div>Ngang 30 cm - Cao 99.1 cm - Sâu 40 cm</div><div>Ngang 30 cm - Cao 99.1 cm - Sâu 40 cm</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Khối lượng</div><div>50Kg</div><div>50Kg</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Nơi sản xuất</div><div>Việt Nam</div><div>Nhật Bản</div></div>
+            <div class="compare-grid spec-row"><div class="spec-label">Thời gian bảo hành</div><div>10 năm</div><div>10 năm</div></div>
+        </section>
+    </main>
+    {% include 'partials/site_footer.html' %}
+    <script src="{% static 'SoSanhSanPham/SoSanhSanPham.js' %}"></script>
+</body>
+</html>

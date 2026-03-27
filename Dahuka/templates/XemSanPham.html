@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem sản phẩm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'common/dahuka.css' %}">
+    <link rel="stylesheet" href="{% static 'XemSanPham/XemSanPham.css' %}">
+
+</head>
+<body>
+    {% include 'partials/site_header.html' with active_nav='water' %}
+
+    <section class="catalog-hero">
+        <img src="{% static 'img/PAGE.png' %}" alt="Máy lọc nước Dahuka">
+    </section>
+
+    <main class="catalog-page container-shell">
+        <div class="page-breadcrumbs">Trang chủ / <b>Máy lọc nước</b></div>
+
+        <div class="section-title-row catalog-title-row">
+            <h1>Máy lọc nước</h1>
+            <div class="line"></div>
+            <div class="catalog-sort dropdown">
+                <button class="button" type="button">
+                    <span class="label">Mới nhất</span>
+                    <i class="fa fa-angle-down"></i>
+                </button>
+            </div>
+        </div>
+
+        <section class="catalog-layout">
+            <aside class="catalog-filters">
+                <div class="filter-group">
+                    <h3>Hệ thống lõi lọc</h3>
+                    <label><span class="filter-box rectangle-2"></span> 3 lõi</label>
+                    <label><span class="filter-box rectangle-2"></span> 7 lõi</label>
+                    <label><span class="filter-box rectangle-2"></span> 8 lõi</label>
+                    <label><span class="filter-box rectangle-2"></span> 9 lõi</label>
+                    <label><span class="filter-box rectangle-2"></span> 10 lõi</label>
+                    <label><span class="filter-box rectangle-2"></span> 11 lõi</label>
+                </div>
+                <div class="filter-group">
+                    <h3>Loại nguồn nước</h3>
+                    <label><span class="filter-box rectangle-3"></span> Nước lợ</label>
+                    <label><span class="filter-box rectangle-3"></span> Nước máy</label>
+                    <label><span class="filter-box rectangle-3"></span> Nước cứng</label>
+                </div>
+                <div class="filter-group">
+                    <h3>Khoảng giá</h3>
+                    <label><span class="filter-box rectangle-4"></span> Từ 4 - 6 triệu</label>
+                    <label><span class="filter-box rectangle-4"></span> Từ 6 - 8 triệu</label>
+                    <label><span class="filter-box rectangle-4"></span> Từ 8 - 10 triệu</label>
+                    <label><span class="filter-box rectangle-5"></span> Trên 10 triệu</label>
+                </div>
+            </aside>
+
+            <div class="catalog-products">
+                <article class="catalog-card"><div class="catalog-product-visual"><div class="product-silhouette theme-dark"></div></div><h3>Máy lọc nước RO 12 cấp Mutosi MP-S126</h3><p class="catalog-price">5,790,000đ</p><div class="rating-stars small">★★★★★</div><ul><li>Nước ra vòi đạt tiêu chuẩn Quốc gia dành cho nước uống trực tiếp QCVN 6-1:2010/BYT.</li><li>Nước sau hệ thống lọc RO loại bỏ 13 + 6 chất độc hại theo tiêu chuẩn.</li></ul><div class="catalog-card-actions"><a href="/chi-tiet-san-pham/" class="dark-button small-btn">Tìm hiểu thêm</a><button class="cart-mini" type="button"><i class="fa fa-shopping-cart"></i></button></div><button class="compare-link" type="button"><i class="fa fa-plus-circle"></i> So sánh</button></article>
+                <article class="catalog-card"><div class="catalog-product-visual"><div class="product-silhouette theme-mp-s96"></div></div><h3>Máy lọc nước Mutosi MP-S610K</h3><p class="catalog-price">12,800,000đ</p><div class="rating-stars small">★★★★★</div><ul><li>Nước ra vòi đạt tiêu chuẩn Quốc gia dành cho nước uống trực tiếp QCVN 6-1:2010/BYT.</li><li>Nước sau hệ thống lọc RO loại bỏ 13 + 6 chất độc hại theo tiêu chuẩn.</li></ul><div class="catalog-card-actions"><a href="/chi-tiet-san-pham/" class="dark-button small-btn">Tìm hiểu thêm</a><button class="cart-mini" type="button"><i class="fa fa-shopping-cart"></i></button></div><button class="compare-link" type="button"><i class="fa fa-plus-circle"></i> So sánh</button></article>
+                <article class="catalog-card"><div class="catalog-product-visual"><div class="product-silhouette theme-side"></div></div><h3>Máy lọc nước điện giải ion kiềm hydrogen Mutosi MP-T666</h3><p class="catalog-price">15,700,000đ</p><div class="rating-stars small">★★★★★</div><ul><li>Nước ra vòi đạt tiêu chuẩn Quốc gia dành cho nước uống trực tiếp QCVN 6-1:2010/BYT.</li><li>Nước sau hệ thống lọc RO loại bỏ 13 + 6 chất độc hại theo tiêu chuẩn.</li></ul><div class="catalog-card-actions"><a href="/chi-tiet-san-pham/" class="dark-button small-btn">Tìm hiểu thêm</a><button class="cart-mini" type="button"><i class="fa fa-shopping-cart"></i></button></div><button class="compare-link" type="button"><i class="fa fa-plus-circle"></i> So sánh</button></article>
+                <article class="catalog-card"><div class="catalog-product-visual"><div class="product-silhouette theme-dark"></div></div><h3>Máy lọc nước điện giải ion kiềm hydrogen Mutosi MP-99</h3><p class="catalog-price">5,790,000đ</p><div class="rating-stars small">★★★★★</div><ul><li>Nước ra vòi đạt tiêu chuẩn Quốc gia dành cho nước uống trực tiếp QCVN 6-1:2010/BYT.</li><li>Nước sau hệ thống lọc RO loại bỏ 13 + 6 chất độc hại theo tiêu chuẩn.</li></ul><div class="catalog-card-actions"><a href="/chi-tiet-san-pham/" class="dark-button small-btn">Tìm hiểu thêm</a><button class="cart-mini" type="button"><i class="fa fa-shopping-cart"></i></button></div><button class="compare-link" type="button"><i class="fa fa-plus-circle"></i> So sánh</button></article>
+                <article class="catalog-card"><div class="catalog-product-visual"><div class="product-silhouette theme-filter"></div></div><h3>Máy lọc nước hydrogen probiotics ion kiềm MP-F081</h3><p class="catalog-price">25,800,000đ</p><div class="rating-stars small">★★★★★</div><ul><li>Nước ra vòi đạt tiêu chuẩn Quốc gia dành cho nước uống trực tiếp QCVN 6-1:2010/BYT.</li><li>Nước sau hệ thống lọc RO loại bỏ 13 + 6 chất độc hại theo tiêu chuẩn.</li></ul><div class="catalog-card-actions"><a href="/chi-tiet-san-pham/" class="dark-button small-btn">Tìm hiểu thêm</a><button class="cart-mini" type="button"><i class="fa fa-shopping-cart"></i></button></div><button class="compare-link" type="button"><i class="fa fa-plus-circle"></i> So sánh</button></article>
+                <article class="catalog-card"><div class="catalog-product-visual"><div class="product-silhouette theme-open"></div></div><h3>Máy lọc nước Mutosi Probiotics MP-F082-HC2P</h3><p class="catalog-price">25,800,000đ</p><div class="rating-stars small">★★★★★</div><ul><li>Nước ra vòi đạt tiêu chuẩn Quốc gia dành cho nước uống trực tiếp QCVN 6-1:2010/BYT.</li><li>Nước sau hệ thống lọc RO loại bỏ 13 + 6 chất độc hại theo tiêu chuẩn.</li></ul><div class="catalog-card-actions"><a href="/chi-tiet-san-pham/" class="dark-button small-btn">Tìm hiểu thêm</a><button class="cart-mini" type="button"><i class="fa fa-shopping-cart"></i></button></div><button class="compare-link" type="button"><i class="fa fa-plus-circle"></i> So sánh</button></article>
+                <div class="catalog-pagination"><button type="button" disabled><i class="fa fa-angle-left"></i></button><button type="button" class="is-active">1</button><button type="button">2</button><button type="button">...</button><button type="button">9</button><button type="button">10</button><button type="button"><i class="fa fa-angle-right"></i></button></div>
+            </div>
+        </section>
+    </main>
+
+    {% include 'partials/site_footer.html' %}
+
+    <script src="{% static 'XemSanPham/XemSanPham.js' %}"></script>
+</body>
+</html>

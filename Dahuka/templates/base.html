@@ -12,6 +12,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800&display=swap">
+    <link rel="stylesheet" href="{% static 'common/dahuka.css' %}">
 
     <title>{% block title %}DAHUKA{% endblock title %}</title>
     <style>
@@ -226,45 +227,7 @@
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light sticky-top">
-    <a class="navbar-brand" href="/">
-        <img src="{% static 'img/LOGO.png' %}" alt="DAHUKA Logo">
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="#">MÁY LỌC NƯỚC</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">LINH KIỆN</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">DỊCH VỤ</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">HƯỚNG DẪN LẮP ĐẶT</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">ĐIỂM BÁN - BẢO HÀNH</a>
-            </li>
-        </ul>
-        <div class="nav-icons position-relative d-none d-lg-block">
-            <i class="fa fa-search"></i>
-            <i class="fa fa-phone"></i>
-            <i class="fa fa-shopping-cart"></i>
-            <i class="fa fa-user-circle-o"></i>
-            <span class="position-relative">
-                <i class="fa fa-bell-o"></i>
-                <span class="badge">0</span>
-            </span>
-        </div>
-    </div>
-</nav>
+{% include 'partials/site_header.html' with active_nav='care' %}
 
 <!-- Main content area -->
 {% block content %}

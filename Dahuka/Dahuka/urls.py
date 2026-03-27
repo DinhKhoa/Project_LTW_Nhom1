@@ -21,5 +21,12 @@ import trangchu.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', trangchu.views.index)
+    path('', trangchu.views.index, name='home'),
+    path('xemsanpham/', trangchu.views.xem_san_pham, name='xem_san_pham'),
+    path('chi-tiet-san-pham/', trangchu.views.chi_tiet_san_pham, name='chi_tiet_san_pham'),
+    path('so-sanh-san-pham/', trangchu.views.so_sanh_san_pham, name='so_sanh_san_pham'),
+    path('chi-tiet-khuyen-mai/', trangchu.views.chi_tiet_khuyen_mai, name='chi_tiet_khuyen_mai'),
+    path('chon-san-pham/', trangchu.views.frame_chon_san_pham, name='frame_chon_san_pham'),
+    path('cong-viec-lap-dat/', trangchu.views.cong_viec_lap_dat, name='cong_viec_lap_dat'),
+    path('chi-tiet-lap-dat/', trangchu.views.chi_tiet_lap_dat, name='chi_tiet_lap_dat'),
 ]
