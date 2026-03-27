@@ -1,0 +1,37 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'login-admin.css' %}">
+</head>
+<body>
+<main class="admin-login">
+    <div class="admin-login__frame">
+        <section class="admin-login__card" aria-label="Admin login form">
+            <h1>WELCOME!</h1>
+            <form method="post" action="{% url 'login_admin' %}">
+                {% csrf_token %}
+                <label class="sr-only" for="username">Username</label>
+                <input id="username" name="username" type="text" placeholder="Tên đăng nhập" autocomplete="username">
+
+                <label class="sr-only" for="password">Password</label>
+                <input id="password" name="password" type="password" placeholder="Mật khẩu" autocomplete="current-password">
+
+                <button type="submit">Đăng nhập</button>
+
+                <label class="remember-wrap">
+                    <input type="checkbox" name="remember">
+                    <span>Lưu mật khẩu</span>
+                </label>
+            </form>
+        </section>
+    </div>
+</main>
+</body>
+</html>

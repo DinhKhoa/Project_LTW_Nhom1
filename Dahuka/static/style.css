@@ -1,0 +1,217 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #fff !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 10px 50px; /* Reduced vertical padding, increased horizontal */
+}
+
+.navbar-brand img {
+    height: 60px; /* Logo is a bit larger in the image */
+}
+
+.navbar-nav {
+    margin-left: 50px; /* Move more to the left but not centered? 
+                          Actually in the image it's logo, then space, then links, then icons. */
+}
+
+.nav-link {
+    color: #00665b !important;
+    font-weight: 500;
+    font-size: 15px;
+    text-transform: uppercase;
+    margin: 0 15px;
+    letter-spacing: 0.5px;
+}
+
+.nav-link:hover {
+    color: #004d44 !important;
+}
+
+.nav-icons .nav-icon-link {
+    color: #00665b;
+    font-size: 24px;
+    margin-left: 25px;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    display: inline-block;
+}
+
+.nav-icons .badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    padding: 2px 5px;
+    line-height: 1;
+    font-weight: bold;
+}
+
+/* Banner */
+.main-banner {
+    width: 100%;
+    height: auto;
+}
+
+/* Two Products Section */
+.section-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 24px;
+    margin: 40px 0 20px;
+    color: #000;
+}
+
+.product-card {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.product-card img {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.product-title {
+    font-weight: 600;
+    margin-top: 15px;
+    color: #333;
+    font-size: 16px;
+}
+
+.product-subtitle {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Mutosi Pro Section */
+.mutosi-pro-logo {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin: 60px 0 40px;
+}
+
+.btn-outline-dark {
+    border-radius: 0;
+    padding: 10px 30px;
+    font-weight: 500;
+}
+
+/* Khám phá Section */
+.khampha-img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+.khampha-title {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    min-height: 42px;
+}
+
+/* News Section */
+.news-img {
+    max-width: 100%;
+    margin-bottom: 15px;
+}
+
+.news-title {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+}
+
+/* Experience Banner */
+.experience-banner {
+    background-image: url('img/BANNER.png'); /* Updated path for external css */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    padding: 100px 0;
+    color: white;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.experience-banner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.experience-content {
+    position: relative;
+    z-index: 1;
+}
+
+.experience-content h3 {
+    font-size: 28px;
+    font-style: italic;
+    font-weight: 300;
+    margin-bottom: 20px;
+}
+
+/* Footer */
+footer {
+    margin-top: 30px;
+}
+
+.footer-top {
+    background-color: #fff;
+    padding: 50px 0;
+    font-size: 14px;
+}
+
+.footer-top h5 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.footer-top ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-top ul li {
+    margin-bottom: 10px;
+}
+
+.footer-top ul li a {
+    color: #333;
+    text-decoration: none;
+}
+
+.footer-bottom {
+    background-color: #0b1517;
+    padding: 20px 0;
+    color: #fff;
+}
+
+.footer-bottom img {
+    height: 40px;
+    margin-right: 15px;
+}
+
+.footer-bottom span {
+    font-size: 16px;
+    font-style: italic;
+}
