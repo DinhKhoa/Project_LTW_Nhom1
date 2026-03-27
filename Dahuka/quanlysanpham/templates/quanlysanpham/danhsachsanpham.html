@@ -1,0 +1,649 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Danh sách sản phẩm - DAHUKA{% endblock title %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-section">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/static">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="#">Quản lý bán hàng</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Quản lý sản phẩm</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Title -->
+    <h1 class="page-title">Danh sách sản phẩm</h1>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm theo tên hoặc mã sản phẩm...">
+
+        <!-- Category Filter -->
+        <div class="filter-dropdown-wrapper" id="categoryFilter">
+            <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('categoryFilter')">
+                <span class="filter-value">Tất cả</span>
+                <span class="arrow">▾</span>
+            </div>
+            <div class="filter-dropdown-menu">
+                <div class="filter-item selected" data-value="all" onclick="selectFilterItem(this, 'categoryFilter')">
+                    <span class="check-icon">✓</span> Tất cả
+                </div>
+                <div class="filter-item" data-value="may-loc-nuoc" onclick="selectFilterItem(this, 'categoryFilter')">
+                    <span class="check-icon">✓</span> Máy lọc nước
+                </div>
+                <div class="filter-item" data-value="linh-kien" onclick="selectFilterItem(this, 'categoryFilter')">
+                    <span class="check-icon">✓</span> Linh kiện
+                </div>
+                <div class="filter-item" data-value="dich-vu" onclick="selectFilterItem(this, 'categoryFilter')">
+                    <span class="check-icon">✓</span> Dịch vụ
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Filter -->
+        <div class="filter-dropdown-wrapper" id="inventoryFilter">
+            <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('inventoryFilter')">
+                <span class="filter-value">Tồn kho: Mặc định</span>
+                <span class="arrow">▾</span>
+            </div>
+            <div class="filter-dropdown-menu">
+                <div class="filter-item selected" data-value="default" onclick="selectFilterItem(this, 'inventoryFilter')">
+                    <span class="check-icon">✓</span> Mặc định
+                </div>
+                <div class="filter-item" data-value="low-to-high" onclick="selectFilterItem(this, 'inventoryFilter')">
+                    <span class="check-icon">✓</span> Thấp → Cao
+                </div>
+                <div class="filter-item" data-value="high-to-low" onclick="selectFilterItem(this, 'inventoryFilter')">
+                    <span class="check-icon">✓</span> Cao → Thấp
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-search" onclick="applyFilters()">
+            <i class="fa fa-search"></i> Tìm kiếm
+        </button>
+    </div>
+
+    <!-- Active Filters -->
+    <div class="active-filters">
+        <div class="filter-tag" id="categoryTag">
+            <span class="tag-text"></span>
+            <span class="remove-filter" onclick="removeFilter('category')">✕</span>
+        </div>
+        <div class="filter-tag" id="inventoryTag">
+            <span class="tag-text"></span>
+            <span class="remove-filter" onclick="removeFilter('inventory')">✕</span>
+        </div>
+    </div>
+
+    <!-- Stock Legend -->
+    <div class="stock-legend">
+        <div class="legend-title">Báo màu tồn kho:</div>
+        <div class="legend-item">
+            <span class="legend-dot green"></span>
+            <span>Đầy đủ (≥10)</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot orange"></span>
+            <span>Thấp (1-9)</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot red"></span>
+            <span>Hết hàng (0)</span>
+        </div>
+    </div>
+
+    <!-- Product Table -->
+    <div class="product-table-wrapper">
+        <table class="product-table" id="productTable">
+            <thead>
+                <tr>
+                    <th>Mã sản phẩm</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá tiền</th>
+                    <th>Tồn kho</th>
+                    <th>Trạng thái tồn kho</th>
+                    <th>Trạng thái hiển thị</th>
+                    <th>Danh mục</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                <!-- Row 1 -->
+                <tr data-category="may-loc-nuoc" data-stock="42" onclick="handleRowClick(event, '{% url 'quanlysanpham:chitietsanpham' sanpham_id=1 %}')">
+                    <td>MP-S96-001</td>
+                    <td>Máy lọc nước RO Mutosi MP-S96</td>
+                    <td class="price-cell">11,645,000 đ</td>
+                    <td>42</td>
+                    <td>
+                        <select class="table-select stock-select full" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full" selected>Đầy đủ</option>
+                            <option value="low">Thấp</option>
+                            <option value="out">Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" checked onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text on">Hiển thị</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc" selected>Máy lọc nước</option>
+                            <option value="linh-kien">Linh kiện</option>
+                            <option value="dich-vu">Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Row 2 -->
+                <tr data-category="may-loc-nuoc" data-stock="15" onclick="handleRowClick(event, '{% url 'quanlysanpham:chitietsanpham' sanpham_id=2 %}')">
+                    <td>MP-R10-002</td>
+                    <td>Máy lọc nước RO Mutosi MP-R10</td>
+                    <td class="price-cell">8,990,000 đ</td>
+                    <td>15</td>
+                    <td>
+                        <select class="table-select stock-select full" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full" selected>Đầy đủ</option>
+                            <option value="low">Thấp</option>
+                            <option value="out">Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" checked onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text on">Hiển thị</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc" selected>Máy lọc nước</option>
+                            <option value="linh-kien">Linh kiện</option>
+                            <option value="dich-vu">Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Row 3 -->
+                <tr data-category="linh-kien" data-stock="5" onclick="handleRowClick(event, '{% url 'quanlysanpham:chitietsanpham' sanpham_id=3 %}')">
+                    <td>LK-UV-003</td>
+                    <td>Lõi lọc UV thay thế Mutosi</td>
+                    <td class="price-cell">1,250,000 đ</td>
+                    <td>5</td>
+                    <td>
+                        <select class="table-select stock-select low" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full">Đầy đủ</option>
+                            <option value="low" selected>Thấp</option>
+                            <option value="out">Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" checked onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text on">Hiển thị</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc">Máy lọc nước</option>
+                            <option value="linh-kien" selected>Linh kiện</option>
+                            <option value="dich-vu">Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Row 4 -->
+                <tr data-category="may-loc-nuoc" data-stock="0" onclick="handleRowClick(event, '{% url 'quanlysanpham:chitietsanpham' sanpham_id=4 %}')">
+                    <td>MP-UV7-004</td>
+                    <td>Máy lọc nước UV Mutosi MP-UV7</td>
+                    <td class="price-cell">6,500,000 đ</td>
+                    <td>0</td>
+                    <td>
+                        <select class="table-select stock-select out" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full">Đầy đủ</option>
+                            <option value="low">Thấp</option>
+                            <option value="out" selected>Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text off">Ẩn</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc" selected>Máy lọc nước</option>
+                            <option value="linh-kien">Linh kiện</option>
+                            <option value="dich-vu">Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Row 5 -->
+                <tr data-category="linh-kien" data-stock="3" onclick="handleRowClick(event, '/sanpham/LK-RO-005/')">
+                    <td>LK-RO-005</td>
+                    <td>Màng RO thay thế 75GPD</td>
+                    <td class="price-cell">850,000 đ</td>
+                    <td>3</td>
+                    <td>
+                        <select class="table-select stock-select low" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full">Đầy đủ</option>
+                            <option value="low" selected>Thấp</option>
+                            <option value="out">Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" checked onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text on">Hiển thị</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc">Máy lọc nước</option>
+                            <option value="linh-kien" selected>Linh kiện</option>
+                            <option value="dich-vu">Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Row 6 -->
+                <tr data-category="dich-vu" data-stock="99" onclick="handleRowClick(event, '/sanpham/DV-BH-006/')">
+                    <td>DV-BH-006</td>
+                    <td>Dịch vụ bảo hành mở rộng 3 năm</td>
+                    <td class="price-cell">2,000,000 đ</td>
+                    <td>99</td>
+                    <td>
+                        <select class="table-select stock-select full" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full" selected>Đầy đủ</option>
+                            <option value="low">Thấp</option>
+                            <option value="out">Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" checked onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text on">Hiển thị</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc">Máy lọc nước</option>
+                            <option value="linh-kien">Linh kiện</option>
+                            <option value="dich-vu" selected>Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Row 7 -->
+                <tr data-category="may-loc-nuoc" data-stock="28" onclick="handleRowClick(event, '{% url 'quanlysanpham:chitietsanpham' sanpham_id=7 %}')">
+                    <td>MP-S50-007</td>
+                    <td>Máy lọc nước RO Mutosi MP-S50</td>
+                    <td class="price-cell">9,800,000 đ</td>
+                    <td>28</td>
+                    <td>
+                        <select class="table-select stock-select full" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full" selected>Đầy đủ</option>
+                            <option value="low">Thấp</option>
+                            <option value="out">Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" checked onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text on">Hiển thị</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc" selected>Máy lọc nước</option>
+                            <option value="linh-kien">Linh kiện</option>
+                            <option value="dich-vu">Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Row 8 -->
+                <tr data-category="linh-kien" data-stock="0" onclick="handleRowClick(event, '{% url 'quanlysanpham:chitietsanpham' sanpham_id=8 %}')">
+                    <td>LK-PP-008</td>
+                    <td>Lõi lọc PP 5μm Sediment</td>
+                    <td class="price-cell">120,000 đ</td>
+                    <td>0</td>
+                    <td>
+                        <select class="table-select stock-select out" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full">Đầy đủ</option>
+                            <option value="low">Thấp</option>
+                            <option value="out" selected>Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text off">Ẩn</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc">Máy lọc nước</option>
+                            <option value="linh-kien" selected>Linh kiện</option>
+                            <option value="dich-vu">Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Row 9 -->
+                <tr data-category="dich-vu" data-stock="50" onclick="handleRowClick(event, '{% url 'quanlysanpham:chitietsanpham' sanpham_id=9 %}')">
+                    <td>DV-LD-009</td>
+                    <td>Dịch vụ lắp đặt tại nhà</td>
+                    <td class="price-cell">500,000 đ</td>
+                    <td>50</td>
+                    <td>
+                        <select class="table-select stock-select full" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full" selected>Đầy đủ</option>
+                            <option value="low">Thấp</option>
+                            <option value="out">Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" checked onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text on">Hiển thị</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc">Máy lọc nước</option>
+                            <option value="linh-kien">Linh kiện</option>
+                            <option value="dich-vu" selected>Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Row 10 -->
+                <tr data-category="may-loc-nuoc" data-stock="7" onclick="handleRowClick(event, '{% url 'quanlysanpham:chitietsanpham' sanpham_id=10 %}')">
+                    <td>MP-C20-010</td>
+                    <td>Máy lọc nước Carbon Mutosi C20</td>
+                    <td class="price-cell">4,200,000 đ</td>
+                    <td>7</td>
+                    <td>
+                        <select class="table-select stock-select low" onclick="event.stopPropagation()" onchange="updateStockSelectColor(this)">
+                            <option value="full">Đầy đủ</option>
+                            <option value="low" selected>Thấp</option>
+                            <option value="out">Hết hàng</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="table-toggle">
+                            <label class="toggle-switch mb-0">
+                                <input type="checkbox" checked onchange="updateTableToggle(this)" onclick="event.stopPropagation()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-text on">Hiển thị</span>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="table-select cat-select" onclick="event.stopPropagation()">
+                            <option value="may-loc-nuoc" selected>Máy lọc nước</option>
+                            <option value="linh-kien">Linh kiện</option>
+                            <option value="dich-vu">Dịch vụ</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-wrapper">
+        <button class="page-btn disabled" id="prevBtn" onclick="changePage('prev')">«</button>
+        <button class="page-btn active" data-page="1" onclick="changePage(1)">1</button>
+        <button class="page-btn" data-page="2" onclick="changePage(2)">2</button>
+        <span class="page-dots">...</span>
+        <button class="page-btn" data-page="9" onclick="changePage(9)">9</button>
+        <button class="page-btn" data-page="10" onclick="changePage(10)">10</button>
+        <button class="page-btn" id="nextBtn" onclick="changePage('next')">»</button>
+    </div>
+
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+/* ===== Handle Row Click ===== */
+function handleRowClick(event, url) {
+    if (event.target.tagName !== 'SELECT' && event.target.tagName !== 'INPUT' && event.target.className !== 'toggle-slider') {
+        window.location.href = url;
+    }
+}
+
+/* ===== Select Dropdown Update ===== */
+function updateStockSelectColor(select) {
+    select.classList.remove('full', 'low', 'out');
+    select.classList.add(select.value);
+}
+
+/* ===== Filter Dropdowns ===== */
+function toggleFilterDropdown(id) {
+    var wrapper = document.getElementById(id);
+    var btn = wrapper.querySelector('.filter-dropdown-btn');
+    var menu = wrapper.querySelector('.filter-dropdown-menu');
+
+    // Close all other filter dropdowns
+    document.querySelectorAll('.filter-dropdown-wrapper').forEach(function(w) {
+        if (w.id !== id) {
+            w.querySelector('.filter-dropdown-btn').classList.remove('open');
+            w.querySelector('.filter-dropdown-menu').classList.remove('show');
+        }
+    });
+
+    btn.classList.toggle('open');
+    menu.classList.toggle('show');
+}
+
+function selectFilterItem(item, wrapperId) {
+    var wrapper = document.getElementById(wrapperId);
+    var valueSpan = wrapper.querySelector('.filter-value');
+    var btn = wrapper.querySelector('.filter-dropdown-btn');
+    var menu = wrapper.querySelector('.filter-dropdown-menu');
+
+    // Update selected state
+    wrapper.querySelectorAll('.filter-item').forEach(function(el) {
+        el.classList.remove('selected');
+    });
+    item.classList.add('selected');
+
+    // Update display text
+    var text = item.textContent.replace('✓', '').trim();
+    if (wrapperId === 'inventoryFilter') {
+        valueSpan.textContent = 'Tồn kho: ' + text;
+    } else {
+        valueSpan.textContent = text;
+    }
+
+    // Close dropdown
+    btn.classList.remove('open');
+    menu.classList.remove('show');
+}
+
+// Close filter dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.filter-dropdown-wrapper')) {
+        document.querySelectorAll('.filter-dropdown-wrapper').forEach(function(w) {
+            w.querySelector('.filter-dropdown-btn').classList.remove('open');
+            w.querySelector('.filter-dropdown-menu').classList.remove('show');
+        });
+    }
+});
+
+/* ===== Apply Filters ===== */
+function applyFilters() {
+    var searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+    var categoryWrapper = document.getElementById('categoryFilter');
+    var inventoryWrapper = document.getElementById('inventoryFilter');
+
+    var selectedCategory = categoryWrapper.querySelector('.filter-item.selected').getAttribute('data-value');
+    var selectedInventory = inventoryWrapper.querySelector('.filter-item.selected').getAttribute('data-value');
+
+    var rows = document.querySelectorAll('#productTableBody tr');
+    var visibleRows = [];
+
+    rows.forEach(function(row) {
+        var category = row.getAttribute('data-category');
+        var productCode = row.children[0].textContent.toLowerCase();
+        var productName = row.children[1].textContent.toLowerCase();
+        var show = true;
+
+        // Filter by category
+        if (selectedCategory !== 'all' && category !== selectedCategory) {
+            show = false;
+        }
+
+        // Filter by search text
+        if (searchText && !productCode.includes(searchText) && !productName.includes(searchText)) {
+            show = false;
+        }
+
+        if (show) {
+            row.style.display = '';
+            visibleRows.push(row);
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Sort by inventory if needed
+    if (selectedInventory !== 'default') {
+        var tbody = document.getElementById('productTableBody');
+        visibleRows.sort(function(a, b) {
+            var stockA = parseInt(a.getAttribute('data-stock'));
+            var stockB = parseInt(b.getAttribute('data-stock'));
+            if (selectedInventory === 'low-to-high') {
+                return stockA - stockB;
+            } else {
+                return stockB - stockA;
+            }
+        });
+        visibleRows.forEach(function(row) {
+            tbody.appendChild(row);
+        });
+    }
+
+    // Update filter tags
+    updateFilterTags(selectedCategory, selectedInventory);
+}
+
+/* ===== Filter Tags ===== */
+function updateFilterTags(category, inventory) {
+    var categoryTag = document.getElementById('categoryTag');
+    var inventoryTag = document.getElementById('inventoryTag');
+
+    if (category !== 'all') {
+        var catName = document.querySelector('#categoryFilter .filter-item.selected').textContent.replace('✓', '').trim();
+        categoryTag.querySelector('.tag-text').textContent = 'Danh mục: ' + catName;
+        categoryTag.classList.add('show');
+    } else {
+        categoryTag.classList.remove('show');
+    }
+
+    if (inventory !== 'default') {
+        var invName = document.querySelector('#inventoryFilter .filter-item.selected').textContent.replace('✓', '').trim();
+        inventoryTag.querySelector('.tag-text').textContent = 'Tồn kho: ' + invName;
+        inventoryTag.classList.add('show');
+    } else {
+        inventoryTag.classList.remove('show');
+    }
+}
+
+function removeFilter(type) {
+    if (type === 'category') {
+        var wrapper = document.getElementById('categoryFilter');
+        wrapper.querySelectorAll('.filter-item').forEach(function(el) {
+            el.classList.remove('selected');
+        });
+        wrapper.querySelector('[data-value="all"]').classList.add('selected');
+        wrapper.querySelector('.filter-value').textContent = 'Tất cả';
+        document.getElementById('categoryTag').classList.remove('show');
+    } else if (type === 'inventory') {
+        var wrapper = document.getElementById('inventoryFilter');
+        wrapper.querySelectorAll('.filter-item').forEach(function(el) {
+            el.classList.remove('selected');
+        });
+        wrapper.querySelector('[data-value="default"]').classList.add('selected');
+        wrapper.querySelector('.filter-value').textContent = 'Tồn kho: Mặc định';
+        document.getElementById('inventoryTag').classList.remove('show');
+    }
+    applyFilters();
+}
+
+/* ===== Table Toggle ===== */
+function updateTableToggle(checkbox) {
+    var textSpan = checkbox.closest('.table-toggle').querySelector('.toggle-text');
+    if (checkbox.checked) {
+        textSpan.textContent = 'Hiển thị';
+        textSpan.className = 'toggle-text on';
+    } else {
+        textSpan.textContent = 'Ẩn';
+        textSpan.className = 'toggle-text off';
+    }
+}
+
+/* ===== Pagination ===== */
+var currentPage = 1;
+function changePage(page) {
+    if (page === 'prev') {
+        if (currentPage > 1) currentPage--;
+    } else if (page === 'next') {
+        if (currentPage < 10) currentPage++;
+    } else {
+        currentPage = page;
+    }
+
+    // Update active state
+    document.querySelectorAll('.pagination-wrapper .page-btn[data-page]').forEach(function(btn) {
+        btn.classList.remove('active');
+        if (parseInt(btn.getAttribute('data-page')) === currentPage) {
+            btn.classList.add('active');
+        }
+    });
+
+    // Update prev/next disabled state
+    document.getElementById('prevBtn').classList.toggle('disabled', currentPage === 1);
+    document.getElementById('nextBtn').classList.toggle('disabled', currentPage === 10);
+}
+
+/* ===== Search on Enter ===== */
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        applyFilters();
+    }
+});
+</script>
+{% endblock extra_js %}

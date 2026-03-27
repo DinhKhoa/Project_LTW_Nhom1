@@ -22,6 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='trangchu'),
     path('login-admin/', views.login_admin, name='login_admin'),
+    path('quan-ly-san-pham/', include("quanlysanpham.urls")),
+
     path('quan-ly-danh-muc/', include("quanlydanhmuc.urls")),
     path('quan-ly-don-dat-hang/', include("quanlydondathang.urls")),
 ]
