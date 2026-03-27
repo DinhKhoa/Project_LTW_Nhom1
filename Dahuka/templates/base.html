@@ -1,425 +1,635 @@
 <!doctype html>
 {% load static %}
-<html lang="en">
+<html lang="vi">
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800&display=swap">
-
-    <title>{% block title %}DAHUKA{% endblock title %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}DAHUKA{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/fonts/montserrat/google-fonts.css' %}">
     <style>
+        :root {
+            --brand: #4d8b6f;
+            --brand-dark: #356954;
+            --ink: #5f6978;
+            --ink-strong: #2d3645;
+            --border: #e9ecef;
+        }
+
         body {
+            margin: 0;
             font-family: 'Montserrat', sans-serif;
-            color: #333;
+            color: var(--ink);
+            background: #fff;
         }
-        /* Navbar */
-        .navbar {
-            background-color: #fff !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            padding: 15px 30px;
+
+        .site-header {
+            background: #fff;
+            border-bottom: 1px solid #bdd5b7;
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
-        .navbar-brand img {
-            height: 40px;
-        }
-        .nav-link {
-            color: #00665b !important;
-            font-weight: 500;
-            font-size: 14px;
-            text-transform: uppercase;
-            margin: 0 10px;
-            letter-spacing: 0.5px;
-        }
-        .nav-link:hover {
-            color: #004d44 !important;
-        }
-        .nav-icons .fa {
-            color: #00665b;
-            font-size: 18px;
-            margin-left: 20px;
-            cursor: pointer;
-        }
-        .nav-icons .badge {
-            position: absolute;
-            top: 10px;
-            right: -10px;
-            background-color: red;
-            color: white;
-            border-radius: 50%;
-            font-size: 10px;
-            padding: 2px 5px;
-        }
-        
-        /* Banner */
-        .main-banner {
-            width: 100%;
-            height: auto;
-        }
-        
-        /* Two Products Section */
-        .section-title {
-            text-align: center;
-            font-weight: 700;
-            font-size: 24px;
-            margin: 40px 0 20px;
-            color: #000;
-        }
-        .product-card {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .product-card img {
-            width: 100%;
-            max-width: 400px;
+
+        .site-header-inner {
+            width: min(1180px, calc(100% - 32px));
             margin: 0 auto;
-        }
-        .product-title {
-            font-weight: 600;
-            margin-top: 15px;
-            color: #333;
-            font-size: 16px;
-        }
-        .product-subtitle {
-            font-size: 14px;
-            color: #666;
+            min-height: 96px;
+            display: flex;
+            align-items: center;
+            gap: 28px;
         }
 
-        /* Mutosi Pro Section */
-        .mutosi-pro-logo {
-            text-align: center;
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin: 60px 0 40px;
+        .site-logo img {
+            width: 90px;
+            display: block;
         }
-        .btn-outline-dark {
-            border-radius: 0;
-            padding: 10px 30px;
+
+        .site-nav {
+            display: flex;
+            align-items: center;
+            gap: 34px;
+            flex: 1;
+        }
+
+        .site-nav a {
+            color: var(--brand);
+            text-decoration: none;
+            font-size: 14px;
             font-weight: 500;
+            white-space: nowrap;
         }
 
-        /* Khám phá Section */
-        .khampha-img {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 15px;
-        }
-        .khampha-title {
-            font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-            min-height: 42px;
+        .site-nav a:hover {
+            color: var(--brand-dark);
         }
 
-        /* News Section */
-        .news-img {
-            max-width: 100%;
-            margin-bottom: 15px;
+        .site-actions {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 18px;
+            color: var(--brand);
         }
-        .news-title {
-            font-size: 15px;
-            font-weight: 500;
-            line-height: 1.4;
-            text-align: center;
-        }
-        
-        /* Experience Banner */
-        .experience-banner {
-            background-image: url('{% static "img/BANNER.png" %}');
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            padding: 100px 0;
-            color: white;
-            text-align: center;
-            margin-top: 50px;
-        }
-        .experience-banner::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-        }
-        .experience-content {
-            position: relative;
-            z-index: 1;
-        }
-        .experience-content h3 {
-            font-size: 28px;
-            font-style: italic;
-            font-weight: 300;
-            margin-bottom: 20px;
-        }
-        
-        /* Footer */
-        footer {
-            margin-top: 30px;
-        }
-        .footer-top {
-            background-color: #fff;
-            padding: 50px 0;
-            font-size: 14px;
-        }
-        .footer-top h5 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-        .footer-top ul {
-            list-style: none;
+
+        .site-actions a,
+        .site-actions button {
+            color: inherit;
+            background: none;
+            border: 0;
             padding: 0;
-        }
-        .footer-top ul li {
-            margin-bottom: 10px;
-        }
-        .footer-top ul li a {
-            color: #333;
             text-decoration: none;
         }
-        .footer-bottom {
-            background-color: #0b1517;
-            padding: 20px 0;
+
+        .site-actions .badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #ff4f5f;
+            color: #fff;
+            font-size: 10px;
+            padding: 0 4px;
+        }
+
+        .site-user {
+            position: relative;
+        }
+
+        .site-user-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 14px);
+            width: 220px;
+            background: #fff;
+            border: 2px solid #111;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+            display: none;
+            color: #111;
+            z-index: 100;
+        }
+
+        .site-user.open .site-user-menu {
+            display: block;
+        }
+
+        .site-user-card {
+            padding: 12px 12px;
+            border-bottom: 1px solid #111;
+        }
+
+        .site-user-card-top {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .site-user-avatar-lg {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111;
+            font-size: 28px;
+        }
+
+        .site-user-meta {
+            color: #111;
+            line-height: 1.35;
+            font-size: 12px;
+        }
+
+        .site-user-meta strong {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .site-user-links,
+        .site-user-logout {
+            padding: 8px 10px;
+        }
+
+        .site-user-links {
+            border-bottom: 1px solid #111;
+        }
+
+        .site-user-menu a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            color: #111827;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .site-user-menu a i {
+            width: 16px;
+            text-align: center;
+            color: #111;
+        }
+
+        .site-user-menu a:hover {
+            background: #111;
             color: #fff;
         }
-        .footer-bottom img {
-            height: 40px;
-            margin-right: 15px;
+
+        .site-user-menu a:hover i {
+            color: #fff;
         }
-        .footer-bottom span {
-            font-size: 16px;
-            font-style: italic;
+
+        .site-toast-wrap {
+            position: fixed;
+            top: 118px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            display: grid;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .site-toast {
+            min-width: 300px;
+            max-width: 420px;
+            background: #4d8b6f;
+            color: #e9f6ee;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+            opacity: 1;
+            transition: opacity .35s ease, transform .35s ease;
+        }
+
+        .site-toast.error {
+            background: #a44b4b;
+            color: #fff;
+        }
+
+        .site-toast.hide {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        .site-toast i {
+            font-size: 20px;
+        }
+
+        .home-banner img,
+        .hero-image {
+            width: 100%;
+            display: block;
+        }
+
+        .home-section {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        .home-grid-2,
+        .home-grid-3,
+        .home-grid-4 {
+            display: grid;
+            gap: 24px;
+        }
+
+        .home-grid-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .home-grid-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .home-grid-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .home-title {
+            margin: 0 0 26px;
+            text-align: center;
+            color: #111827;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .home-card {
+            text-align: center;
+        }
+
+        .home-card img {
+            width: 100%;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .btn-ghost,
+        .account-btn-outline,
+        .account-btn-dark {
+            height: 42px;
+            padding: 0 20px;
+            border-radius: 0;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        .btn-ghost,
+        .account-btn-outline {
+            background: #fff;
+            border: 1px solid #111827;
+            color: #111827;
+        }
+
+        .btn-ghost:hover,
+        .account-btn-outline:hover {
+            background: #111827;
+            color: #fff !important;
+            border-color: #111827;
+        }
+
+        .account-btn-dark {
+            background: #171b2a;
+            border: 1px solid #171b2a;
+            color: #fff;
+        }
+
+        .account-btn-dark:hover {
+            background: #fff;
+            color: #111827 !important;
+            border-color: #111827;
+        }
+
+        .account-btn-outline:focus,
+        .account-btn-dark:focus,
+        .btn-ghost:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .site-footer-top {
+            border-top: 1px solid #bdd5b7;
+            padding: 28px 0 36px;
+        }
+
+        .site-footer-top-inner {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 36px;
+            font-size: 14px;
+        }
+
+        .site-footer-top h4 {
+            font-size: 15px;
+            color: #676767;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .site-footer-top ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .site-footer-top p {
+            margin: 0 0 10px;
+        }
+
+        .site-footer-bottom {
+            background: #080d12;
+            color: #f6f7fb;
+        }
+
+        .site-footer-bottom-inner {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .site-footer-bottom img {
+            width: 44px;
+            filter: brightness(0) invert(1);
+        }
+
+        @media (max-width: 980px) {
+            .site-header-inner {
+                flex-wrap: wrap;
+                padding: 16px 0;
+                min-height: auto;
+            }
+
+            .site-nav {
+                order: 3;
+                flex-wrap: wrap;
+                gap: 16px 22px;
+                padding-bottom: 8px;
+            }
+
+            .site-user-menu {
+                right: 0;
+                width: min(220px, calc(100vw - 32px));
+            }
+
+            .home-grid-2,
+            .home-grid-3,
+            .home-grid-4,
+            .site-footer-top-inner {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+    <header class="site-header">
+        <div class="site-header-inner">
+            <a href="{% url 'home' %}" class="site-logo">
+                <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
+            </a>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light sticky-top">
-    <a class="navbar-brand" href="/">
-        <img src="{% static 'img/LOGO.png' %}" alt="DAHUKA Logo">
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="#">MÁY LỌC NƯỚC</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">LINH KIỆN</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">DỊCH VỤ</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">HƯỚNG DẪN LẮP ĐẶT</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">ĐIỂM BÁN - BẢO HÀNH</a>
-            </li>
-        </ul>
-        <div class="nav-icons position-relative d-none d-lg-block">
-            <i class="fa fa-search"></i>
-            <i class="fa fa-phone"></i>
-            <i class="fa fa-shopping-cart"></i>
-            <i class="fa fa-user-circle-o"></i>
-            <span class="position-relative">
-                <i class="fa fa-bell-o"></i>
-                <span class="badge">0</span>
-            </span>
+            <nav class="site-nav">
+                <a href="#">MÁY LỌC NƯỚC</a>
+                <a href="#">LINH KIỆN</a>
+                <a href="#">DỊCH VỤ</a>
+                <a href="#">HƯỚNG DẪN LẮP ĐẶT</a>
+                <a href="#">ĐIỂM BÁN - BẢO HÀNH</a>
+            </nav>
+
+            <div class="site-actions">
+                <a href="#" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
+                <a href="#" aria-label="Điện thoại"><i class="fa fa-phone"></i></a>
+                <a href="#" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
+                <div class="site-user" id="siteUserMenu">
+                    <a href="#" aria-label="Tài khoản" id="siteUserToggle">
+                        <i class="fa fa-user-o"></i>
+                    </a>
+                    <div class="site-user-menu">
+                        {% if user.is_authenticated %}
+                            <div class="site-user-card">
+                                <div class="site-user-card-top">
+                                    <div class="site-user-avatar-lg">
+                                        <i class="fa fa-user-o"></i>
+                                    </div>
+                                    <div class="site-user-meta">
+                                        <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                        <div>Người Tiêu Dùng</div>
+                                        <div>Điểm: 0</div>
+                                        <div>Xếp hạng: Classic</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="site-user-links">
+                                <a href="{% url 'profile_view' %}"><i class="fa fa-user-o"></i><span>Thông tin tài khoản</span></a>
+                                <a href="{% url 'address_list' %}"><i class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
+                                <a href="{% url 'order_list' %}"><i class="fa fa-shopping-bag"></i><span>Quản lý đơn hàng</span></a>
+                            </div>
+                            <div class="site-user-logout">
+                                <a href="{% url 'logout' %}"><i class="fa fa-sign-out"></i><span>Đăng xuất</span></a>
+                            </div>
+                        {% else %}
+                            <div class="site-user-links">
+                                <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i><span>Đăng nhập</span></a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="position: relative;">
+                    <i class="fa fa-bell-o"></i>
+                    <span class="badge">1</span>
+                </div>
+            </div>
         </div>
-    </div>
-</nav>
+    </header>
 
-<!-- Main content area -->
-{% block content %}
-    <img src="{% static 'img/BANNER.png' %}" class="main-banner" alt="Banner">
+    {% if messages %}
+        <div class="site-toast-wrap" id="siteToastWrap">
+            {% for message in messages %}
+                <div class="site-toast {{ message.tags|default:'success' }}">
+                    <i class="fa {% if message.tags == 'error' %}fa-times-circle{% else %}fa-check-circle-o{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="product-card">
+    {% block content %}
+        <section class="home-banner">
+            <img src="{% static 'img/BANNER.png' %}" alt="Banner">
+        </section>
+
+        <section class="home-section">
+            <div class="home-grid-2">
+                <div class="home-card">
                     <img src="{% static 'img/1.png' %}" alt="Máy lọc nước">
-                    <div class="product-title">Máy lọc nước</div>
-                    <div class="product-subtitle">Hơn cả sạch là tốt cho sức khỏe</div>
+                    <h3>Máy lọc nước</h3>
+                    <p>Hơn cả sạch là tốt cho sức khỏe</p>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="product-card">
+                <div class="home-card">
                     <img src="{% static 'img/2.png' %}" alt="Cây nước nóng lạnh">
-                    <div class="product-title">Cây nước nóng lạnh</div>
-                    <div class="product-subtitle">Hơn cả ngon là tận hưởng hạnh phúc</div>
+                    <h3>Cây nước nóng lạnh</h3>
+                    <p>Hơn cả ngon là tận hưởng hạnh phúc</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="mutosi-pro-logo">MUTOSI&nbsp;&nbsp;<span style="font-size:20px;">•</span>&nbsp;&nbsp;PRO</div>
+        <section class="home-section">
+            <div style="text-align: center; font-size: 34px; font-weight: 700; color: #111827; margin-bottom: 24px;">MUTOSI PRO</div>
+            <div class="home-grid-2" style="align-items: center;">
+                <div>
+                    <h2 style="font-size: 42px; line-height: 1.1; color: #111827; font-weight: 700;">Mutosi<br>Hydrogen Pro</h2>
+                    <p>Mutosi Pro mới với công nghệ Hydrogen Pro vượt trội giúp nâng cao trải nghiệm dùng nước sạch mỗi ngày.</p>
+                    <a href="#" class="btn-ghost">Khám phá ngay</a>
+                </div>
+                <div>
+                    <img src="{% static 'img/MUTOSI PRO.png' %}" alt="Mutosi Pro" class="hero-image">
+                </div>
+            </div>
+        </section>
 
-        <div class="row align-items-center mb-5 mt-5">
-            <div class="col-md-4 pl-4">
-                <h2 style="font-weight: 800; font-size: 32px; color: #000; line-height: 1.2;">Mutosi<br>Hydrogen Pro</h2>
-                <p class="mt-4" style="font-size: 15px; color: #333;">Mutosi Pro mới, với công nghệ Hydrogen Pro vượt trội giúp hỗ trợ cân bằng axit dư trong cơ thể, phục hồi năng lượng, ngăn ngừa lão hóa và tăng cường bảo vệ sức khỏe</p>
-                <p style="font-size: 15px; color: #333;">Tận tâm tạo tác từng giọt nước dùng mỗi ngày. Để bảo vệ sức khỏe gia đình tốt hơn Chuẩn Nhật</p>
-                <p style="font-weight: 700; font-style: italic; color: #000; margin-top: 20px;">Uống nước mỗi ngày - Khoẻ vượt kỳ vọng</p>
-                <button class="btn btn-outline-dark mt-3">Khám phá ngay</button>
+        <section class="home-section">
+            <h2 class="home-title">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h2>
+            <div class="home-grid-4">
+                <div class="home-card">
+                    <img src="{% static 'img/Khám phá 1.png' %}" alt="">
+                    <p>Máy lọc nước điện giải ion kiềm Hydrogen nguội lạnh Mutosi MP-P89K</p>
+                </div>
+                <div class="home-card">
+                    <img src="{% static 'img/Khám phá 2.png' %}" alt="">
+                    <p>Máy lọc nước điện giải ion kiềm Hydrogen MP-T888</p>
+                </div>
+                <div class="home-card">
+                    <img src="{% static 'img/Khám phá 3.png' %}" alt="">
+                    <p>Máy lọc nước điện giải ion kiềm Hydrogen MP-666</p>
+                </div>
+                <div class="home-card">
+                    <img src="{% static 'img/Khám phá 4.png' %}" alt="">
+                    <p>Máy lọc nước điện giải ion kiềm Hydrogen MP-S1021H</p>
+                </div>
             </div>
-            <div class="col-md-8 text-right">
-                <img src="{% static 'img/MUTOSI PRO.png' %}" style="max-width: 100%; height: auto;" alt="Mutosi Pro Image">
-            </div>
-        </div>
+        </section>
 
-        <h3 class="section-title mt-5 pt-4">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h3>
-        <div class="row mt-4 text-center">
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 1.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen nguội lạnh Mutosi MP-P89K</div>
+        <section class="home-section">
+            <h2 class="home-title">Tin tiêu điểm</h2>
+            <div class="home-grid-3">
+                <div class="home-card">
+                    <img src="{% static 'img/Tin tiêu điểm 1.png' %}" alt="">
+                    <p>Hướng dẫn sử dụng và lắp đặt máy lọc nước điện giải Mutosi</p>
+                </div>
+                <div class="home-card">
+                    <img src="{% static 'img/Tin tiêu điểm 2.png' %}" alt="">
+                    <p>Công nghệ lọc nước RO và công nghệ điện phân đột phá từ Mutosi</p>
+                </div>
+                <div class="home-card">
+                    <img src="{% static 'img/Tin tiêu điểm 3.png' %}" alt="">
+                    <p>Hướng dẫn đo nhiệt độ nước tại bầu nóng máy lọc nước Mutosi</p>
+                </div>
             </div>
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 2.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-T888</div>
-            </div>
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 3.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-666</div>
-            </div>
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 4.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-S1021H</div>
-            </div>
-        </div>
+        </section>
+    {% endblock %}
 
-        <div class="text-center mt-3">
-            <span style="display:inline-block; width:10px; height:10px; background:#000; border-radius:50%; margin:0 5px;"></span>
-            <span style="display:inline-block; width:10px; height:10px; background:#ccc; border-radius:50%; margin:0 5px;"></span>
-        </div>
-
-        <h3 class="section-title mt-5 pt-4">Tin tiêu điểm</h3>
-        <div class="row mt-4">
-            <div class="col-md-4 text-center">
-                <img src="{% static 'img/Tin tiêu điểm 1.png' %}" class="news-img" alt="News">
-                <div class="news-title mt-2">Hướng dẫn sử dụng và lắp đặt<br>máy lọc nước điện giải Mutosi</div>
-            </div>
-            <div class="col-md-4 text-center">
-                <img src="{% static 'img/Tin tiêu điểm 2.png' %}" class="news-img" alt="News">
-                <div class="news-title mt-2">Công nghệ lọc nước RO và công<br>nghệ điện phân đột phá từ Mutosi</div>
-            </div>
-            <div class="col-md-4 text-center">
-                <img src="{% static 'img/Tin tiêu điểm 3.png' %}" class="news-img" alt="News">
-                <div class="news-title mt-2">Hướng dẫn do nhiệt độ nước tại bầu<br>nóng máy lọc nước Mutosi</div>
-            </div>
-        </div>
-        <div class="text-center mt-4">
-            <button class="btn btn-outline-dark">Xem tất cả</button>
-        </div>
-        <div class="text-center mt-3 mb-5">
-            <span style="display:inline-block; width:10px; height:10px; background:#000; border-radius:50%; margin:0 5px;"></span>
-            <span style="display:inline-block; width:10px; height:10px; background:#ccc; border-radius:50%; margin:0 5px;"></span>
-            <span style="display:inline-block; width:10px; height:10px; background:#ccc; border-radius:50%; margin:0 5px;"></span>
-        </div>
-    </div>
-
-    <!-- Experience Banner -->
-    <div class="experience-banner">
-        <div class="experience-content container">
-            <h3>“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
-            <button class="btn btn-outline-light mt-3" style="border-radius:0; padding:10px 30px;">Khám phá ngay</button>
-        </div>
-    </div>
-{% endblock content %}
-
-<!-- Footer -->
-<footer>
-    <div class="footer-top">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3">
-                    <h5>Giới thiệu Mutosi</h5>
+    <footer>
+        <div class="site-footer-top">
+            <div class="site-footer-top-inner">
+                <div>
+                    <h4>Giới thiệu Mutosi</h4>
                     <ul>
-                        <li><a href="#">Giới thiệu về Mutosi</a></li>
-                        <li><a href="#">Trách nhiệm xã hội</a></li>
-                        <li><a href="#">Tin tuyển dụng</a></li>
-                        <li><a href="#">Liên hệ</a></li>
+                        <li>Giới thiệu về Mutosi</li>
+                        <li>Trách nhiệm xã hội</li>
+                        <li>Tin tuyển dụng</li>
+                        <li>Liên hệ</li>
                     </ul>
-                    <h5 class="mt-4">Chính sách mua hàng</h5>
+                    <h4 style="margin-top: 16px;">Chính sách mua hàng</h4>
                     <ul>
-                        <li><a href="#">Chính sách lắp đặt</a></li>
-                        <li><a href="#">Chính sách giao hàng</a></li>
-                        <li><a href="#">Chính sách đổi trả hàng</a></li>
-                        <li><a href="#">Chính sách bảo hành</a></li>
-                        <li><a href="#">Chính sách bảo mật</a></li>
-                        <li><a href="#">Phương thức thanh toán</a></li>
-                        <li><a href="#">Chính sách kiểm hàng</a></li>
-                        <li><a href="#">Chính sách xử lý khiếu nại</a></li>
-                        <li><a href="#">Điều kiện và điều khoản sử dụng</a></li>
+                        <li>Chính sách lắp đặt</li>
+                        <li>Chính sách giao hàng</li>
+                        <li>Chính sách đổi trả hàng</li>
+                        <li>Chính sách bảo hành</li>
+                        <li>Chính sách bảo mật</li>
                     </ul>
                 </div>
-                <div class="col-md-3">
-                    <h5>Tin tức</h5>
+                <div>
+                    <h4>Tin tức</h4>
                     <ul>
-                        <li><a href="#">Giải pháp nước sạch</a></li>
-                        <li><a href="#">Tư vấn gia dụng</a></li>
-                        <li><a href="#">Hướng dẫn lắp đặt</a></li>
+                        <li>Giải pháp nước sạch</li>
+                        <li>Tư vấn gia dụng</li>
+                        <li>Hướng dẫn lắp đặt</li>
+                    </ul>
+                    <h4 style="margin-top: 16px;">Hỗ trợ khách hàng - Đại lý</h4>
+                    <ul>
+                        <li>Đăng ký bảo hành</li>
+                        <li>Đăng ký đối tác</li>
+                        <li>Tra cứu mua hàng</li>
+                        <li>FAQ</li>
+                        <li>Sitemap</li>
                     </ul>
                 </div>
-                <div class="col-md-3">
-                    <h5>Hỗ trợ khách hàng - Đại lý</h5>
-                    <ul>
-                        <li><a href="#">Đăng ký bảo hành</a></li>
-                        <li><a href="#">Đăng ký đối tác</a></li>
-                        <li><a href="#">Tra cứu mua hàng</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Sitemap</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <div class="mb-3" style="line-height: 1.4;">
-                        <span class="text-muted d-block" style="font-size: 13px;">Hotline</span>
-                        <strong style="font-size: 15px;">1900 636 567</strong>
-                    </div>
-                    <div class="mb-3" style="line-height: 1.4;">
-                        <span class="text-muted d-block" style="font-size: 13px;">Hỗ trợ xử lý sự cố</span>
-                        <strong style="font-size: 15px;">1900 636 596</strong>
-                    </div>
-                    <div class="mb-3" style="line-height: 1.4;">
-                        <span class="text-muted d-block" style="font-size: 13px;">Email</span>
-                        <strong style="font-size: 15px;">cskh@dahuka.com</strong>
-                    </div>
-                    <div class="mb-3" style="line-height: 1.4;">
-                        <span class="text-muted d-block" style="font-size: 13px;">Tư vấn mua hàng</span>
-                        <strong style="font-size: 15px;">1900 636 053</strong>
-                    </div>
-                    <div class="mt-4 text-muted" style="font-size: 13px; line-height: 1.5;">
-                        <p class="mb-3">Bản quyền thuộc về Công ty Dahuka.</p>
-                        <p class="mb-0">Văn phòng đại diện:<br>644 Nguyễn Hữu Thọ, Khuê Trung, Cẩm Lệ, Đà Nẵng</p>
-                    </div>
+                <div>
+                    <p><strong>Hotline</strong><br>1900 636 567</p>
+                    <p><strong>Hỗ trợ xử lý sự cố</strong><br>1900 636 596</p>
+                    <p><strong>Email</strong><br>cskh@dahuka.com</p>
+                    <p><strong>Tư vấn mua hàng</strong><br>1900 636 053</p>
+                    <p style="margin-top: 20px;"><strong>Văn phòng đại diện:</strong><br>644 Nguyễn Hữu Thọ, Khuê Trung, Cẩm Lệ, Đà Nẵng</p>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="footer-bottom">
-        <div class="container d-flex align-items-center">
-            <img src="{% static 'img/LOGO.png' %}" alt="DAHUKA Logo" style="filter: brightness(0) invert(1);">
-            <span>Nâng tầm sống khỏe chuẩn Nhật</span>
+        <div class="site-footer-bottom">
+            <div class="site-footer-bottom-inner">
+                <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
+                <div>Nâng tầm sống khỏe chuẩn Nhật</div>
+            </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
+    <script>
+        (function () {
+            var userMenu = document.getElementById('siteUserMenu');
+            var userToggle = document.getElementById('siteUserToggle');
+            if (userMenu && userToggle) {
+                userToggle.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    userMenu.classList.toggle('open');
+                });
+                document.addEventListener('click', function (event) {
+                    if (!userMenu.contains(event.target)) {
+                        userMenu.classList.remove('open');
+                    }
+                });
+            }
+
+            var toasts = document.querySelectorAll('.site-toast');
+            if (!toasts.length) return;
+            setTimeout(function () {
+                toasts.forEach(function (toast) {
+                    toast.classList.add('hide');
+                });
+            }, 2000);
+            setTimeout(function () {
+                var wrap = document.getElementById('siteToastWrap');
+                if (wrap) wrap.remove();
+            }, 2450);
+        })();
+    </script>
 </body>
 </html>

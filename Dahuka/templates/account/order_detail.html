@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Xem chi tiết đơn hàng - DAHUKA{% endblock %}
+
+{% block content %}
+<style>
+    .order-view-page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 14px auto 40px;
+    }
+
+    .order-view-code {
+        color: #606977;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 6px 0 18px 16px;
+    }
+
+    .order-view-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 18px;
+        align-items: start;
+        min-height: 420px;
+    }
+
+    .order-panel {
+        background: #fff;
+        border: 1px solid #f1f2f4;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+        padding: 16px;
+    }
+
+    .order-panel-title {
+        text-align: center;
+        color: #8590a0;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        text-transform: uppercase;
+    }
+
+    .order-receiver-card {
+        border: 1px solid #f2f3f5;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 14px;
+    }
+
+    .order-receiver-label {
+        color: #758090;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .order-receiver-grid {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 6px 14px;
+        font-size: 13px;
+        color: #6f7886;
+    }
+
+    .order-receiver-name {
+        color: #455061;
+        font-weight: 700;
+    }
+
+    .order-product-row {
+        border: 1px solid #f2f3f5;
+        border-radius: 8px;
+        padding: 12px 14px;
+        display: grid;
+        grid-template-columns: 64px 1fr auto;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .order-product-thumb {
+        width: 56px;
+        height: 74px;
+        object-fit: contain;
+    }
+
+    .order-product-name {
+        color: #4b5565;
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .order-product-meta {
+        color: #8b93a0;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .order-product-price {
+        color: #ef8aa0;
+        font-size: 18px;
+        font-weight: 700;
+        white-space: nowrap;
+        align-self: start;
+        padding-top: 4px;
+    }
+
+    .order-status-title {
+        color: #758090;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .order-status-steps {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 18px;
+        text-align: center;
+    }
+
+    .order-status-step {
+        color: #c2c8d0;
+        font-size: 10px;
+        line-height: 1.35;
+    }
+
+    .order-status-dot {
+        width: 18px;
+        height: 18px;
+        margin: 0 auto 5px;
+        border-radius: 50%;
+        border: 2px solid #d9dde3;
+        background: #fff;
+    }
+
+    .order-status-step.active {
+        color: #ef8aa0;
+    }
+
+    .order-status-step.active .order-status-dot {
+        border-color: #ef8aa0;
+    }
+
+    .order-summary {
+        color: #707b8a;
+        font-size: 13px;
+        line-height: 1.9;
+    }
+
+    .order-summary-label {
+        color: #606977;
+        font-weight: 700;
+        margin-top: 10px;
+    }
+
+    .order-summary-total {
+        color: #ef8aa0;
+        font-weight: 700;
+    }
+
+    .order-cancel-link {
+        margin-top: 18px;
+        display: inline-flex;
+        width: 100%;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    @media (max-width: 960px) {
+        .order-view-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="order-view-page">
+    <div class="order-view-code">{{ order.order_number }}</div>
+
+    <div class="order-view-grid">
+        <div>
+            <div class="order-receiver-card">
+                <div class="order-receiver-label">Thông tin nhận hàng</div>
+                {% if order.address %}
+                    <div class="order-receiver-grid">
+                        <div class="order-receiver-name">{{ order.address.full_name }}</div>
+                        <div>{{ order.address.address_detail }}, {{ order.address.province }}, {{ order.address.district }}</div>
+                        <div>{{ order.address.phone }}</div>
+                        <div>{{ order.address.ward }}</div>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% for item in items %}
+                <div class="order-product-row">
+                    <img src="{% static 'img/Khám phá 4.png' %}" alt="{{ item.product_name }}" class="order-product-thumb">
+                    <div>
+                        <div class="order-product-name">{{ item.product_name }}</div>
+                        <div class="order-product-meta">Mutosi MP-S126</div>
+                        <div class="order-product-meta">Số lượng: {{ item.quantity }} Bộ</div>
+                    </div>
+                    <div class="order-product-price">{{ item.unit_price|intcomma }}đ</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <aside class="order-panel">
+            <div class="order-panel-title">THÔNG TIN VẬN CHUYỂN</div>
+            <div class="order-status-title">Tình trạng đơn hàng</div>
+            <div class="order-status-steps">
+                <div class="order-status-step active">
+                    <div class="order-status-dot"></div>
+                    <div>Đơn hàng<br>đã đặt</div>
+                </div>
+                <div class="order-status-step {% if order.status != 'pending' %}active{% endif %}">
+                    <div class="order-status-dot"></div>
+                    <div>Đã xác<br>nhận</div>
+                </div>
+                <div class="order-status-step {% if order.status == 'shipping' or order.status == 'completed' %}active{% endif %}">
+                    <div class="order-status-dot"></div>
+                    <div>Đang giao<br>hàng</div>
+                </div>
+                <div class="order-status-step {% if order.status == 'completed' %}active{% endif %}">
+                    <div class="order-status-dot"></div>
+                    <div>Giao hàng<br>thành công</div>
+                </div>
+            </div>
+
+            <div class="order-summary">
+                <div class="order-summary-label">Hình thức thanh toán</div>
+                <div>Tiền mặt - Chưa thanh toán</div>
+
+                <div class="order-summary-label">Đơn vị vận chuyển</div>
+                <div>Mutosi giao hàng</div>
+
+                <div class="order-summary-label" style="margin-top: 14px;">Tổng tiền hàng:</div>
+                <div style="float:right; margin-top:-25px;">{{ order.total_amount|intcomma }} đ</div>
+                <div class="order-summary-label">Tiền cọc:</div>
+                <div style="float:right; margin-top:-25px;">579.000 đ</div>
+                <div class="order-summary-label">Thành tiền:</div>
+                <div class="order-summary-total" style="float:right; margin-top:-25px;">{{ order.total_amount|intcomma }} đ</div>
+                <div style="clear: both;"></div>
+
+                {% if order.cancel_reason %}
+                    <div class="order-summary-label">Lý do hủy</div>
+                    <div class="order-summary-total">{{ order.cancel_reason }}</div>
+                {% endif %}
+            </div>
+
+            {% if order.status != 'cancelled' and order.status != 'completed' %}
+                <a href="{% url 'cancel_order' order.id %}" class="account-btn-dark order-cancel-link">Hủy đơn hàng</a>
+            {% endif %}
+        </aside>
+    </div>
+</section>
+{% endblock %}
