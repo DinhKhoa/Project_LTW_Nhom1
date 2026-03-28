@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chọn sản phẩm - Dahuka{% endblock %}
+
+{% block extra_css %}
+<style>
+    .frame-picker-page {
+        padding: 40px 0 56px;
+        background: #d9d9d9;
+    }
+
+    .frame-container {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+        background: #f2f2f2;
+        border: 1px solid #9b9b9b;
+        padding: 32px 28px 38px;
+    }
+
+    .frame-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 30px 26px;
+    }
+
+    .frame-item {
+        position: relative;
+        padding-right: 70px;
+        cursor: pointer;
+    }
+
+    .frame-visual {
+        height: 252px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .frame-item h3 {
+        margin: 0 0 8px;
+        font-size: 17px;
+        line-height: 1.25;
+        font-weight: 500;
+    }
+
+    .frame-item p {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .checkbox-wrapper {
+        position: absolute;
+        right: 0;
+        top: 182px;
+        width: 72px;
+        height: 72px;
+        background: #fff;
+        border: 1px solid #2d2d2d;
+        cursor: pointer;
+    }
+
+    .checkbox-wrapper::after {
+        content: '✓';
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        color: #19a549;
+    }
+
+    .frame-item.selected .checkbox-wrapper::after {
+        display: flex;
+    }
+
+    .theme-mp-s96 {
+        background: linear-gradient(180deg, #313131 0%, #111 75%, #070707 100%);
+    }
+
+    .theme-side {
+        background: linear-gradient(180deg, #3a3a3a 0%, #171717 70%, #0a0a0a 100%);
+        transform: skewY(-1deg);
+    }
+
+    .theme-dark {
+        background: linear-gradient(180deg, #202020 0%, #101010 100%);
+    }
+
+    .frame-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 18px;
+        margin-top: 34px;
+    }
+
+    .frame-actions button {
+        width: 216px;
+        height: 56px;
+        font-size: 28px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+    }
+
+    .frame-actions .cancel {
+        background: #000;
+        color: #fff;
+    }
+
+    .frame-actions .confirm {
+        background: #1ca24d;
+        color: #fff;
+    }
+
+    @media (max-width: 991.98px) {
+        .frame-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .frame-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .frame-actions {
+            flex-direction: column;
+        }
+
+        .frame-actions button {
+            width: 100%;
+            font-size: 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="frame-picker-page">
+    <div class="frame-container">
+        <div class="frame-grid">
+            <article class="frame-item selected"><div class="frame-visual"><div class="product-silhouette theme-mp-s96"></div></div><h3>Máy lọc nước Mutosi MP-S610K</h3><p>12,800,000đ</p><div class="checkbox-wrapper"></div></article>
+            <article class="frame-item"><div class="frame-visual"><div class="product-silhouette theme-side"></div></div><h3>Máy lọc nước điện giải ion kiềm hydrogen Mutosi MP-T666</h3><p>15,700,000đ</p><div class="checkbox-wrapper"></div></article>
+            <article class="frame-item"><div class="frame-visual"><div class="product-silhouette theme-dark"></div></div><h3>Máy lọc nước RO 12 cấp Mutosi MP-S126</h3><p>5,790,000đ</p><div class="checkbox-wrapper"></div></article>
+            <article class="frame-item"><div class="frame-visual"><div class="product-silhouette theme-mp-s96"></div></div><h3>Máy lọc nước Mutosi MP-S610K</h3><p>12,800,000đ</p><div class="checkbox-wrapper"></div></article>
+            <article class="frame-item"><div class="frame-visual"><div class="product-silhouette theme-mp-s96"></div></div><h3>Máy lọc nước Mutosi MP-S610K</h3><p>12,800,000đ</p><div class="checkbox-wrapper"></div></article>
+            <article class="frame-item"><div class="frame-visual"><div class="product-silhouette theme-side"></div></div><h3>Máy lọc nước điện giải ion kiềm hydrogen Mutosi MP-T666</h3><p>15,700,000đ</p><div class="checkbox-wrapper"></div></article>
+            <article class="frame-item"><div class="frame-visual"><div class="product-silhouette theme-dark"></div></div><h3>Máy lọc nước RO 12 cấp Mutosi MP-S126</h3><p>5,790,000đ</p><div class="checkbox-wrapper"></div></article>
+            <article class="frame-item"><div class="frame-visual"><div class="product-silhouette theme-mp-s96"></div></div><h3>Máy lọc nước Mutosi MP-S610K</h3><p>12,800,000đ</p><div class="checkbox-wrapper"></div></article>
+        </div>
+        <div class="frame-actions">
+            <button class="cancel" type="button" onclick="window.history.back()">Hủy</button>
+            <button class="confirm" type="button">Xác nhận</button>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.frame-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            item.classList.toggle('selected');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thêm khuyến mãi - Dahuka{% endblock %}
+
+{% block content %}
+<main class="container mt-4 mb-5">
+    <div class="breadcrumbs">
+        Trang chủ / Quản lý bán hàng / Quản lý khuyến mãi / <b>Thêm khuyến mãi</b>
+    </div>
+
+    <div class="title-section">
+        <h1>Thêm khuyến mãi</h1>
+        <div class="title-line"></div>
+    </div>
+
+    <div class="main-layout">
+        <div class="form-container">
+            <div class="form-row">
+                <label>TÊN KHUYẾN MÃI</label>
+                <input type="text" class="input-full">
+            </div>
+
+            <div class="form-row">
+                <label>MÃ KHUYẾN MÃI</label>
+                <input type="text" class="input-short">
+            </div>
+
+            <div class="form-row">
+                <label>ĐIỀU KIỆN ÁP DỤNG</label>
+                <div class="input-group">
+                    <select><option>Tổng đơn</option></select>
+                    <span class="symbol">≥</span>
+                    <input type="number">
+                    <span class="unit">đồng</span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label>HÌNH THỨC ÁP DỤNG</label>
+                <div class="input-group">
+                    <select><option>Phần trăm</option></select>
+                    <span class="symbol">:</span>
+                    <input type="number">
+                    <span class="unit">%</span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label>THỜI GIAN ÁP DỤNG</label>
+                <div class="input-group">
+                    <input type="date">
+                    <span class="symbol">-</span>
+                    <input type="date">
+                </div>
+            </div>
+
+            <div class="applied-products-section">
+                <div class="section-header">
+                    <label>SẢN PHẨM ÁP DỤNG</label>
+                    <button class="btn-add-product" id="btnAddProduct" type="button">
+                        <span>+</span> Thêm sản phẩm
+                    </button>
+                </div>
+
+                <div class="products-scroll">
+                    <div class="products-grid" id="productGrid">
+                        <div class="product-item">
+                            <span class="product-name">Máy lọc nước RO Mutosi MP-S96</span>
+                            <button class="btn-delete" type="button" aria-label="Xóa sản phẩm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Máy lọc nước Hydrogen Ion Kiềm</span>
+                            <button class="btn-delete" type="button" aria-label="Xóa sản phẩm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Máy lọc nước nóng nguội lạnh</span>
+                            <button class="btn-delete" type="button" aria-label="Xóa sản phẩm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Lõi lọc PP 5 micron</span>
+                            <button class="btn-delete" type="button" aria-label="Xóa sản phẩm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Lõi lọc than hoạt tính CTO</span>
+                            <button class="btn-delete" type="button" aria-label="Xóa sản phẩm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Màng RO Mutosi 75 GPD</span>
+                            <button class="btn-delete" type="button" aria-label="Xóa sản phẩm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Bơm tăng áp 24V</span>
+                            <button class="btn-delete" type="button" aria-label="Xóa sản phẩm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Van áp thấp tự động</span>
+                            <button class="btn-delete" type="button" aria-label="Xóa sản phẩm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Vòi nước inox cao cấp</span>
+                            <button class="btn-delete" type="button" aria-label="Xóa sản phẩm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-sidebar">
+            <button class="btn-save" type="button">
+                <i class="fa fa-floppy-o"></i> Lưu khuyến mãi
+            </button>
+            <button class="btn-back" type="button">
+                <i class="fa fa-arrow-left"></i> Quay lại
+            </button>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    var addButton = document.getElementById('btnAddProduct');
+    var backButton = document.querySelector('.btn-back');
+
+    if (addButton) {
+        addButton.addEventListener('click', function() {
+            alert('Tính năng thêm sản phẩm đang được phát triển.');
+        });
+    }
+
+    if (backButton) {
+        backButton.addEventListener('click', function() {
+            window.history.back();
+        });
+    }
+</script>
+{% endblock %}
