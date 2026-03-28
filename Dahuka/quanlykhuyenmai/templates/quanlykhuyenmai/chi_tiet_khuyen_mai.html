@@ -4,96 +4,119 @@
 {% block title %}Chi tiết khuyến mãi - DAHUKA{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'quanlykhuyenmai/chitietkhuyenmai.css' %}">
-<link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'chitietkhuyenmai.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 {% endblock %}
 
 {% block content %}
-<main class="promo-page container-shell mt-4">
-    <div class="page-breadcrumbs">Trang chủ / <i>Quản lý bán hàng</i> / <i>Quản lý khuyến mãi</i> / <b>Chi tiết khuyến mãi</b></div>
+    <main class="promo-page container-shell mt-4">
+        <div class="page-breadcrumbs">Trang chủ / <i>Quản lý bán hàng</i> / <i>Quản lý khuyến mãi</i> / <b>Chi tiết
+            khuyến mãi</b></div>
 
-    <div class="hero-title-row">
-        <h1>Chi tiết khuyến mãi</h1>
-        <div class="line"></div>
-    </div>
+        <div class="hero-title-row">
+            <h1>Chi tiết khuyến mãi</h1>
+            <div class="line"></div>
+        </div>
 
-    <div class="promo-heading">
-        <h2>Chào mừng tết nguyên đán 2025</h2>
-        <p>Mã: HE2024</p>
-    </div>
+        <div class="promo-heading">
+            <h2>Chào mừng tết nguyên đán 2025</h2>
+            <p>Mã: HE2024</p>
+        </div>
 
-    <section class="promo-layout">
-        <div class="promo-form-card">
-            <div class="promo-form-row">
-                <div class="promo-form-label">ĐIỀU KIỆN ÁP DỤNG</div>
-                <div class="promo-form-value">
-                    <select><option>Tổng đơn</option></select>
-                    <strong>≥</strong>
-                    <input type="text" value="5.000.000">
-                    <em>đồng</em>
+        <section class="promo-layout">
+            <div class="promo-form-card">
+                <div class="promo-form-row">
+                    <div class="promo-form-label">ĐIỀU KIỆN ÁP DỤNG</div>
+                    <div class="promo-form-value">
+                        <select>
+                            <option>Tổng đơn</option>
+                        </select>
+                        <strong>≥</strong>
+                        <input type="text" value="5.000.000">
+                        <em>đồng</em>
+                    </div>
+                </div>
+                <div class="promo-form-row">
+                    <div class="promo-form-label">HÌNH THỨC ÁP DỤNG</div>
+                    <div class="promo-form-value">
+                        <select>
+                            <option>Phần trăm</option>
+                        </select>
+                        <strong>:</strong>
+                        <input class="promo-short" type="text" value="10">
+                        <em>%</em>
+                    </div>
+                </div>
+                <div class="promo-form-row">
+                    <div class="promo-form-label">THỜI GIAN ÁP DỤNG</div>
+                    <div class="promo-form-value">
+                        <input type="text" value="01/02/2026">
+                        <strong>-</strong>
+                        <input type="text" value="30/02/2026">
+                    </div>
                 </div>
             </div>
-            <div class="promo-form-row">
-                <div class="promo-form-label">HÌNH THỨC ÁP DỤNG</div>
-                <div class="promo-form-value">
-                    <select><option>Phần trăm</option></select>
-                    <strong>:</strong>
-                    <input class="promo-short" type="text" value="10">
-                    <em>%</em>
+
+            <aside class="promo-actions">
+                <button class="blue-button btn-save"><i class="fa fa-floppy-o"></i> Lưu khuyến mãi</button>
+                <button class="dark-button btn-back"><i class="fa fa-arrow-left"></i> Quay lại</button>
+            </aside>
+        </section>
+
+        <section class="promo-products-card">
+            <div class="promo-products-top">
+                <h3>SẢN PHẨM ÁP DỤNG</h3>
+                <button class="green-button" id="btnAddProduct"><i class="fa fa-plus-circle"></i> Thêm sản phẩm</button>
+            </div>
+
+            <div class="promo-products-grid" id="productGrid">
+                <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span>
+                    <button class="btn-delete" type="button">✕</button>
+                </div>
+                <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span>
+                    <button class="btn-delete" type="button">✕</button>
+                </div>
+                <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span>
+                    <button class="btn-delete" type="button">✕</button>
+                </div>
+                <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span>
+                    <button class="btn-delete" type="button">✕</button>
+                </div>
+                <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span>
+                    <button class="btn-delete" type="button">✕</button>
+                </div>
+                <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span>
+                    <button class="btn-delete" type="button">✕</button>
+                </div>
+                <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span>
+                    <button class="btn-delete" type="button">✕</button>
+                </div>
+                <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span>
+                    <button class="btn-delete" type="button">✕</button>
+                </div>
+                <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span>
+                    <button class="btn-delete" type="button">✕</button>
                 </div>
             </div>
-            <div class="promo-form-row">
-                <div class="promo-form-label">THỜI GIAN ÁP DỤNG</div>
-                <div class="promo-form-value">
-                    <input type="text" value="01/02/2026">
-                    <strong>-</strong>
-                    <input type="text" value="30/02/2026">
-                </div>
+
+            <div class="promo-pagination">
+                <button type="button" disabled><i class="fa fa-angle-left"></i></button>
+                <button type="button" class="is-active">1</button>
+                <button type="button">2</button>
+                <button type="button">...</button>
+                <button type="button">9</button>
+                <button type="button">10</button>
+                <button type="button"><i class="fa fa-angle-right"></i></button>
             </div>
-        </div>
-
-        <aside class="promo-actions">
-            <button class="blue-button btn-save"><i class="fa fa-floppy-o"></i> Lưu khuyến mãi</button>
-            <button class="dark-button btn-back"><i class="fa fa-arrow-left"></i> Quay lại</button>
-        </aside>
-    </section>
-
-    <section class="promo-products-card">
-        <div class="promo-products-top">
-            <h3>SẢN PHẨM ÁP DỤNG</h3>
-            <button class="green-button" id="btnAddProduct"><i class="fa fa-plus-circle"></i> Thêm sản phẩm</button>
-        </div>
-
-        <div class="promo-products-grid" id="productGrid">
-            <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span><button class="btn-delete" type="button">✕</button></div>
-            <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span><button class="btn-delete" type="button">✕</button></div>
-            <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span><button class="btn-delete" type="button">✕</button></div>
-            <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span><button class="btn-delete" type="button">✕</button></div>
-            <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span><button class="btn-delete" type="button">✕</button></div>
-            <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span><button class="btn-delete" type="button">✕</button></div>
-            <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span><button class="btn-delete" type="button">✕</button></div>
-            <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span><button class="btn-delete" type="button">✕</button></div>
-            <div class="promo-product-item"><span>Máy lọc nước RO 12 cấp Mutosi MP-S126</span><button class="btn-delete" type="button">✕</button></div>
-        </div>
-
-        <div class="promo-pagination">
-            <button type="button" disabled><i class="fa fa-angle-left"></i></button>
-            <button type="button" class="is-active">1</button>
-            <button type="button">2</button>
-            <button type="button">...</button>
-            <button type="button">9</button>
-            <button type="button">10</button>
-            <button type="button"><i class="fa fa-angle-right"></i></button>
-        </div>
-    </section>
-</main>
+        </section>
+    </main>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'quanlykhuyenmai/chitietkhuyenmai.js' %}"></script>
-<script>
-    document.getElementById('btnAddProduct').addEventListener('click', function() {
-        alert('Tính năng thêm sản phẩm đang được phát triển.');
-    });
-</script>
+    <script src="{% static 'quanlykhuyenmai/chitietkhuyenmai.js' %}"></script>
+    <script>
+        document.getElementById('btnAddProduct').addEventListener('click', function () {
+            alert('Tính năng thêm sản phẩm đang được phát triển.');
+        });
+    </script>
 {% endblock %}

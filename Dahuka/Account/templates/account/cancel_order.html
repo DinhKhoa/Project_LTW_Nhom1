@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Thông báo hủy - DAHUKA{% endblock %}
+
+{% block content %}
+<style>
+    .cancel-modal-page {
+        background: #d8cfcd;
+        min-height: calc(100vh - 160px);
+        padding: 24px 16px 48px;
+    }
+
+    .cancel-modal {
+        width: min(760px, 100%);
+        margin: 0 auto;
+        background: #fff;
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+    }
+
+    .cancel-modal-head {
+        padding: 14px 18px;
+        border-bottom: 1px solid #f1f2f4;
+        color: #4d5562;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .cancel-modal-body {
+        padding: 18px;
+    }
+
+    .cancel-modal-title {
+        color: #4c5564;
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .cancel-reason-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 18px;
+        margin-bottom: 16px;
+    }
+
+    .cancel-reason-grid label {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #636c79;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .cancel-modal textarea {
+        width: 100%;
+        min-height: 118px;
+        border: 1px solid #dfe5ec;
+        padding: 12px 14px;
+        color: #697280;
+        resize: vertical;
+    }
+
+    .cancel-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+    }
+
+    .cancel-actions {
+        display: flex;
+        gap: 10px;
+        margin-left: auto;
+    }
+
+    .cancel-upload {
+        border-radius: 999px;
+        min-width: 178px;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 6px 0 0;
+        color: #d55353;
+        font-size: 12px;
+    }
+
+    @media (max-width: 760px) {
+        .cancel-reason-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cancel-footer {
+            align-items: stretch;
+        }
+
+        .cancel-actions {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .cancel-actions > * {
+            flex: 1;
+        }
+    }
+</style>
+
+<section class="cancel-modal-page">
+    <div class="cancel-modal">
+        <div class="cancel-modal-head">Thông báo hủy</div>
+        <div class="cancel-modal-body">
+            <div class="cancel-modal-title">Vui lòng cho chúng tôi biết lý do bạn muốn hủy đơn</div>
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="cancel-reason-grid">
+                    <label><input type="radio" name="cancel_reason_choice" value="Thay đổi địa chỉ giao hàng">Thay đổi địa chỉ giao hàng</label>
+                    <label><input type="radio" name="cancel_reason_choice" value="Thay đổi số lượng sản phẩm">Thay đổi số lượng sản phẩm</label>
+                    <label><input type="radio" name="cancel_reason_choice" value="Thay đổi mặt hàng">Thay đổi mặt hàng</label>
+                    <label><input type="radio" name="cancel_reason_choice" value="Thời gian giao hàng quá lâu">Thời gian giao hàng quá lâu</label>
+                    <label><input type="radio" name="cancel_reason_choice" value="Đặt nhầm/đặt trùng">Đặt nhầm/đặt trùng</label>
+                    <label><input type="radio" name="cancel_reason_choice" value="Không còn nhu cầu mua hàng">Không còn nhu cầu mua hàng</label>
+                    <label><input type="radio" name="cancel_reason_choice" value="Muốn nhập/thay đổi mã voucher">Muốn nhập/thay đổi mã voucher</label>
+                    <label><input type="radio" name="cancel_reason_choice" value="Thủ tục thanh toán quá rắc rối">Thủ tục thanh toán quá rắc rối</label>
+                    <label><input type="radio" name="cancel_reason_choice" value="Thay đổi phương thức thanh toán">Thay đổi phương thức thanh toán</label>
+                    <label><input type="radio" name="cancel_reason_choice" value="Khác">Khác</label>
+                </div>
+
+                {{ form.cancel_reason }}
+                {{ form.cancel_reason.errors }}
+
+                <div class="cancel-footer">
+                    <button type="button" class="account-btn-outline cancel-upload">
+                        <i class="fa fa-camera" style="margin-right: 8px;"></i>Thêm hình ảnh hoặc video
+                    </button>
+
+                    <div class="cancel-actions">
+                        <a href="{% url 'order_detail' order.id %}" class="account-btn-dark">Trở lại</a>
+                        <button type="submit" class="account-btn-dark">Xác nhận hủy đơn</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<script>
+    (function () {
+        var textArea = document.getElementById('id_cancel_reason');
+        var choices = document.querySelectorAll('input[name="cancel_reason_choice"]');
+        choices.forEach(function (choice) {
+            choice.addEventListener('change', function () {
+                if (textArea) {
+                    textArea.value = choice.value;
+                }
+            });
+        });
+    })();
+</script>
+{% endblock %}

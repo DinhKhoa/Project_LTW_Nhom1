@@ -16,14 +16,29 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from Dahuka import views
+from trangchu import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.index, name='trangchu'),
-    path('login-admin/', views.login_admin, name='login_admin'),
-    path('quan-ly-san-pham/', include("quanlysanpham.urls")),
-
-    path('quan-ly-danh-muc/', include("quanlydanhmuc.urls")),
-    path('quan-ly-don-dat-hang/', include("quanlydondathang.urls")),
+    path("admin/", admin.site.urls),
+    path("", views.index, name="trangchu"),
+    path("login/", views.DahukaLoginView.as_view(), name="login"),
+    path("logout/", views.DahukaLogoutView.as_view(), name="logout"),
+    path("Account/", include("Account.urls")),
+    
+    # Legacy/Moved path if needed for redirect, but better use include
+    # path("Account/", views.account_dashboard, name="account_dashboard"),
+    
+    path("xem-san-pham/", views.xem_san_pham, name="xem_san_pham"),
+    path("chi-tiet-san-pham/", views.chi_tiet_san_pham, name="chi_tiet_san_pham_customer"),
+    path("so-sanh-san-pham/", views.so_sanh_san_pham, name="so_sanh_san_pham"),
+    
+    # Restored App Routes
+    path('quanlysanpham/', include('quanlysanpham.urls')),
+    path('quanlydanhmuc/', include('quanlydanhmuc.urls')),
+    path('quanlydondathang/', include('quanlydondathang.urls')),
+    path('quanlykhuyenmai/', include('quanlykhuyenmai.urls')),
+    path('quanlygiohang/', include('quanlygiohang.urls')),
+    path('quanlynhiemvu/', include('quanlynhiemvu.urls')),
+    path('diembanbaohanh/', include('diembanbaohanh.urls')),
+    
 ]

@@ -4,82 +4,84 @@
 {% block title %}DAHUKA - Nâng tầm sống khỏe chuẩn Nhật{% endblock %}
 
 {% block content %}
-    <img src="{% static 'img/BANNER.png' %}" class="main-banner" alt="Banner">
+    <section class="home-banner">
+        <img src="{% static 'img/BANNER.png' %}" alt="Banner">
+    </section>
 
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="product-card">
-                    <img src="{% static 'img/1.png' %}" alt="Máy lọc nước">
-                    <div class="product-title">Máy lọc nước</div>
-                    <div class="product-subtitle">Hơn cả sạch là tốt cho sức khỏe</div>
-                </div>
+    <section class="home-section">
+        <div class="home-grid-2">
+            <div class="home-card">
+                <img src="{% static 'img/1.png' %}" alt="Máy lọc nước">
+                <h3>Máy lọc nước</h3>
+                <p>Hơn cả sạch là tốt cho sức khỏe</p>
             </div>
-            <div class="col-md-6">
-                <div class="product-card">
-                    <img src="{% static 'img/2.png' %}" alt="Cây nước nóng lạnh">
-                    <div class="product-title">Cây nước nóng lạnh</div>
-                    <div class="product-subtitle">Hơn cả ngon là tận hưởng hạnh phúc</div>
-                </div>
+            <div class="home-card">
+                <img src="{% static 'img/2.png' %}" alt="Cây nước nóng lạnh">
+                <h3>Cây nước nóng lạnh</h3>
+                <p>Hơn cả ngon là tận hưởng hạnh phúc</p>
             </div>
         </div>
+    </section>
 
-        <div class="mutosi-pro-logo">MUTOSI&nbsp;&nbsp;<span style="font-size:20px;">•</span>&nbsp;&nbsp;PRO</div>
-
-        <div class="row align-items-center mb-5 mt-5">
-            <div class="col-md-4 pl-4">
-                <h2 style="font-weight: 800; font-size: 32px; color: #000; line-height: 1.2;">Mutosi<br>Hydrogen Pro</h2>
-                <p class="mt-3" style="font-size: 15px; color: #333;">Mutosi Pro mới, với công nghệ Hydrogen Pro vượt trội giúp hỗ trợ cân bằng axit dư trong cơ thể, phục hồi năng lượng, ngăn ngừa lão hóa và tăng cường bảo vệ sức khỏe</p>
-                <button class="btn btn-outline-dark mt-3">Khám phá ngay</button>
+    <section class="home-section">
+        <div style="text-align: center; font-size: 34px; font-weight: 700; color: #111827; margin-bottom: 24px;">MUTOSI PRO</div>
+        <div class="home-grid-2" style="align-items: center;">
+            <div>
+                <h2 style="font-size: 42px; line-height: 1.1; color: #111827; font-weight: 700;">Mutosi<br>Hydrogen Pro</h2>
+                <p>Mutosi Pro mới với công nghệ Hydrogen Pro vượt trội giúp nâng cao trải nghiệm dùng nước sạch mỗi ngày.</p>
+                <a href="#" class="btn-ghost">Khám phá ngay</a>
             </div>
-            <div class="col-md-8 text-right">
-                <img src="{% static 'img/MUTOSI PRO.png' %}" style="max-width: 100%;" alt="Mutosi Pro">
+            <div>
+                <img src="{% static 'img/MUTOSI PRO.png' %}" alt="Mutosi Pro" class="hero-image">
             </div>
         </div>
+    </section>
 
-        <h3 class="section-title mt-5">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h3>
-        <div class="row mt-4 text-center">
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 1.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen nguội lạnh Mutosi MP-P89K</div>
+    <section class="home-section">
+        <h2 class="home-title">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h2>
+        <div class="home-grid-4">
+            <div class="home-card">
+                <img src="{% static 'img/Khám phá 1.png' %}" alt="">
+                <p>Máy lọc nước điện giải ion kiềm Hydrogen nguội lạnh Mutosi MP-P89K</p>
             </div>
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 2.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-T888</div>
+            <div class="home-card">
+                <img src="{% static 'img/Khám phá 2.png' %}" alt="">
+                <p>Máy lọc nước điện giải ion kiềm Hydrogen MP-T888</p>
             </div>
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 3.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-666</div>
+            <div class="home-card">
+                <img src="{% static 'img/Khám phá 3.png' %}" alt="">
+                <p>Máy lọc nước điện giải ion kiềm Hydrogen MP-666</p>
             </div>
-            <div class="col-md-3">
-                <img src="{% static 'img/Khám phá 4.png' %}" class="khampha-img" alt="Product">
-                <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-S1021H</div>
+            <div class="home-card">
+                <img src="{% static 'img/Khám phá 4.png' %}" alt="">
+                <p>Máy lọc nước điện giải ion kiềm Hydrogen MP-S1021H</p>
             </div>
         </div>
+    </section>
 
-        <!-- News Section -->
-        <h3 class="section-title mt-5">Tin tiêu điểm</h3>
-        <div class="row mt-4">
-            <div class="col-md-4 text-center">
-                <img src="{% static 'img/Tin tiêu điểm 1.png' %}" class="news-img" alt="News">
-                <div class="news-title mt-2">Hướng dẫn sử dụng và lắp đặt máy lọc nước điện giải Mutosi</div>
+    <section class="home-section">
+        <h2 class="home-title">Tin tiêu điểm</h2>
+        <div class="home-grid-3">
+            <div class="home-card">
+                <img src="{% static 'img/Tin tiêu điểm 1.png' %}" alt="">
+                <p>Hướng dẫn sử dụng và lắp đặt máy lọc nước điện giải Mutosi</p>
             </div>
-            <div class="col-md-4 text-center">
-                <img src="{% static 'img/Tin tiêu điểm 2.png' %}" class="news-img" alt="News">
-                <div class="news-title mt-2">Công nghệ lọc nước RO và công nghệ điện phân đột phá từ Mutosi</div>
+            <div class="home-card">
+                <img src="{% static 'img/Tin tiêu điểm 2.png' %}" alt="">
+                <p>Công nghệ lọc nước RO và công nghệ điện phân đột phá từ Mutosi</p>
             </div>
-            <div class="col-md-4 text-center">
-                <img src="{% static 'img/Tin tiêu điểm 3.png' %}" class="news-img" alt="News">
-                <div class="news-title mt-2">Hướng dẫn do nhiệt độ nước tại bầu nóng máy lọc nước Mutosi</div>
+            <div class="home-card">
+                <img src="{% static 'img/Tin tiêu điểm 3.png' %}" alt="">
+                <p>Hướng dẫn đo nhiệt độ nước tại bầu nóng máy lọc nước Mutosi</p>
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- Experience Banner -->
-    <div class="experience-banner">
-        <div class="experience-content container">
-            <h3>“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
-            <button class="btn btn-outline-light mt-3" style="border-radius:0; padding:10px 30px;">Khám phá ngay</button>
+    <div style="background: var(--brand); color: #fff; padding: 64px 0; text-align: center;">
+        <div style="width: min(800px, calc(100% - 32px)); margin: 0 auto;">
+            <h3 style="font-size: 26px; font-weight: 500; font-style: italic; margin-bottom: 24px;">“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
+            <a href="#" class="btn-ghost" style="color: #fff; border-color: #fff;">Khám phá ngay</a>
         </div>
     </div>
 {% endblock content %}
