@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'quanlygiohang',
     'quanlynhiemvu',
     'diembanbaohanh',
-    'Account',
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -129,5 +129,5 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Auth settings
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'trangchu'
-LOGOUT_REDIRECT_URL = 'trangchu'
+LOGIN_REDIRECT_URL = 'trangchu:trangchu'
+LOGOUT_REDIRECT_URL = 'trangchu:trangchu'

@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chọn sản phẩm so sánh - DAHUKA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/premium_dahuka.css' %}">
+<style>
+    .frame-container {
+        background: #fff;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: var(--shadow-lg);
+        margin-top: 20px;
+    }
+    .frame-item {
+        border: 2px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        transition: var(--transition);
+        position: relative;
+        cursor: pointer;
+    }
+    .frame-item.selected {
+        border-color: var(--brand);
+        background: var(--brand-light);
+    }
+    .frame-item img {
+        width: 100%;
+        height: 180px;
+        object-fit: contain;
+        margin-bottom: 20px;
+    }
+    .frame-item h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: var(--ink-strong);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .check-circle {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 28px;
+        height: 28px;
+        border: 2px solid var(--border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        color: transparent;
+        transition: var(--transition);
+    }
+    .frame-item.selected .check-circle {
+        background: var(--brand);
+        border-color: var(--brand);
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="container-shell" style="padding: 40px 0;">
+    <nav class="page-breadcrumbs">
+        <a href="{% url 'trangchu:trangchu' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+        <a href="{% url 'trangchu:xem_san_pham' %}">Máy lọc nước</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+        <b>Chọn sản phẩm để so sánh</b>
+    </nav>
+
+    <div class="frame-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 800; color: var(--ink-strong); margin-bottom: 5px;">Chọn sản phẩm so sánh</h1>
+                <p style="color: var(--ink);">Bạn có thể chọn tối đa 3 sản phẩm</p>
+            </div>
+            <div id="selection-count" style="font-weight: 700; color: var(--brand); font-size: 18px;">Đã chọn: 1/3</div>
+        </div>
+
+        <div class="home-grid-4">
+            <div class="frame-item selected" onclick="toggleItem(this)">
+                <div class="check-circle"><i class="fa fa-check"></i></div>
+                <img src="{% static 'img/1.png' %}" alt="">
+                <h3>Máy lọc nước RO Mutosi MP-S96</h3>
+                <p class="catalog-price">5,790,000đ</p>
+            </div>
+            <div class="frame-item" onclick="toggleItem(this)">
+                <div class="check-circle"><i class="fa fa-check"></i></div>
+                <img src="{% static 'img/2.png' %}" alt="">
+                <h3>Máy lọc nước Mutosi MP-S610K - Hiệu suất cao</h3>
+                <p class="catalog-price">12,800,000đ</p>
+            </div>
+            <div class="frame-item" onclick="toggleItem(this)">
+                <div class="check-circle"><i class="fa fa-check"></i></div>
+                <img src="{% static 'img/MUTOSI PRO.png' %}" alt="">
+                <h3>Mutosi Hydrogen Pro MPT-T888 Ion Kiềm</h3>
+                <p class="catalog-price">15,700,000đ</p>
+            </div>
+            <div class="frame-item" onclick="toggleItem(this)">
+                <div class="check-circle"><i class="fa fa-check"></i></div>
+                <img src="{% static 'img/BANNER.png' %}" alt="">
+                <h3>Máy lọc nước công suất lớn DAHUKA PRO</h3>
+                <p class="catalog-price">22,500,000đ</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 50px; display: flex; justify-content: flex-end; gap: 20px;">
+            <a href="{% url 'trangchu:xem_san_pham' %}" class="account-btn-outline" style="padding: 0 40px; height: 50px;">Hủy</a>
+            <button onclick="goToCompare()" class="account-btn-dark" style="padding: 0 60px; height: 50px;">SO SÁNH NGAY</button>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let selectedCount = 1;
+
+    function toggleItem(el) {
+        if (el.classList.contains('selected')) {
+            el.classList.remove('selected');
+            selectedCount--;
+        } else {
+            if (selectedCount < 3) {
+                el.classList.add('selected');
+                selectedCount++;
+            } else {
+                alert('Chỉ được chọn tối đa 3 sản phẩm để so sánh!');
+            }
+        }
+        document.getElementById('selection-count').innerText = `Đã chọn: ${selectedCount}/3`;
+    }
+
+    function goToCompare() {
+        if (selectedCount < 2) {
+            alert('Vui lòng chọn ít nhất 2 sản phẩm để so sánh!');
+            return;
+        }
+        window.location.href = "{% url 'trangchu:so_sanh_san_pham' %}";
+    }
+</script>
+{% endblock %}

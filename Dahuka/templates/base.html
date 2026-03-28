@@ -34,24 +34,38 @@
         }
 
         .site-header-inner {
-            width: min(1180px, calc(100% - 32px));
+            width: min(1200px, calc(100% - 60px));
             margin: 0 auto;
-            min-height: 96px;
+            min-height: 120px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 28px;
+        }
+
+        .site-logo {
+            flex-shrink: 0;
+            display: block;
         }
 
         .site-logo img {
-            width: 90px;
+            height: 110px;
+            width: auto;
             display: block;
+        }
+
+        .header-content-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 15px;
+            flex-grow: 1;
         }
 
         .site-nav {
             display: flex;
             align-items: center;
-            gap: 34px;
-            flex: 1;
+            gap: 24px;
+            align-self: center; /* Aligns next to the logo on the bottom row */
         }
 
         .site-nav a {
@@ -132,8 +146,8 @@
         .site-actions {
             display: flex;
             align-items: center;
-            gap: 18px;
-            font-size: 18px;
+            gap: 24px;
+            font-size: 20px;
             color: var(--brand);
         }
 
@@ -731,7 +745,7 @@
         }
 
         .home-section {
-            width: min(1180px, calc(100% - 32px));
+            width: min(1200px, calc(100% - 60px));
             margin: 0 auto;
             padding: 40px 0;
         }
@@ -815,7 +829,7 @@
         }
 
         .site-footer-top-inner {
-            width: min(1180px, calc(100% - 32px));
+            width: min(1200px, calc(100% - 60px));
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -845,17 +859,18 @@
         }
 
         .site-footer-bottom-inner {
-            width: min(1180px, calc(100% - 32px));
+            width: min(1200px, calc(100% - 60px));
             margin: 0 auto;
-            min-height: 64px;
+            min-height: 80px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 20px;
         }
 
         .site-footer-bottom img {
-            width: 44px;
-            filter: brightness(0) invert(1);
+            height: 70px;
+            width: auto;
+            display: block;
         }
 
         @media (max-width: 980px) {
@@ -886,96 +901,107 @@
 <body>
     <header class="site-header">
         <div class="site-header-inner">
-            <a href="{% url 'trangchu' %}" class="site-logo">
+            <a href="{% url 'trangchu:trangchu' %}" class="site-logo">
                 <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
             </a>
 
-            <nav class="site-nav">
-                {% if user.is_authenticated and user.is_staff %}
-                    <a href="#">CHĂM SÓC NƯỚC</a>
-                    {% if user.is_superuser %}
-                        <div class="nav-dropdown">
-                            <a href="javascript:void(0)">QUẢN LÝ BÁN HÀNG</a>
-                            <div class="dropdown-menu">
-                                <a href="{% url 'quanlydondathang:danh_sach' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
-                                <a href="{% url 'quanlydanhmuc:danh_sach' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
-                                <a href="{% url 'quanlysanpham:danhsachsanpham' %}">QUẢN LÝ SẢN PHẨM</a>
-                                <a href="{% url 'quanlykhuyenmai:chi_tiet_khuyen_mai' %}">QUẢN LÝ KHUYẾN MÃI</a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <a href="{% url 'quanlynhiemvu:danh_sach' %}">QUẢN LÝ NHIỆM VỤ</a>
+            <div class="header-content-right">
+                <div class="site-actions">
+                    <a href="#" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
+                    <a href="#" aria-label="Điện thoại"><i class="fa fa-phone"></i></a>
+                    {% if user.is_authenticated and not user.is_staff %}
+                        <a href="{% url 'quanlygiohang:cart' %}" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
                     {% endif %}
-                    <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
-                    <a href="{% url 'diembanbaohanh:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
-                {% else %}
-                    <a href="{% url 'xem_san_pham' %}">MÁY LỌC NƯỚC</a>
-                    <a href="{% url 'xem_san_pham' %}?cat=linh-kien">LINH KIỆN</a>
-                    <a href="{% url 'xem_san_pham' %}?cat=dich-vu">DỊCH VỤ</a>
-                    <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
-                    <a href="{% url 'diembanbaohanh:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
-                {% endif %}
-            </nav>
-
-            <div class="site-actions">
-                <a href="#" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
-                <a href="#" aria-label="Điện thoại"><i class="fa fa-phone"></i></a>
-                {% if user.is_authenticated and not user.is_staff %}
-                    <a href="{% url 'quanlygiohang:cart' %}" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
-                {% endif %}
-                <div class="site-user" id="siteUserMenu">
-                    <a href="#" aria-label="Tài khoản" id="siteUserToggle">
-                        <i class="fa fa-user-o"></i>
-                    </a>
-                    <div class="site-user-menu">
-                        {% if user.is_authenticated %}
-                            <div class="site-user-card">
-                                <div class="site-user-card-top">
-                                    <div class="site-user-avatar-lg">
-                                        <i class="fa fa-user-o"></i>
-                                    </div>
-                                    <div class="site-user-meta">
-                                        <strong>{{ user.get_full_name|default:user.username }}</strong>
-                                        {% if user.is_superuser %}
-                                            <div>Chủ Cửa Hàng</div>
-                                        {% elif user.is_staff %}
-                                            <div>Nhân Viên</div>
-                                        {% else %}
-                                            <div>Người Tiêu Dùng</div>
-                                            <div>Điểm: 0</div>
-                                            <div>Xếp hạng: Classic</div>
-                                        {% endif %}
+                    <div class="site-user" id="siteUserMenu">
+                        <a href="#" aria-label="Tài khoản" id="siteUserToggle">
+                            <i class="fa fa-user-o"></i>
+                        </a>
+                        <div class="site-user-menu">
+                            {% if user.is_authenticated %}
+                                <div class="site-user-card">
+                                    <div class="site-user-card-top">
+                                        <div class="site-user-avatar-lg">
+                                            <i class="fa fa-user-o"></i>
+                                        </div>
+                                        <div class="site-user-meta">
+                                            <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                            {% if user.is_superuser %}
+                                                <div>Chủ Cửa Hàng</div>
+                                            {% elif user.is_staff %}
+                                                <div>Nhân Viên</div>
+                                            {% else %}
+                                                <div>Người Tiêu Dùng</div>
+                                                <div>Điểm: 0</div>
+                                                <div>Xếp hạng: Classic</div>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="site-user-links">
-                                <a href="{% url 'profile_view' %}"><i class="fa fa-user-o"></i><span>Thông tin tài khoản</span></a>
-                                {% if not user.is_staff %}
-                                <a href="{% url 'address_list' %}"><i class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
-                                <a href="{% url 'order_list' %}"><i class="fa fa-shopping-bag"></i><span>Quản lý đơn hàng</span></a>
-                                {% endif %}
-                            </div>
-                            <div class="site-user-logout">
-                                <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
-                                    {% csrf_token %}
-                                </form>
-                                <a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit();">
-                                    <i class="fa fa-sign-out"></i><span>Đăng xuất</span>
-                                </a>
+                                <div class="site-user-links">
+                                    <a href="{% url 'profile_view' %}"><i class="fa fa-user-o"></i><span>Thông tin tài khoản</span></a>
+                                    {% if not user.is_staff %}
+                                    <a href="{% url 'address_list' %}"><i class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
+                                    <a href="{% url 'order_list' %}"><i class="fa fa-shopping-bag"></i><span>Quản lý đơn hàng</span></a>
+                                    {% endif %}
+                                </div>
+                                <div class="site-user-logout">
+                                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                                        {% csrf_token %}
+                                    </form>
+                                    <a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit();">
+                                        <i class="fa fa-sign-out"></i><span>Đăng xuất</span>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="site-user-links">
+                                    <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i><span>Đăng nhập</span></a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if user.is_authenticated %}
+                        <div style="position: relative;">
+                            <i class="fa fa-bell-o"></i>
+                            <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -8px;">3</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <nav class="site-nav">
+                    {% if user.is_authenticated and user.is_staff %}
+                        <a href="#">CHĂM SÓC NƯỚC</a>
+                        {% if user.is_superuser %}
+                            <div class="nav-dropdown">
+                                <a href="javascript:void(0)">QUẢN LÝ BÁN HÀNG</a>
+                                <div class="dropdown-menu">
+                                    <a href="{% url 'quanlydondathang:danh_sach' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
+                                    <a href="{% url 'quanlydanhmuc:danh_sach' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
+                                    <a href="{% url 'quanlysanpham:danhsachsanpham' %}">QUẢN LÝ SẢN PHẨM</a>
+                                    <a href="{% url 'quanlykhuyenmai:chi_tiet_khuyen_mai' %}">QUẢN LÝ KHUYẾN MÃI</a>
+                                </div>
                             </div>
                         {% else %}
-                            <div class="site-user-links">
-                                <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i><span>Đăng nhập</span></a>
-                            </div>
+                            <a href="{% url 'quanlynhiemvu:danh_sach' %}">QUẢN LÝ NHIỆM VỤ</a>
                         {% endif %}
-                    </div>
-                </div>
-                {% if user.is_authenticated %}
-                    <div style="position: relative;">
-                        <i class="fa fa-bell-o"></i>
-                        <span class="badge">1</span>
-                    </div>
-                {% endif %}
+                        <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
+                        <a href="{% url 'diembanbaohanh:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                    {% else %}
+                        <div class="nav-dropdown">
+                            <a href="{% url 'trangchu:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                            <div class="dropdown-menu">
+                                <a href="{% url 'trangchu:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=ion-kiem-hydrogen">MÁY LỌC NƯỚC ION KIỀM HYDROGEN</a>
+                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=probiotics">MÁY LỌC NƯỚC PROBIOTICS</a>
+                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=dien-giai">MÁY LỌC NƯỚC ĐIỆN GIẢI</a>
+                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=de-gam">MÁY LỌC NƯỚC ĐỂ GẦM</a>
+                            </div>
+                        </div>
+                        <a href="{% url 'trangchu:xem_san_pham' %}?cat=linh-kien">LINH KIỆN</a>
+                        <a href="{% url 'trangchu:xem_san_pham' %}?cat=dich-vu">DỊCH VỤ</a>
+                        <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
+                        <a href="{% url 'diembanbaohanh:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                    {% endif %}
+                </nav>
             </div>
         </div>
     </header>

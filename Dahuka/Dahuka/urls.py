@@ -20,18 +20,11 @@ from trangchu import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views.index, name="trangchu"),
+    path("", include("trangchu.urls")),
     path("login/", views.DahukaLoginView.as_view(), name="login"),
     path("logout/", views.DahukaLogoutView.as_view(), name="logout"),
-    path("Account/", include("Account.urls")),
-    
-    # Legacy/Moved path if needed for redirect, but better use include
-    # path("Account/", views.account_dashboard, name="account_dashboard"),
-    
-    path("xem-san-pham/", views.xem_san_pham, name="xem_san_pham"),
-    path("chi-tiet-san-pham/", views.chi_tiet_san_pham, name="chi_tiet_san_pham_customer"),
-    path("so-sanh-san-pham/", views.so_sanh_san_pham, name="so_sanh_san_pham"),
-    
+    path("account/", include("account.urls")),
+
     # Restored App Routes
     path('quanlysanpham/', include('quanlysanpham.urls')),
     path('quanlydanhmuc/', include('quanlydanhmuc.urls')),
@@ -40,5 +33,5 @@ urlpatterns = [
     path('quanlygiohang/', include('quanlygiohang.urls')),
     path('quanlynhiemvu/', include('quanlynhiemvu.urls')),
     path('diembanbaohanh/', include('diembanbaohanh.urls')),
-    
+
 ]

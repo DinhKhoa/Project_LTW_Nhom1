@@ -25,8 +25,7 @@ def so_sanh_san_pham(request):
 
 
 def frame_chon_san_pham(request):
-    return render(request, 'trangchu/framechonsanpham.html')
-
+    return render(request, 'trangchu/frame_chon_san_pham.html')
 
 
 class DahukaLoginView(LoginView):

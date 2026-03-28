@@ -1,141 +1,130 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Máy lọc nước RO Mutosi MP-S96 - DAHUKA{% endblock %}
+{% block title %}So sánh sản phẩm - DAHUKA{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'trangchu/CTSP.css' %}">
+<link rel="stylesheet" href="{% static 'css/premium_dahuka.css' %}">
+<style>
+    .compare-table {
+        margin-top: 40px;
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+    .compare-product-header {
+        text-align: center;
+        padding: 30px;
+        vertical-align: top;
+    }
+    .compare-product-header img {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        margin-bottom: 20px;
+    }
+    .compare-product-header h3 {
+        font-size: 16px;
+        margin-bottom: 15px;
+        min-height: 44px;
+    }
+    .spec-row:nth-child(even) td {
+        background: #f8fafc;
+    }
+    .spec-name {
+        width: 250px;
+        text-align: left !important;
+        font-weight: 700;
+        color: var(--ink-strong);
+        background: #f1f5f9 !important;
+    }
+    .spec-value {
+        font-size: 15px;
+        color: var(--ink);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<main class="detail-page container-shell mt-4">
-    <div class="page-breadcrumbs">Trang chủ / <i>Máy lọc nước</i> / <i>Máy lọc nước RO Mutosi MP-S96</i></div>
+<main class="container-shell" style="padding: 40px 0;">
+    <nav class="page-breadcrumbs">
+        <a href="{% url 'trangchu:trangchu' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+        <a href="{% url 'trangchu:xem_san_pham' %}">Máy lọc nước</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+        <b>So sánh</b>
+    </nav>
 
-    <div class="section-title-row detail-headline-row">
-        <h1>Thông tin chi tiết sản phẩm</h1>
-        <div class="line"></div>
+    <div class="section-title-row" style="text-align: center; margin-bottom: 50px;">
+        <h1 style="font-size: 32px; font-weight: 800; color: var(--ink-strong);">So sánh sản phẩm</h1>
+        <p style="color: var(--ink);">Chi tiết thông số để bạn có lựa chọn tốt nhất</p>
     </div>
 
-    <section class="detail-hero">
-        <div class="detail-copy">
-            <h2>Máy lọc nước RO Mutosi MP-S96</h2>
-            <div class="rating-stars">★★★★★</div>
-            <p class="product-meta">Mã sản phẩm: 5000000218</p>
+    <table class="compare-table">
+        <thead>
+            <tr>
+                <th class="spec-name" style="background: #fff !important; border-bottom: none;"></th>
+                <th class="compare-product-header">
+                    <img src="{% static 'img/1.png' %}" alt="">
+                    <h3>Máy lọc nước RO 12 cấp Mutosi MP-S126</h3>
+                    <p class="catalog-price">5,790,000đ</p>
+                    <button class="account-btn-dark" style="width: 100%; margin-top: 15px;">MUA NGAY</button>
+                </th>
+                <th class="compare-product-header">
+                    <img src="{% static 'img/2.png' %}" alt="">
+                    <h3>Máy lọc nước Mutosi MP-S610K - Hiệu suất cao</h3>
+                    <p class="catalog-price">12,800,000đ</p>
+                    <button class="account-btn-dark" style="width: 100%; margin-top: 15px;">MUA NGAY</button>
+                </th>
+                <th class="compare-product-header">
+                    <img src="{% static 'img/MUTOSI PRO.png' %}" alt="">
+                    <h3>Mutosi MP-T666 Ion Kiềm</h3>
+                    <p class="catalog-price">15,700,000đ</p>
+                    <button class="account-btn-dark" style="width: 100%; margin-top: 15px;">MUA NGAY</button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="spec-row">
+                <td class="spec-name">Hệ thống lõi lọc</td>
+                <td class="spec-value">12 lõi</td>
+                <td class="spec-value">10 lõi</td>
+                <td class="spec-value">9 lõi</td>
+            </tr>
+            <tr class="spec-row">
+                <td class="spec-name">Công nghệ lọc</td>
+                <td class="spec-value">RO</td>
+                <td class="spec-value">RO</td>
+                <td class="spec-value">RO + Ion Kiềm</td>
+            </tr>
+            <tr class="spec-row">
+                <td class="spec-name">Công suất lọc</td>
+                <td class="spec-value">20 L/H</td>
+                <td class="spec-value">15 L/H</td>
+                <td class="spec-value">15 L/H</td>
+            </tr>
+            <tr class="spec-row">
+                <td class="spec-name">Kích thước</td>
+                <td class="spec-value">320 x 400 x 990 mm</td>
+                <td class="spec-value">290 x 350 x 950 mm</td>
+                <td class="spec-value">300 x 380 x 980 mm</td>
+            </tr>
+            <tr class="spec-row">
+                <td class="spec-name">Bảo hành</td>
+                <td class="spec-value">10 năm</td>
+                <td class="spec-value">10 năm</td>
+                <td class="spec-value">10 năm</td>
+            </tr>
+            <tr class="spec-row">
+                <td class="spec-name">Tiện ích</td>
+                <td class="spec-value">Màn hình hiển thị TDS</td>
+                <td class="spec-value">Cảnh báo thay lõi</td>
+                <td class="spec-value">Tạo nước Hydrogen</td>
+            </tr>
+        </tbody>
+    </table>
 
-            <ul class="detail-features">
-                <li>Nguồn nước sau lọc đạt các chỉ tiêu QCVN 6-1:2010/BYT về nước uống trực tiếp, được chứng nhận bởi Vinacontrol.</li>
-                <li>Nước sau hệ thống lọc RO loại bỏ 13 + 6 chất độc hại theo tiêu chuẩn Nhật Bản JIS S3201 &amp; JWPA.</li>
-                <li>9 lõi lọc - 11 cấp lọc mạnh mẽ - lọc sạch 99,99% tạp chất trong nước.</li>
-                <li>Màng RO Mutosi đạt tiêu chuẩn NSF/ANSI 58 của NSF thuộc Tổ chức Y tế Thế giới.</li>
-                <li>An tâm sử dụng dài lâu với thiết kế nhỏ gọn, sang trọng và bền bỉ.</li>
-            </ul>
-
-            <div class="detail-benefits">
-                <div><i class="fa fa-truck"></i> Miễn phí vận chuyển và lắp đặt tại nhà</div>
-                <div><i class="fa fa-clock-o"></i> Giao hàng nhanh từ 24-48 giờ</div>
-            </div>
-
-            <div class="detail-actions">
-                <button class="solid-button">Mua ngay</button>
-                <button class="dark-button"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng</button>
-            </div>
-        </div>
-
-        <div class="detail-gallery">
-            <div class="gallery-main">
-                <div id="main-product-img" class="product-silhouette product-silhouette--wide theme-mp-s96"></div>
-            </div>
-            <div class="gallery-thumbs">
-                <button class="thumb active" type="button" data-theme="theme-mp-s96" onmouseover="changeImage('theme-mp-s96', this)"><div class="product-silhouette--small theme-mp-s96"></div></button>
-                <button class="thumb" type="button" data-theme="theme-side" onmouseover="changeImage('theme-side', this)"><div class="product-silhouette--small theme-side"></div></button>
-                <button class="thumb" type="button" data-theme="theme-dark" onmouseover="changeImage('theme-dark', this)"><div class="product-silhouette--small theme-dark"></div></button>
-                <button class="thumb" type="button" data-theme="theme-filter" onmouseover="changeImage('theme-filter', this)"><div class="product-silhouette--small theme-filter"></div></button>
-                <button class="thumb" type="button" data-theme="theme-open" onmouseover="changeImage('theme-open', this)"><div class="product-silhouette--small theme-open"></div></button>
-            </div>
-        </div>
-    </section>
-
-    <section class="detail-tabs">
-        <div class="detail-tab-buttons">
-            <button class="tab-btn active" onclick="openTab(event, 'thong-so')">Thông số</button>
-            <button class="tab-btn" onclick="openTab(event, 'tinh-nang')">Tính năng</button>
-            <button class="tab-btn" onclick="openTab(event, 'mo-ta')">Mô tả chi tiết</button>
-        </div>
-
-        <div id="thong-so" class="tab-content active">
-            <h3>Thông số</h3>
-            <section class="info-block">
-                <h4>AN TOÀN SỨC KHỎE</h4>
-                <h5>MÁY LỌC NƯỚC MP-S96 ĐẠT TIÊU CHUẨN CHẤT LƯỢNG</h5>
-                <ul>
-                    <li>An tâm sử dụng với MP-S96 đáp ứng được tiêu chuẩn loại bỏ 13 + 6 chất độc hại theo tiêu chuẩn Nhật Bản JIS S3201 &amp; JWPA.</li>
-                    <li>Nước sau lọc đạt chứng nhận Quy chuẩn quốc gia đối với nước uống trực tiếp QCVN6-1:2010/BYT.</li>
-                    <li>Sản xuất theo hệ thống quản trị chất lượng Hirayama Nhật Bản.</li>
-                </ul>
-                <div class="info-banner">
-                    <div class="banner-product product-silhouette theme-mp-s96"></div>
-                    <div class="banner-copy">
-                        <p class="script-text">Nước sạch</p>
-                        <p class="banner-title">đạt CHUẨN UỐNG TRỰC TIẾP</p>
-                        <div class="badge-row"><span>QCVN</span><span>13+6</span><span>JP</span></div>
-                    </div>
-                </div>
-            </section>
-            <section class="info-block">
-                <h4>NGUỒN NƯỚC CHUẨN SẠCH AN TÂM</h4>
-                <h5>NƯỚC SẠCH CHUẨN TINH KHIẾT VỚI 11 CẤP LỌC 9 LÕI TÍCH HỢP MẠNH MẼ, LỌC SẠCH 99,99% TẠP CHẤT</h5>
-                <ul>
-                    <li>An tâm sử dụng với MP-S96 đáp ứng tiêu chuẩn loại bỏ 13 + 6 chất độc hại.</li>
-                    <li>Nước sau lọc đạt chứng nhận Quy chuẩn quốc gia đối với nước uống trực tiếp QCVN6-1:2010/BYT.</li>
-                    <li>Hệ thống lọc tối ưu cho gia đình hiện đại.</li>
-                </ul>
-            </section>
-        </div>
-
-        <div id="tinh-nang" class="tab-content">
-            <h3>Tính năng</h3>
-            <div class="feature-grid">
-                <article><h4>11 cấp lọc mạnh mẽ</h4><p>Loại bỏ hiệu quả tạp chất, mùi lạ và kim loại nặng.</p></article>
-                <article><h4>Thiết kế nhỏ gọn</h4><p>Phù hợp căn hộ, nhà phố và không gian nội thất tối giản.</p></article>
-                <article><h4>Tiết kiệm thời gian</h4><p>Giao hàng nhanh và lắp đặt tại nhà trên toàn quốc.</p></article>
-            </div>
-        </div>
-
-        <div id="mo-ta" class="tab-content">
-            <h3>Mô tả chi tiết</h3>
-            <p>Máy lọc nước RO Mutosi MP-S96 được thiết kế theo phong cách hiện đại, mặt kính đen sang trọng, vận hành bền bỉ và cho trải nghiệm sử dụng gần với mockup thiết kế người dùng đã cung cấp.</p>
-        </div>
-    </section>
+    <div style="margin-top: 50px; text-align: center;">
+        <a href="{% url 'trangchu:xem_san_pham' %}" class="account-btn-outline" style="padding: 0 40px; height: 48px;">Tiếp tục xem sản phẩm</a>
+    </div>
 </main>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'trangchu/CTSP.js' %}"></script>
-<script>
-    function openTab(evt, tabName) {
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tab-content");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-            tabcontent[i].classList.remove("active");
-        }
-        tablinks = document.getElementsByClassName("tab-btn");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
-        }
-        document.getElementById(tabName).style.display = "block";
-        document.getElementById(tabName).classList.add("active");
-        evt.currentTarget.className += " active";
-    }
-
-    function changeImage(theme, element) {
-        const mainImg = document.getElementById('main-product-img');
-        const thumbs = document.querySelectorAll('.thumb');
-        
-        mainImg.className = 'product-silhouette product-silhouette--wide ' + theme;
-        
-        thumbs.forEach(thumb => thumb.classList.remove('active'));
-        element.classList.add('active');
-    }
-</script>
 {% endblock %}
