@@ -2,249 +2,1205 @@
 {% load static %}
 <html lang="vi">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}DAHUKA{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/fonts/montserrat/google-fonts.css' %}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            --brand: #4d8b6f;
+            --brand-dark: #356954;
+            --ink: #5f6978;
+            --ink-strong: #2d3645;
+            --border: #e9ecef;
+        }
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--ink);
+            background: #fff;
+        }
 
-    <!-- Montserrat Font -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800&display=swap">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        .site-header {
+            background: #fff;
+            border-bottom: 1px solid #bdd5b7;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
 
-    <!-- Base Style -->
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+        .site-header-inner {
+            width: min(1200px, calc(100% - 60px));
+            margin: 0 auto;
+            min-height: 120px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    <title>{% block title %}DAHUKA - Nâng tầm sống khỏe chuẩn Nhật{% endblock title %}</title>
-    
-    {% block extra_css %}{% endblock extra_css %}
+        .site-logo {
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .site-logo img {
+            height: 110px;
+            width: auto;
+            display: block;
+        }
+
+        .header-content-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        .site-nav {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            align-self: center; /* Aligns next to the logo on the bottom row */
+        }
+
+        .site-nav a {
+            color: var(--brand);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .site-nav a:hover {
+            color: var(--brand-dark);
+        }
+
+        /* Nav Dropdown */
+        .site-nav .nav-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .site-nav .nav-dropdown > a::after {
+            content: "\f107";
+            font-family: FontAwesome;
+            margin-left: 6px;
+        }
+
+        .site-nav .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            min-width: 260px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+            padding: 8px 0;
+            z-index: 100;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-top: 5px; /* Giảm khoảng cách */
+        }
+
+        /* Bridge - Cầu nối vô hình giúp không bị mất hover */
+        .site-nav .nav-dropdown::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            display: none;
+        }
+
+        .site-nav .nav-dropdown:hover::before {
+            display: block;
+        }
+
+        .site-nav .dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--ink);
+            font-size: 13.5px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .site-nav .dropdown-menu a:last-child {
+            border-bottom: 0;
+        }
+
+        .site-nav .dropdown-menu a:hover {
+            background: #f8fafc;
+            color: var(--brand);
+        }
+
+        .site-nav .nav-dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .site-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 20px;
+            color: var(--brand);
+        }
+
+        .site-actions a,
+        .site-actions button {
+            color: inherit;
+            background: none;
+            border: 0;
+            padding: 0;
+            text-decoration: none;
+        }
+
+        .site-actions .badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #ff4f5f;
+            color: #fff;
+            font-size: 10px;
+            padding: 0 4px;
+        }
+
+        .feature-popup {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 2000;
+        }
+
+        .feature-popup.is-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .feature-popup__dialog {
+            position: relative;
+            width: min(820px, calc(100vw - 72px));
+            max-height: min(88vh, 760px);
+            border-radius: 28px;
+            padding: 34px 28px 24px;
+            background:
+                radial-gradient(circle at 15% 52%, rgba(255, 146, 77, 0.24), transparent 18%),
+                radial-gradient(circle at 83% 41%, rgba(60, 127, 220, 0.16), transparent 20%),
+                linear-gradient(180deg, #f8fcfe 0%, #edf5fb 100%);
+            box-shadow: 0 26px 70px rgba(52, 93, 138, 0.18);
+            overflow: hidden;
+        }
+
+        .feature-popup__close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.92);
+            color: #2563b8;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(37, 99, 184, 0.14);
+        }
+
+        .feature-popup__close:hover {
+            background: #fff;
+        }
+
+        .feature-popup__title {
+            margin: 0;
+            text-align: center;
+            font-size: clamp(28px, 3.4vw, 48px);
+            line-height: 1.04;
+            font-weight: 800;
+            color: #1e63b5;
+            letter-spacing: -0.03em;
+            white-space: nowrap;
+        }
+
+        .feature-popup__subtitle {
+            margin: 12px auto 0;
+            max-width: 470px;
+            text-align: center;
+            font-size: 14px;
+            color: #5e7899;
+        }
+
+        .feature-popup__art {
+            position: relative;
+            min-height: 348px;
+            margin-top: 2px;
+        }
+
+        .feature-popup__ghost-line,
+        .feature-popup__ghost-button,
+        .feature-popup__panel,
+        .feature-popup__progress,
+        .feature-popup__tool {
+            position: absolute;
+            filter: blur(1px);
+            opacity: 0.45;
+        }
+
+        .feature-popup__ghost-line {
+            left: 28px;
+            width: 250px;
+            height: 16px;
+            border-radius: 999px;
+            background: rgba(151, 184, 225, 0.4);
+        }
+
+        .feature-popup__ghost-line--1 { top: 116px; }
+        .feature-popup__ghost-line--2 {
+            top: 164px;
+            width: 280px;
+            background: rgba(255, 161, 84, 0.45);
+        }
+        .feature-popup__ghost-line--3 {
+            top: 212px;
+            width: 240px;
+        }
+
+        .feature-popup__ghost-button {
+            left: 56px;
+            top: 270px;
+            width: 104px;
+            height: 34px;
+            border-radius: 14px;
+            background: rgba(181, 202, 236, 0.56);
+        }
+
+        .feature-popup__panel {
+            right: 22px;
+            top: 104px;
+            width: 250px;
+            height: 180px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, rgba(211, 224, 245, 0.8), rgba(245, 249, 253, 0.94));
+            transform: rotate(12deg);
+        }
+
+        .feature-popup__progress {
+            right: 74px;
+            top: 216px;
+            width: 172px;
+            height: 24px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(255, 153, 87, 0.9) 0%, rgba(255, 200, 143, 0.72) 58%, rgba(255, 255, 255, 0.3) 58%, rgba(255, 255, 255, 0.82) 100%);
+            transform: rotate(12deg);
+        }
+
+        .feature-popup__tool {
+            color: rgba(105, 136, 182, 0.5);
+            font-size: 38px;
+        }
+
+        .feature-popup__tool--1 {
+            right: 108px;
+            top: 286px;
+            transform: rotate(24deg);
+        }
+
+        .feature-popup__tool--2 {
+            right: 34px;
+            top: 304px;
+            transform: rotate(-26deg);
+        }
+
+        .feature-popup__center {
+            position: absolute;
+            left: 50%;
+            top: 116px;
+            transform: translateX(-50%);
+            width: 360px;
+            height: 292px;
+            max-width: calc(100% - 160px);
+            overflow: visible;
+        }
+
+        .feature-popup__board {
+            position: absolute;
+            inset: 32px 0 22px;
+            z-index: 1;
+            border-radius: 20px;
+            border: 6px solid #2d77ca;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+                linear-gradient(180deg, #2d77ca 0%, #1c5ba5 100%);
+            background-size: 30px 30px, 30px 30px, cover;
+            box-shadow: 0 18px 36px rgba(34, 87, 151, 0.2);
+        }
+
+        .feature-popup__board::after {
+            content: "";
+            position: absolute;
+            inset: 18px;
+            border: 1px solid rgba(203, 227, 255, 0.35);
+            border-radius: 12px;
+        }
+
+        .feature-popup__board-rail {
+            position: absolute;
+            top: -18px;
+            right: -18px;
+            width: 20px;
+            height: calc(100% + 36px);
+            border-radius: 12px;
+            background: #2567b4;
+        }
+
+        .feature-popup__robot {
+            position: absolute;
+            left: 50%;
+            top: 8px;
+            z-index: 3;
+            transform: translateX(-50%);
+            width: 172px;
+            height: 246px;
+        }
+
+        .feature-popup__helmet {
+            position: absolute;
+            top: 0;
+            left: 26px;
+            width: 128px;
+            height: 72px;
+            border-radius: 70px 70px 32px 32px;
+            background: linear-gradient(180deg, #ffc868 0%, #f49a31 100%);
+            box-shadow: inset 0 -6px 0 rgba(210, 122, 30, 0.55);
+        }
+
+        .feature-popup__helmet::before,
+        .feature-popup__helmet::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            width: 6px;
+            height: 44px;
+            border-radius: 999px;
+            background: rgba(201, 118, 31, 0.78);
+        }
+
+        .feature-popup__helmet::before { left: 34px; transform: rotate(10deg); }
+        .feature-popup__helmet::after { right: 34px; transform: rotate(-10deg); }
+
+        .feature-popup__head {
+            position: absolute;
+            top: 48px;
+            left: 34px;
+            width: 112px;
+            height: 104px;
+            border-radius: 36px;
+            background: linear-gradient(180deg, #edf5fe 0%, #bdd4ef 100%);
+            box-shadow: inset 0 -10px 0 rgba(154, 181, 213, 0.48);
+        }
+
+        .feature-popup__face {
+            position: absolute;
+            inset: 16px 18px 18px;
+            border-radius: 26px;
+            background: linear-gradient(180deg, #17366f 0%, #102752 100%);
+        }
+
+        .feature-popup__eye,
+        .feature-popup__smile {
+            position: absolute;
+            background: #86f0ff;
+        }
+
+        .feature-popup__eye {
+            top: 34px;
+            width: 10px;
+            height: 26px;
+            border-radius: 999px;
+        }
+
+        .feature-popup__eye--left { left: 28px; }
+        .feature-popup__eye--right { right: 28px; }
+
+        .feature-popup__smile {
+            left: 50%;
+            bottom: 22px;
+            width: 28px;
+            height: 12px;
+            border-radius: 0 0 18px 18px;
+            transform: translateX(-50%);
+            clip-path: inset(45% 0 0 0);
+        }
+
+        .feature-popup__ear {
+            position: absolute;
+            top: 76px;
+            width: 22px;
+            height: 42px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #d8e5f5 0%, #aec6e3 100%);
+        }
+
+        .feature-popup__ear--left { left: 18px; }
+        .feature-popup__ear--right { right: 18px; }
+
+        .feature-popup__body {
+            position: absolute;
+            top: 138px;
+            left: 40px;
+            width: 100px;
+            height: 86px;
+            border-radius: 34px 34px 42px 42px;
+            background: linear-gradient(180deg, #f6fbff 0%, #cadbf0 100%);
+        }
+
+        .feature-popup__body::after {
+            content: "\f0ad";
+            position: absolute;
+            left: 50%;
+            top: 30px;
+            transform: translateX(-50%);
+            font-family: FontAwesome;
+            font-size: 34px;
+            color: rgba(118, 137, 164, 0.72);
+        }
+
+        .feature-popup__limb {
+            position: absolute;
+            background: linear-gradient(180deg, #d9e6f7 0%, #b9cde8 100%);
+            border-radius: 999px;
+        }
+
+        .feature-popup__limb--arm-left {
+            left: 18px;
+            top: 156px;
+            width: 34px;
+            height: 86px;
+            transform: rotate(28deg);
+        }
+
+        .feature-popup__limb--arm-right {
+            right: 12px;
+            top: 152px;
+            width: 34px;
+            height: 86px;
+            transform: rotate(-16deg);
+        }
+
+        .feature-popup__limb--leg-left {
+            left: 48px;
+            top: 206px;
+            width: 34px;
+            height: 78px;
+            transform: rotate(24deg);
+        }
+
+        .feature-popup__limb--leg-right {
+            right: 46px;
+            top: 206px;
+            width: 34px;
+            height: 78px;
+            transform: rotate(-28deg);
+        }
+
+        .feature-popup__hand,
+        .feature-popup__foot {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #c7d9ef;
+        }
+
+        .feature-popup__hand--left { left: 10px; top: 212px; }
+        .feature-popup__hand--right { right: 6px; top: 208px; }
+        .feature-popup__foot--left { left: 34px; bottom: -4px; }
+        .feature-popup__foot--right { right: 26px; bottom: -4px; }
+
+        .feature-popup__gear {
+            position: absolute;
+            right: 16px;
+            top: 188px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #ffbf59 0%, #f19125 100%);
+            box-shadow: 0 8px 18px rgba(233, 145, 37, 0.26);
+        }
+
+        .feature-popup__gear::before {
+            content: "";
+            position: absolute;
+            inset: 16px;
+            border-radius: 50%;
+            background: #edf5fb;
+        }
+
+        .feature-popup__barrier {
+            position: absolute;
+            left: 8px;
+            bottom: 18px;
+            z-index: 4;
+            width: 96px;
+            height: 62px;
+            transform: rotate(-1deg);
+        }
+
+        .feature-popup__barrier::before,
+        .feature-popup__barrier::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            background:
+                repeating-linear-gradient(120deg, #fff 0 16px, #ff902d 16px 32px);
+            box-shadow: 0 8px 16px rgba(27, 61, 103, 0.12);
+        }
+
+        .feature-popup__barrier::after {
+            top: 34px;
+            height: 36px;
+        }
+
+        .feature-popup__barrier-leg {
+            position: absolute;
+            bottom: -32px;
+            width: 8px;
+            height: 40px;
+            border-radius: 999px;
+            background: #91a8c4;
+        }
+
+        .feature-popup__barrier-leg--left {
+            left: 22px;
+            transform: rotate(6deg);
+        }
+
+        .feature-popup__barrier-leg--right {
+            left: 86px;
+            transform: rotate(-6deg);
+        }
+
+        .site-user {
+            position: relative;
+        }
+
+        .site-user-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 14px);
+            width: 220px;
+            background: #fff;
+            border: 2px solid #111;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+            display: none;
+            color: #111;
+            z-index: 100;
+        }
+
+        .site-user.open .site-user-menu {
+            display: block;
+        }
+
+        .site-user-card {
+            padding: 12px 12px;
+            border-bottom: 1px solid #111;
+        }
+
+        .site-user-card-top {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .site-user-avatar-lg {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111;
+            font-size: 28px;
+        }
+
+        .site-user-meta {
+            color: #111;
+            line-height: 1.35;
+            font-size: 12px;
+        }
+
+        .site-user-meta strong {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .site-user-links,
+        .site-user-logout {
+            padding: 8px 10px;
+        }
+
+        .site-user-links {
+            border-bottom: 1px solid #111;
+        }
+
+        .site-user-menu a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            color: #111827;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .site-user-menu a i {
+            width: 16px;
+            text-align: center;
+            color: #111;
+        }
+
+        .site-user-menu a:hover {
+            background: #111;
+            color: #fff;
+        }
+
+        .site-user-menu a:hover i {
+            color: #fff;
+        }
+
+        .site-user-logout {
+            border-top: 1px solid #eee;
+        }
+
+        .site-toast-wrap {
+            position: fixed;
+            top: 118px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            display: grid;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .site-toast {
+            min-width: 300px;
+            max-width: 420px;
+            background: #4d8b6f;
+            color: #e9f6ee;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+            opacity: 1;
+            transition: opacity .35s ease, transform .35s ease;
+        }
+
+        .site-toast.error {
+            background: #a44b4b;
+            color: #fff;
+        }
+
+        .site-toast.hide {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        .site-toast i {
+            font-size: 20px;
+        }
+
+        .home-banner img,
+        .hero-image {
+            width: 100%;
+            display: block;
+        }
+
+        .home-section {
+            width: min(1200px, calc(100% - 60px));
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        .home-grid-2,
+        .home-grid-3,
+        .home-grid-4 {
+            display: grid;
+            gap: 24px;
+        }
+
+        .home-grid-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .home-grid-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .home-grid-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .home-title {
+            margin: 0 0 26px;
+            text-align: center;
+            color: #111827;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .home-card {
+            text-align: center;
+        }
+
+        .home-card img {
+            width: 100%;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .btn-ghost,
+        .account-btn-outline,
+        .account-btn-dark {
+            height: 42px;
+            padding: 0 20px;
+            border-radius: 0;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        .btn-ghost,
+        .account-btn-outline {
+            background: #fff;
+            border: 1px solid #111827;
+            color: #111827;
+        }
+
+        .btn-ghost:hover,
+        .account-btn-outline:hover {
+            background: #111827;
+            color: #fff !important;
+            border-color: #111827;
+        }
+
+        .btn-ghost:focus,
+        .account-btn-outline:focus,
+        .account-btn-dark:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .site-footer-top {
+            border-top: 1px solid #bdd5b7;
+            padding: 28px 0 36px;
+        }
+
+        .site-footer-top-inner {
+            width: min(1200px, calc(100% - 60px));
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 36px;
+            font-size: 14px;
+        }
+
+        .site-footer-top h4 {
+            font-size: 15px;
+            color: #676767;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .site-footer-top ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .site-footer-top p {
+            margin: 0 0 10px;
+        }
+
+        .site-footer-bottom {
+            background: #080d12;
+            color: #f6f7fb;
+        }
+
+        .site-footer-bottom-inner {
+            width: min(1200px, calc(100% - 60px));
+            margin: 0 auto;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .site-footer-bottom img {
+            height: 70px;
+            width: auto;
+            display: block;
+        }
+
+        @media (max-width: 980px) {
+            .site-header-inner {
+                flex-wrap: wrap;
+                padding: 16px 0;
+                min-height: auto;
+            }
+
+            .site-nav {
+                order: 3;
+                flex-wrap: wrap;
+                gap: 16px 22px;
+                padding-bottom: 8px;
+            }
+
+            .site-user-menu {
+                right: 0;
+                width: min(220px, calc(100vw - 32px));
+            }
+
+            .site-footer-top-inner {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
+    <header class="site-header">
+        <div class="site-header-inner">
+            <a href="{% url 'trangchu:trangchu' %}" class="site-logo">
+                <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
+            </a>
 
-<!-- Toast Notification (Common for management) -->
-<div class="toast-notification" id="toastNotification">
-    <span class="toast-icon">✓</span>
-    <span id="toastMessage">Thao tác thành công</span>
-</div>
-
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light sticky-top">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'trangchu' %}">
-            <img src="{% static 'img/LOGO.png' %}" alt="DAHUKA Logo">
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">MÁY LỌC NƯỚC</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">LINH KIỆN</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">DỊCH VỤ</a>
-                </li>
-                <li class="nav-item d-none d-xl-block">
-                    <a class="nav-link" href="#">HƯỚNG DẪN LẮP ĐẶT</a>
-                </li>
-                
-                <!-- Admin Management Links -->
-                <li class="nav-item dropdown admin-nav-item">
-                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: #1a1a2e !important; font-weight: 700;">
-                        QUẢN LÝ
-                    </a>
-                    <div class="dropdown-menu border-0 shadow-sm" aria-labelledby="adminDropdown">
-                        <a class="dropdown-item" href="{% url 'quanlysanpham:danhsachsanpham' %}" style="font-size: 13px; font-weight: 500;">Quản lý Sản phẩm</a>
-                        <a class="dropdown-item" href="{% url 'quanlydanhmuc:danh_sach' %}" style="font-size: 13px; font-weight: 500;">Quản lý Danh mục</a>
-                        <a class="dropdown-item" href="{% url 'quanlydondathang:danh_sach' %}" style="font-size: 13px; font-weight: 500;">Quản lý Đơn hàng</a>
+            <div class="header-content-right">
+                <div class="site-actions">
+                    <a href="#" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
+                    <a href="#" aria-label="Điện thoại"><i class="fa fa-phone"></i></a>
+                    {% if user.is_authenticated and not user.is_staff %}
+                        <a href="{% url 'quanlygiohang:cart' %}" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
+                    {% endif %}
+                    <div class="site-user" id="siteUserMenu">
+                        <a href="#" aria-label="Tài khoản" id="siteUserToggle">
+                            <i class="fa fa-user-o"></i>
+                        </a>
+                        <div class="site-user-menu">
+                            {% if user.is_authenticated %}
+                                <div class="site-user-card">
+                                    <div class="site-user-card-top">
+                                        <div class="site-user-avatar-lg">
+                                            <i class="fa fa-user-o"></i>
+                                        </div>
+                                        <div class="site-user-meta">
+                                            <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                            {% if user.is_superuser %}
+                                                <div>Chủ Cửa Hàng</div>
+                                            {% elif user.is_staff %}
+                                                <div>Nhân Viên</div>
+                                            {% else %}
+                                                <div>Người Tiêu Dùng</div>
+                                                <div>Điểm: 0</div>
+                                                <div>Xếp hạng: Classic</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="site-user-links">
+                                    <a href="{% url 'profile_view' %}"><i class="fa fa-user-o"></i><span>Thông tin tài khoản</span></a>
+                                    {% if not user.is_staff %}
+                                    <a href="{% url 'address_list' %}"><i class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
+                                    <a href="{% url 'order_list' %}"><i class="fa fa-shopping-bag"></i><span>Quản lý đơn hàng</span></a>
+                                    {% endif %}
+                                </div>
+                                <div class="site-user-logout">
+                                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                                        {% csrf_token %}
+                                    </form>
+                                    <a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit();">
+                                        <i class="fa fa-sign-out"></i><span>Đăng xuất</span>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="site-user-links">
+                                    <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i><span>Đăng nhập</span></a>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
-                </li>
-            </ul>
-            <div class="nav-icons d-none d-lg-flex">
-                <i class="fa fa-search"></i>
-                <i class="fa fa-phone"></i>
-                <i class="fa fa-shopping-cart"></i>
-                <a href="{% url 'login_admin' %}"><i class="fa fa-user-circle-o"></i></a>
-                <span class="position-relative">
-                    <i class="fa fa-bell-o"></i>
-                    <span class="badge">0</span>
-                </span>
+                    {% if user.is_authenticated %}
+                        <div style="position: relative;">
+                            <i class="fa fa-bell-o"></i>
+                            <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -8px;">3</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <nav class="site-nav">
+                    {% if user.is_authenticated and user.is_staff %}
+                        <a href="#">CHĂM SÓC NƯỚC</a>
+                        {% if user.is_superuser %}
+                            <div class="nav-dropdown">
+                                <a href="javascript:void(0)">QUẢN LÝ BÁN HÀNG</a>
+                                <div class="dropdown-menu">
+                                    <a href="{% url 'quanlydondathang:danh_sach' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
+                                    <a href="{% url 'quanlydanhmuc:danh_sach' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
+                                    <a href="{% url 'quanlysanpham:danhsachsanpham' %}">QUẢN LÝ SẢN PHẨM</a>
+                                    <a href="{% url 'quanlykhuyenmai:chi_tiet_khuyen_mai' %}">QUẢN LÝ KHUYẾN MÃI</a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'quanlynhiemvu:danh_sach' %}">QUẢN LÝ NHIỆM VỤ</a>
+                        {% endif %}
+                        <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
+                        <a href="{% url 'diembanbaohanh:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                    {% else %}
+                        <div class="nav-dropdown">
+                            <a href="{% url 'trangchu:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                            <div class="dropdown-menu">
+                                <a href="{% url 'trangchu:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=ion-kiem-hydrogen">MÁY LỌC NƯỚC ION KIỀM HYDROGEN</a>
+                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=probiotics">MÁY LỌC NƯỚC PROBIOTICS</a>
+                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=dien-giai">MÁY LỌC NƯỚC ĐIỆN GIẢI</a>
+                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=de-gam">MÁY LỌC NƯỚC ĐỂ GẦM</a>
+                            </div>
+                        </div>
+                        <a href="{% url 'trangchu:xem_san_pham' %}?cat=linh-kien">LINH KIỆN</a>
+                        <a href="{% url 'trangchu:xem_san_pham' %}?cat=dich-vu">DỊCH VỤ</a>
+                        <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
+                        <a href="{% url 'diembanbaohanh:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                    {% endif %}
+                </nav>
             </div>
         </div>
-    </div>
-</nav>
+    </header>
 
-<!-- Main content area -->
-<main>
-    {% block content %}
-        <img src="{% static 'img/BANNER.png' %}" class="main-banner" alt="Banner">
-
-        <div class="container mt-5">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="product-card">
-                        <img src="{% static 'img/1.png' %}" alt="Máy lọc nước">
-                        <div class="product-title">Máy lọc nước</div>
-                        <div class="product-subtitle">Hơn cả sạch là tốt cho sức khỏe</div>
-                    </div>
+    {% if messages %}
+        <div class="site-toast-wrap" id="siteToastWrap">
+            {% for message in messages %}
+                <div class="site-toast {{ message.tags|default:'success' }}">
+                    <i class="fa {% if message.tags == 'error' %}fa-times-circle{% else %}fa-check-circle-o{% endif %}"></i>
+                    <span>{{ message }}</span>
                 </div>
-                <div class="col-md-6">
-                    <div class="product-card">
-                        <img src="{% static 'img/2.png' %}" alt="Cây nước nóng lạnh">
-                        <div class="product-title">Cây nước nóng lạnh</div>
-                        <div class="product-subtitle">Hơn cả ngon là tận hưởng hạnh phúc</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mutosi-pro-logo">MUTOSI&nbsp;&nbsp;<span style="font-size:20px;">•</span>&nbsp;&nbsp;PRO</div>
-
-            <div class="row align-items-center mb-5 mt-5">
-                <div class="col-md-4 pl-4">
-                    <h2 style="font-weight: 800; font-size: 32px; color: #000; line-height: 1.2;">Mutosi<br>Hydrogen Pro</h2>
-                    <p class="mt-3" style="font-size: 15px; color: #333;">Mutosi Pro mới, với công nghệ Hydrogen Pro vượt trội giúp hỗ trợ cân bằng axit dư trong cơ thể, phục hồi năng lượng, ngăn ngừa lão hóa và tăng cường bảo vệ sức khỏe</p>
-                    <button class="btn btn-outline-dark mt-3">Khám phá ngay</button>
-                </div>
-                <div class="col-md-8 text-right">
-                    <img src="{% static 'img/MUTOSI PRO.png' %}" style="max-width: 100%;" alt="Mutosi Pro">
-                </div>
-            </div>
-
-            <h3 class="section-title mt-5">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h3>
-            <div class="row mt-4 text-center">
-                <div class="col-md-3">
-                    <img src="{% static 'img/Khám phá 1.png' %}" class="khampha-img" alt="Product">
-                    <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen nguội lạnh Mutosi MP-P89K</div>
-                </div>
-                <div class="col-md-3">
-                    <img src="{% static 'img/Khám phá 2.png' %}" class="khampha-img" alt="Product">
-                    <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-T888</div>
-                </div>
-                <div class="col-md-3">
-                    <img src="{% static 'img/Khám phá 3.png' %}" class="khampha-img" alt="Product">
-                    <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-666</div>
-                </div>
-                <div class="col-md-3">
-                    <img src="{% static 'img/Khám phá 4.png' %}" class="khampha-img" alt="Product">
-                    <div class="khampha-title mt-2">Máy lọc nước điện giải ion kiềm Hydrogen MP-S1021H</div>
-                </div>
-            </div>
-
-            <!-- News Section -->
-            <h3 class="section-title mt-5">Tin tiêu điểm</h3>
-            <div class="row mt-4">
-                <div class="col-md-4 text-center">
-                    <img src="{% static 'img/Tin tiêu điểm 1.png' %}" class="news-img" alt="News">
-                    <div class="news-title mt-2">Hướng dẫn sử dụng và lắp đặt máy lọc nước điện giải Mutosi</div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <img src="{% static 'img/Tin tiêu điểm 2.png' %}" class="news-img" alt="News">
-                    <div class="news-title mt-2">Công nghệ lọc nước RO và công nghệ điện phân đột phá từ Mutosi</div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <img src="{% static 'img/Tin tiêu điểm 3.png' %}" class="news-img" alt="News">
-                    <div class="news-title mt-2">Hướng dẫn do nhiệt độ nước tại bầu nóng máy lọc nước Mutosi</div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
+    {% endif %}
 
-        <!-- Experience Banner -->
-        <div class="experience-banner">
-            <div class="experience-content container">
-                <h3>“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
-                <button class="btn btn-outline-light mt-3" style="border-radius:0; padding:10px 30px;">Khám phá ngay</button>
-            </div>
-        </div>
-    {% endblock content %}
-</main>
-
-<!-- Footer -->
-<footer>
-    <div class="footer-top">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3">
-                    <h5>Giới thiệu Mutosi</h5>
-                    <ul>
-                        <li><a href="#">Giới thiệu về Mutosi</a></li>
-                        <li><a href="#">Trách nhiệm xã hội</a></li>
-                        <li><a href="#">Tin tuyển dụng</a></li>
-                        <li><a href="#">Liên hệ</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <h5>Chính sách mua hàng</h5>
-                    <ul>
-                        <li><a href="#">Chính sách lắp đặt</a></li>
-                        <li><a href="#">Chính sách giao hàng</a></li>
-                        <li><a href="#">Chính sách bảo hành</a></li>
-                        <li><a href="#">Chính sách bảo mật</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <h5>Hỗ trợ khách hàng</h5>
-                    <ul>
-                        <li><a href="#">Đăng ký bảo hành</a></li>
-                        <li><a href="#">Tra cứu mua hàng</a></li>
-                        <li><a href="#">FAQ - Câu hỏi thường gặp</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <div class="mb-3" style="line-height: 1.4;">
-                        <span class="text-muted d-block" style="font-size: 13px;">Hotline CSKH</span>
-                        <strong style="font-size: 16px; color: #0B6E4F;">1900 636 567</strong>
+    <div class="feature-popup" id="featurePopup" aria-hidden="true">
+        <div class="feature-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="featurePopupTitle">
+            <button type="button" class="feature-popup__close" id="featurePopupClose" aria-label="Đóng popup">x</button>
+            <h2 class="feature-popup__title" id="featurePopupTitle">Đang cập nhật chức năng</h2>
+            <p class="feature-popup__subtitle">Tính năng Hướng dẫn lắp đặt đang được hoàn thiện. Popup sẽ tự đóng sau 1 phút.</p>
+            <div class="feature-popup__art" aria-hidden="true">
+                <span class="feature-popup__ghost-line feature-popup__ghost-line--1"></span>
+                <span class="feature-popup__ghost-line feature-popup__ghost-line--2"></span>
+                <span class="feature-popup__ghost-line feature-popup__ghost-line--3"></span>
+                <span class="feature-popup__ghost-button"></span>
+                <span class="feature-popup__panel"></span>
+                <span class="feature-popup__progress"></span>
+                <i class="fa fa-wrench feature-popup__tool feature-popup__tool--1"></i>
+                <i class="fa fa-wrench feature-popup__tool feature-popup__tool--2"></i>
+                <div class="feature-popup__center">
+                    <div class="feature-popup__board">
+                        <span class="feature-popup__board-rail"></span>
                     </div>
-                    <div class="mb-3" style="line-height: 1.4;">
-                        <span class="text-muted d-block" style="font-size: 13px;">Email hỗ trợ</span>
-                        <strong style="font-size: 15px;">cskh@dahuka.com</strong>
+                    <div class="feature-popup__barrier">
+                        <span class="feature-popup__barrier-leg feature-popup__barrier-leg--left"></span>
+                        <span class="feature-popup__barrier-leg feature-popup__barrier-leg--right"></span>
+                    </div>
+                    <div class="feature-popup__robot">
+                        <span class="feature-popup__helmet"></span>
+                        <span class="feature-popup__ear feature-popup__ear--left"></span>
+                        <span class="feature-popup__ear feature-popup__ear--right"></span>
+                        <div class="feature-popup__head">
+                            <div class="feature-popup__face">
+                                <span class="feature-popup__eye feature-popup__eye--left"></span>
+                                <span class="feature-popup__eye feature-popup__eye--right"></span>
+                                <span class="feature-popup__smile"></span>
+                            </div>
+                        </div>
+                        <span class="feature-popup__body"></span>
+                        <span class="feature-popup__limb feature-popup__limb--arm-left"></span>
+                        <span class="feature-popup__limb feature-popup__limb--arm-right"></span>
+                        <span class="feature-popup__limb feature-popup__limb--leg-left"></span>
+                        <span class="feature-popup__limb feature-popup__limb--leg-right"></span>
+                        <span class="feature-popup__hand feature-popup__hand--left"></span>
+                        <span class="feature-popup__hand feature-popup__hand--right"></span>
+                        <span class="feature-popup__foot feature-popup__foot--left"></span>
+                        <span class="feature-popup__foot feature-popup__foot--right"></span>
+                        <span class="feature-popup__gear"></span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="footer-bottom">
-        <div class="container d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center">
-                <img src="{% static 'img/LOGO.png' %}" alt="DAHUKA Logo" style="filter: brightness(0) invert(1);">
-                <span>Nâng tầm sống khỏe chuẩn Nhật</span>
-            </div>
-            <div class="copyright" style="font-size: 12px; opacity: 0.7;">
-                © 2026 Dahuka. All rights reserved.
+
+    {% block content %}{% endblock %}
+
+    <footer>
+        <div class="site-footer-top">
+            <div class="site-footer-top-inner">
+                <div>
+                    <h4>Giới thiệu Mutosi</h4>
+                    <ul>
+                        <li>Giới thiệu về Mutosi</li>
+                        <li>Trách nhiệm xã hội</li>
+                        <li>Tin tuyển dụng</li>
+                        <li>Liên hệ</li>
+                    </ul>
+                    <h4 style="margin-top: 16px;">Chính sách mua hàng</h4>
+                    <ul>
+                        <li>Chính sách lắp đặt</li>
+                        <li>Chính sách giao hàng</li>
+                        <li>Chính sách đổi trả hàng</li>
+                        <li>Chính sách bảo hành</li>
+                        <li>Chính sách bảo mật</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Tin tức</h4>
+                    <ul>
+                        <li>Giải pháp nước sạch</li>
+                        <li>Tư vấn gia dụng</li>
+                        <li>Hướng dẫn lắp đặt</li>
+                    </ul>
+                    <h4 style="margin-top: 16px;">Hỗ trợ khách hàng - Đại lý</h4>
+                    <ul>
+                        <li>Đăng ký bảo hành</li>
+                        <li>Đăng ký đối tác</li>
+                        <li>Tra cứu mua hàng</li>
+                        <li>FAQ</li>
+                        <li>Sitemap</li>
+                    </ul>
+                </div>
+                <div>
+                    <p><strong>Hotline</strong><br>1900 636 567</p>
+                    <p><strong>Hỗ trợ xử lý sự cố</strong><br>1900 636 596</p>
+                    <p><strong>Email</strong><br>cskh@dahuka.com</p>
+                    <p><strong>Tư vấn mua hàng</strong><br>1900 636 053</p>
+                    <p style="margin-top: 20px;"><strong>Văn phòng đại diện:</strong><br>644 Nguyễn Hữu Thọ, Khuê Trung, Cẩm Lệ, Đà Nẵng</p>
+                </div>
             </div>
         </div>
-    </div>
-</footer>
+        <div class="site-footer-bottom">
+            <div class="site-footer-bottom-inner">
+                <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
+                <div>Nâng tầm sống khỏe chuẩn Nhật</div>
+            </div>
+        </div>
+    </footer>
 
-<!-- Core Scripts -->
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script>
+        (function () {
+            var userMenu = document.getElementById('siteUserMenu');
+            var userToggle = document.getElementById('siteUserToggle');
+            if (userMenu && userToggle) {
+                userToggle.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    userMenu.classList.toggle('open');
+                });
+                document.addEventListener('click', function (event) {
+                    if (!userMenu.contains(event.target)) {
+                        userMenu.classList.remove('open');
+                    }
+                });
+            }
 
-<script>
-/* Toast Notification Utility */
-function showToast(message) {
-    var toast = document.getElementById('toastNotification');
-    var msgSpan = document.getElementById('toastMessage');
-    if (message) msgSpan.textContent = message;
-    
-    toast.classList.add('show');
-    setTimeout(function() {
-        toast.style.animation = 'toastSlideOut 0.3s ease forwards';
-        setTimeout(function() {
-            toast.classList.remove('show');
-            toast.style.animation = '';
-        }, 300);
-    }, 2500);
-}
-</script>
+            var toasts = document.querySelectorAll('.site-toast');
+            if (toasts.length) {
+                setTimeout(function () {
+                    toasts.forEach(function (toast) {
+                        toast.classList.add('hide');
+                    });
+                }, 2000);
+                setTimeout(function () {
+                    var wrap = document.getElementById('siteToastWrap');
+                    if (wrap) wrap.remove();
+                }, 2450);
+            }
 
-{% block extra_js %}{% endblock extra_js %}
+            var featurePopup = document.getElementById('featurePopup');
+            var featurePopupClose = document.getElementById('featurePopupClose');
+            var featurePopupTriggers = document.querySelectorAll('[data-feature-popup-trigger="guide-install"]');
+            var featurePopupTimer = null;
+
+            function closeFeaturePopup() {
+                if (!featurePopup) return;
+                featurePopup.classList.remove('is-open');
+                featurePopup.setAttribute('aria-hidden', 'true');
+                if (featurePopupTimer) {
+                    clearTimeout(featurePopupTimer);
+                    featurePopupTimer = null;
+                }
+            }
+
+            function openFeaturePopup() {
+                if (!featurePopup) return;
+                featurePopup.classList.add('is-open');
+                featurePopup.setAttribute('aria-hidden', 'false');
+                if (featurePopupTimer) {
+                    clearTimeout(featurePopupTimer);
+                }
+                featurePopupTimer = setTimeout(closeFeaturePopup, 60000);
+            }
+
+            featurePopupTriggers.forEach(function (trigger) {
+                trigger.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    openFeaturePopup();
+                });
+            });
+
+            if (featurePopupClose) {
+                featurePopupClose.addEventListener('click', closeFeaturePopup);
+            }
+
+            if (featurePopup) {
+                featurePopup.addEventListener('click', function (event) {
+                    if (event.target === featurePopup) {
+                        closeFeaturePopup();
+                    }
+                });
+            }
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    closeFeaturePopup();
+                }
+            });
+        })();
+    </script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

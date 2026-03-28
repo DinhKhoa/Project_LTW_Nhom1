@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Máy lọc nước Dahuka - Công nghệ lọc nước đỉnh cao{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/premium_dahuka.css' %}">
+<style>
+    .catalog-hero {
+        position: relative;
+        height: 480px;
+        overflow: hidden;
+    }
+    .catalog-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .catalog-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, transparent 60%);
+        display: flex;
+        align-items: center;
+        padding-left: 80px;
+    }
+    .catalog-hero-text h1 {
+        font-size: 48px;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 20px;
+        text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .catalog-hero-text p {
+        font-size: 18px;
+        color: rgba(255,255,255,0.9);
+        max-width: 500px;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="catalog-hero">
+    <img src="{% static 'img/BANNER.png' %}" alt="Máy lọc nước Dahuka">
+    <div class="catalog-hero-overlay">
+        <div class="catalog-hero-text">
+            <h1>Máy Lọc Nước Dahuka</h1>
+            <p>Giải pháp lọc nước thông minh từ Nhật Bản, mang lại nguồn nước tinh khiết đạt chuẩn uống trực tiếp tại vòi cho gia đình bạn.</p>
+        </div>
+    </div>
+</section>
+
+<main class="catalog-page container-shell" style="padding: 40px 0;">
+    <nav class="page-breadcrumbs">
+        <a href="{% url 'trangchu:trangchu' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+        <b>Máy lọc nước</b>
+    </nav>
+
+    <div class="section-title-row catalog-title-row" style="margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 24px; flex: 1;">
+            <h2 style="font-size: 32px; font-weight: 800; color: var(--ink-strong); margin: 0;">Danh mục sản phẩm</h2>
+            <div class="line" style="flex: 1; height: 1px; background: var(--border); max-width: 400px;"></div>
+        </div>
+        <div class="catalog-sort dropdown">
+            <button class="account-btn-outline" type="button" style="height: 42px; gap: 10px; padding: 0 20px;">
+                <span class="label">Sắp xếp: Mới nhất</span>
+                <i class="fa fa-angle-down"></i>
+            </button>
+        </div>
+    </div>
+
+    <section class="catalog-layout">
+        <aside class="catalog-filters">
+            <div class="filter-group">
+                <h3>Hệ thống lõi lọc</h3>
+                <div class="filter-options">
+                    <label class="filter-label"><input type="checkbox"> 3 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 7 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 8 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 9 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 10 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 11 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 12 lõi</label>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3>Loại nguồn nước</h3>
+                <div class="filter-options">
+                    <label class="filter-label"><input type="checkbox"> Nước lợ</label>
+                    <label class="filter-label"><input type="checkbox"> Nước máy</label>
+                    <label class="filter-label"><input type="checkbox"> Nước cứng</label>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3>Khoảng giá</h3>
+                <div class="filter-options">
+                    <label class="filter-label"><input type="checkbox"> Từ 4 - 6 triệu</label>
+                    <label class="filter-label"><input type="checkbox"> Từ 6 - 8 triệu</label>
+                    <label class="filter-label"><input type="checkbox"> Từ 8 - 10 triệu</label>
+                    <label class="filter-label"><input type="checkbox"> Trên 10 triệu</label>
+                </div>
+            </div>
+        </aside>
+
+        <div class="catalog-products">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">
+                <!-- Product Card 1 -->
+                <article class="catalog-card" data-id="1" data-name="Mutosi MP-S126" data-price="5.790.000đ" data-img="{% static 'img/1.png' %}">
+                    <div class="catalog-product-visual">
+                        <img src="{% static 'img/1.png' %}" alt="Mutosi MP-S126">
+                    </div>
+                    <h3>Máy lọc nước RO 12 cấp Mutosi MP-S126</h3>
+                    <p class="catalog-price">5,790,000đ</p>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="catalog-card-actions">
+                        <a href="{% url 'trangchu:chi_tiet_san_pham' %}" class="account-btn-dark" style="flex: 1;">Xem chi tiết</a>
+                        <button class="account-btn-outline" type="button" style="width: 42px; padding: 0;"><i class="fa fa-shopping-cart"></i></button>
+                    </div>
+                    <button class="account-btn-outline compare-btn" type="button" style="margin-top: 12px; font-size: 13px; height: 36px; width: 100%; gap: 8px;">
+                        <i class="fa fa-plus-circle"></i> So sánh
+                    </button>
+                </article>
+
+                <!-- Product Card 2 -->
+                <article class="catalog-card" data-id="2" data-name="Mutosi MP-S610K" data-price="12.800.000đ" data-img="{% static 'img/2.png' %}">
+                    <div class="catalog-product-visual">
+                        <img src="{% static 'img/2.png' %}" alt="Mutosi MP-S610K">
+                    </div>
+                    <h3>Máy lọc nước Mutosi MP-S610K - Hiệu suất cao</h3>
+                    <p class="catalog-price">12,800,000đ</p>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="catalog-card-actions">
+                        <a href="{% url 'trangchu:chi_tiet_san_pham' %}" class="account-btn-dark" style="flex: 1;">Xem chi tiết</a>
+                        <button class="account-btn-outline" type="button" style="width: 42px; padding: 0;"><i class="fa fa-shopping-cart"></i></button>
+                    </div>
+                    <button class="account-btn-outline compare-btn" type="button" style="margin-top: 12px; font-size: 13px; height: 36px; width: 100%; gap: 8px;">
+                        <i class="fa fa-plus-circle"></i> So sánh
+                    </button>
+                </article>
+
+                <!-- Product Card 3 -->
+                <article class="catalog-card" data-id="3" data-name="Mutosi MP-T666" data-price="15.700.000đ" data-img="{% static 'img/MUTOSI PRO.png' %}">
+                    <div class="catalog-product-visual">
+                        <img src="{% static 'img/MUTOSI PRO.png' %}" alt="Mutosi MP-T666">
+                    </div>
+                    <h3>Máy lọc nước điện giải ion kiềm Hydrogen Mutosi MP-T666</h3>
+                    <p class="catalog-price">15,700,000đ</p>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="catalog-card-actions">
+                        <a href="{% url 'trangchu:chi_tiet_san_pham' %}" class="account-btn-dark" style="flex: 1;">Xem chi tiết</a>
+                        <button class="account-btn-outline" type="button" style="width: 42px; padding: 0;"><i class="fa fa-shopping-cart"></i></button>
+                    </div>
+                    <button class="account-btn-outline compare-btn" type="button" style="margin-top: 12px; font-size: 13px; height: 36px; width: 100%; gap: 8px;">
+                        <i class="fa fa-plus-circle"></i> So sánh
+                    </button>
+                </article>
+
+                 <!-- Product Card 4 -->
+                 <article class="catalog-card" data-id="4" data-name="Mutosi MP-X10" data-price="8.900.000đ" data-img="{% static 'img/1.png' %}">
+                    <div class="catalog-product-visual">
+                        <img src="{% static 'img/1.png' %}" alt="Mutosi MP-X10">
+                    </div>
+                    <h3>Máy lọc nước RO Mutosi MP-X10 Pro</h3>
+                    <p class="catalog-price">8,900,000đ</p>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="catalog-card-actions">
+                        <a href="{% url 'trangchu:chi_tiet_san_pham' %}" class="account-btn-dark" style="flex: 1;">Xem chi tiết</a>
+                        <button class="account-btn-outline" type="button" style="width: 42px; padding: 0;"><i class="fa fa-shopping-cart"></i></button>
+                    </div>
+                    <button class="account-btn-outline compare-btn" type="button" style="margin-top: 12px; font-size: 13px; height: 36px; width: 100%; gap: 8px;">
+                        <i class="fa fa-plus-circle"></i> So sánh
+                    </button>
+                </article>
+
+                <!-- Product Card 5 -->
+                <article class="catalog-card" data-id="5" data-name="Mutosi MP-Y20" data-price="10.200.000đ" data-img="{% static 'img/2.png' %}">
+                    <div class="catalog-product-visual">
+                        <img src="{% static 'img/2.png' %}" alt="Mutosi MP-Y20">
+                    </div>
+                    <h3>Máy lọc nước thông minh Mutosi MP-Y20</h3>
+                    <p class="catalog-price">10,200,000đ</p>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="catalog-card-actions">
+                        <a href="{% url 'trangchu:chi_tiet_san_pham' %}" class="account-btn-dark" style="flex: 1;">Xem chi tiết</a>
+                        <button class="account-btn-outline" type="button" style="width: 42px; padding: 0;"><i class="fa fa-shopping-cart"></i></button>
+                    </div>
+                    <button class="account-btn-outline compare-btn" type="button" style="margin-top: 12px; font-size: 13px; height: 36px; width: 100%; gap: 8px;">
+                        <i class="fa fa-plus-circle"></i> So sánh
+                    </button>
+                </article>
+
+                <!-- Product Card 6 -->
+                <article class="catalog-card" data-id="6" data-name="Mutosi MP-Z30" data-price="6.500.000đ" data-img="{% static 'img/MUTOSI PRO.png' %}">
+                    <div class="catalog-product-visual">
+                        <img src="{% static 'img/MUTOSI PRO.png' %}" alt="Mutosi MP-Z30">
+                    </div>
+                    <h3>Máy lọc nước tiêu chuẩn Nhật Bản Mutosi MP-Z30</h3>
+                    <p class="catalog-price">6,500,000đ</p>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="catalog-card-actions">
+                        <a href="{% url 'trangchu:chi_tiet_san_pham' %}" class="account-btn-dark" style="flex: 1;">Xem chi tiết</a>
+                        <button class="account-btn-outline" type="button" style="width: 42px; padding: 0;"><i class="fa fa-shopping-cart"></i></button>
+                    </div>
+                    <button class="account-btn-outline compare-btn" type="button" style="margin-top: 12px; font-size: 13px; height: 36px; width: 100%; gap: 8px;">
+                        <i class="fa fa-plus-circle"></i> So sánh
+                    </button>
+                </article>
+            </div>
+
+            <div class="catalog-pagination" style="margin-top: 60px;">
+                <button class="account-btn-outline" disabled><i class="fa fa-angle-left"></i></button>
+                <button class="account-btn-dark" style="width: 42px;">1</button>
+                <button class="account-btn-outline" style="width: 42px;">2</button>
+                <button class="account-btn-outline" style="width: 42px;">3</button>
+                <button class="account-btn-outline"><i class="fa fa-angle-right"></i></button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Comparison Sticky Bar -->
+<div class="compare-bar" id="compareBar">
+    <div class="compare-bar-inner">
+        <div class="compare-items-list" id="compareItemsList">
+            <!-- Items will be added here via JS -->
+        </div>
+        <div class="compare-actions">
+            <span class="compare-count-label" id="compareCountLabel">Đã chọn 0 sản phẩm</span>
+            <a href="{% url 'trangchu:so_sanh_san_pham' %}" class="account-btn-dark" id="btnCompareGo" style="opacity: 0.5; pointer-events: none; height: 48px; padding: 0 40px;">So sánh ngay</a>
+            <button class="btn-ghost" type="button" id="btnClearAll" style="border: none;">Xóa tất cả</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const compareItems = [];
+    const maxItems = 3;
+    const compareBar = document.getElementById('compareBar');
+    const compareItemsList = document.getElementById('compareItemsList');
+    const compareCountLabel = document.getElementById('compareCountLabel');
+    const btnCompareGo = document.getElementById('btnCompareGo');
+    const btnClearAll = document.getElementById('btnClearAll');
+
+    document.querySelectorAll('.compare-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.catalog-card');
+            const product = {
+                id: card.dataset.id,
+                name: card.dataset.name,
+                img: card.dataset.img,
+                price: card.dataset.price
+            };
+
+            if (compareItems.find(item => item.id === product.id)) {
+                return; // Already added
+            }
+
+            if (compareItems.length >= maxItems) {
+                alert(`Bạn chỉ có thể chọn tối đa ${maxItems} sản phẩm để so sánh.`);
+                return;
+            }
+
+            compareItems.push(product);
+            updateCompareBar();
+        });
+    });
+
+    function updateCompareBar() {
+        if (compareItems.length > 0) {
+            compareBar.classList.add('active');
+        } else {
+            compareBar.classList.remove('active');
+        }
+
+        compareItemsList.innerHTML = '';
+        compareItems.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'compare-item-card';
+            el.innerHTML = `
+                <img src="${item.img}" alt="${item.name}">
+                <div class="remove-btn" onclick="removeItem('${item.id}')"><i class="fa fa-times"></i></div>
+            `;
+            compareItemsList.appendChild(el);
+        });
+
+        // Fill empty slots
+        for (let i = compareItems.length; i < maxItems; i++) {
+            const el = document.createElement('div');
+            el.className = 'compare-item-card';
+            el.style.background = 'rgba(0,0,0,0.03)';
+            el.style.borderStyle = 'dashed';
+            compareItemsList.appendChild(el);
+        }
+
+        compareCountLabel.textContent = `Đã chọn ${compareItems.length} sản phẩm`;
+        
+        if (compareItems.length >= 2) {
+            btnCompareGo.style.opacity = '1';
+            btnCompareGo.style.pointerEvents = 'auto';
+        } else {
+            btnCompareGo.style.opacity = '0.5';
+            btnCompareGo.style.pointerEvents = 'none';
+        }
+    }
+
+    window.removeItem = (id) => {
+        const index = compareItems.findIndex(item => item.id === id);
+        if (index > -1) {
+            compareItems.splice(index, 1);
+            updateCompareBar();
+        }
+    };
+
+    btnClearAll.addEventListener('click', () => {
+        compareItems.length = 0;
+        updateCompareBar();
+    });
+</script>
+{% endblock %}

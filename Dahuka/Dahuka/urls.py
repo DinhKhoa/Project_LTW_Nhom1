@@ -16,14 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from Dahuka import views
+from trangchu import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.index, name='trangchu'),
-    path('login-admin/', views.login_admin, name='login_admin'),
-    path('quan-ly-san-pham/', include("quanlysanpham.urls")),
+    path("admin/", admin.site.urls),
+    path("", include("trangchu.urls")),
+    path("login/", views.DahukaLoginView.as_view(), name="login"),
+    path("logout/", views.DahukaLogoutView.as_view(), name="logout"),
+    path("account/", include("account.urls")),
 
-    path('quan-ly-danh-muc/', include("quanlydanhmuc.urls")),
-    path('quan-ly-don-dat-hang/', include("quanlydondathang.urls")),
+    # Restored App Routes
+    path('quanlysanpham/', include('quanlysanpham.urls')),
+    path('quanlydanhmuc/', include('quanlydanhmuc.urls')),
+    path('quanlydondathang/', include('quanlydondathang.urls')),
+    path('quanlykhuyenmai/', include('quanlykhuyenmai.urls')),
+    path('quanlygiohang/', include('quanlygiohang.urls')),
+    path('quanlynhiemvu/', include('quanlynhiemvu.urls')),
+    path('diembanbaohanh/', include('diembanbaohanh.urls')),
+
 ]

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-wvtrs*^91eo6tf0)d_22-7o&uz3=)90-s=vcq_o#rthz_8$z26
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -34,12 +34,19 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'trangchu',
     'quanlysanpham',
     'quanlydanhmuc',
     'quanlydondathang',
+    'quanlykhuyenmai',
+    'quanlygiohang',
+    'quanlynhiemvu',
+    'diembanbaohanh',
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -119,3 +126,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Auth settings
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'trangchu:trangchu'
+LOGOUT_REDIRECT_URL = 'trangchu:trangchu'
