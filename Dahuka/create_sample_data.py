@@ -9,7 +9,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Dahuka.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from trangchu.models import Customer, Address, Order, OrderItem
+from apps.core.models import Customer, Address, Order, OrderItem
 
 # Clear existing data (optional)
 print("Creating test user...")

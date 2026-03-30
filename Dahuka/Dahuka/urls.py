@@ -16,22 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from trangchu import views
+from apps.core import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("trangchu.urls")),
+    path("", include("apps.core.urls")),
     path("login/", views.DahukaLoginView.as_view(), name="login"),
     path("logout/", views.DahukaLogoutView.as_view(), name="logout"),
-    path("account/", include("account.urls")),
+    path("account/", include("apps.account.urls")),
 
     # Restored App Routes
-    path('quanlysanpham/', include('quanlysanpham.urls')),
-    path('quanlydanhmuc/', include('quanlydanhmuc.urls')),
-    path('quanlydondathang/', include('quanlydondathang.urls')),
-    path('quanlykhuyenmai/', include('quanlykhuyenmai.urls')),
-    path('quanlygiohang/', include('quanlygiohang.urls')),
-    path('quanlynhiemvu/', include('quanlynhiemvu.urls')),
-    path('diembanbaohanh/', include('diembanbaohanh.urls')),
+    path('products/', include('apps.products.urls')),
+    path('categories/', include('apps.categories.urls')),
+    path('orders/', include('apps.orders.urls')),
+    path('promotions/', include('apps.promotions.urls')),
+    path('cart/', include('apps.cart.urls')),
+    path('tasks/', include('apps.tasks.urls')),
+    path('warranty/', include('apps.warranty.urls')),
 
 ]

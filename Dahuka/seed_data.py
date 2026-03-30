@@ -6,8 +6,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Dahuka.settings')
 django.setup()
 
-from quanlydanhmuc.models import DanhMuc, SanPham
-from quanlydondathang.models import DonDatHang, ChiTietDonHang
+from apps.categories.models import DanhMuc, SanPham
+from apps.orders.models import DonDatHang, ChiTietDonHang
 from django.utils import timezone
 from datetime import timedelta
 

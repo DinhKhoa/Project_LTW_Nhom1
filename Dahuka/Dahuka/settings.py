@@ -38,15 +38,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'trangchu',
-    'quanlysanpham',
-    'quanlydanhmuc',
-    'quanlydondathang',
-    'quanlykhuyenmai',
-    'quanlygiohang',
-    'quanlynhiemvu',
-    'diembanbaohanh',
-    'account',
+    'apps.core',
+    'apps.products',
+    'apps.categories',
+    'apps.orders',
+    'apps.promotions',
+    'apps.cart',
+    'apps.tasks',
+    'apps.warranty',
+    'apps.account',
 ]
 
 MIDDLEWARE = [
@@ -129,5 +129,5 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Auth settings
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'trangchu:trangchu'
-LOGOUT_REDIRECT_URL = 'trangchu:trangchu'
+LOGIN_REDIRECT_URL = 'core:trangchu'
+LOGOUT_REDIRECT_URL = 'core:trangchu'

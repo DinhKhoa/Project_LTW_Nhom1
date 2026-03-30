@@ -3,7 +3,7 @@ Quick test script to verify the implementation
 Run: python manage.py shell < test.py
 """
 from django.contrib.auth.models import User
-from trangchu.models import Customer, Address, Order, OrderItem
+from apps.core.models import Customer, Address, Order, OrderItem
 
 # Check test user
 try:

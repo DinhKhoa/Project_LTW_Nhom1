@@ -36,7 +36,7 @@
         .site-header-inner {
             width: min(1200px, calc(100% - 60px));
             margin: 0 auto;
-            min-height: 120px;
+            min-height: 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -901,7 +901,7 @@
 <body>
     <header class="site-header">
         <div class="site-header-inner">
-            <a href="{% url 'trangchu:trangchu' %}" class="site-logo">
+            <a href="{% url 'core:trangchu' %}" class="site-logo">
                 <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
             </a>
 
@@ -910,7 +910,7 @@
                     <a href="#" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
                     <a href="#" aria-label="Điện thoại"><i class="fa fa-phone"></i></a>
                     {% if user.is_authenticated and not user.is_staff %}
-                        <a href="{% url 'quanlygiohang:cart' %}" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
+                        <a href="{% url 'cart:cart' %}" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
                     {% endif %}
                     <div class="site-user" id="siteUserMenu">
                         <a href="#" aria-label="Tài khoản" id="siteUserToggle">
@@ -974,32 +974,32 @@
                             <div class="nav-dropdown">
                                 <a href="javascript:void(0)">QUẢN LÝ BÁN HÀNG</a>
                                 <div class="dropdown-menu">
-                                    <a href="{% url 'quanlydondathang:danh_sach' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
-                                    <a href="{% url 'quanlydanhmuc:danh_sach' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
-                                    <a href="{% url 'quanlysanpham:danhsachsanpham' %}">QUẢN LÝ SẢN PHẨM</a>
-                                    <a href="{% url 'quanlykhuyenmai:chi_tiet_khuyen_mai' %}">QUẢN LÝ KHUYẾN MÃI</a>
+                                    <a href="{% url 'orders:danh_sach' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
+                                    <a href="{% url 'categories:danh_sach' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
+                                    <a href="{% url 'products:danhsachsanpham' %}">QUẢN LÝ SẢN PHẨM</a>
+                                    <a href="{% url 'promotions:chi_tiet_khuyen_mai' %}">QUẢN LÝ KHUYẾN MÃI</a>
                                 </div>
                             </div>
                         {% else %}
-                            <a href="{% url 'quanlynhiemvu:danh_sach' %}">QUẢN LÝ NHIỆM VỤ</a>
+                            <a href="{% url 'tasks:danh_sach' %}">QUẢN LÝ NHIỆM VỤ</a>
                         {% endif %}
                         <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
-                        <a href="{% url 'diembanbaohanh:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                        <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
                     {% else %}
                         <div class="nav-dropdown">
-                            <a href="{% url 'trangchu:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                            <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
                             <div class="dropdown-menu">
-                                <a href="{% url 'trangchu:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
-                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=ion-kiem-hydrogen">MÁY LỌC NƯỚC ION KIỀM HYDROGEN</a>
-                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=probiotics">MÁY LỌC NƯỚC PROBIOTICS</a>
-                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=dien-giai">MÁY LỌC NƯỚC ĐIỆN GIẢI</a>
-                                <a href="{% url 'trangchu:xem_san_pham' %}?cat=de-gam">MÁY LỌC NƯỚC ĐỂ GẦM</a>
+                                <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                                <a href="{% url 'core:xem_san_pham' %}?cat=ion-kiem-hydrogen">MÁY LỌC NƯỚC ION KIỀM HYDROGEN</a>
+                                <a href="{% url 'core:xem_san_pham' %}?cat=probiotics">MÁY LỌC NƯỚC PROBIOTICS</a>
+                                <a href="{% url 'core:xem_san_pham' %}?cat=dien-giai">MÁY LỌC NƯỚC ĐIỆN GIẢI</a>
+                                <a href="{% url 'core:xem_san_pham' %}?cat=de-gam">MÁY LỌC NƯỚC ĐỂ GẦM</a>
                             </div>
                         </div>
-                        <a href="{% url 'trangchu:xem_san_pham' %}?cat=linh-kien">LINH KIỆN</a>
-                        <a href="{% url 'trangchu:xem_san_pham' %}?cat=dich-vu">DỊCH VỤ</a>
+                        <a href="{% url 'core:xem_san_pham' %}?cat=linh-kien">LINH KIỆN</a>
+                        <a href="{% url 'core:xem_san_pham' %}?cat=dich-vu">DỊCH VỤ</a>
                         <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
-                        <a href="{% url 'diembanbaohanh:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                        <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
                     {% endif %}
                 </nav>
             </div>
