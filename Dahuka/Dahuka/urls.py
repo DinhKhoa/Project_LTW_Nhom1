@@ -15,11 +15,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-
-import trangchu.views
+from django.urls import path, include
+from apps.core import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', trangchu.views.index)
+    path("admin/", admin.site.urls),
+    path("", include("apps.core.urls")),
+    path("login/", views.DahukaLoginView.as_view(), name="login"),
+    path("logout/", views.DahukaLogoutView.as_view(), name="logout"),
+    path("account/", include("apps.account.urls")),
+
+    # Restored App Routes
+    path('products/', include('apps.products.urls')),
+    path('categories/', include('apps.categories.urls')),
+    path('orders/', include('apps.orders.urls')),
+    path('promotions/', include('apps.promotions.urls')),
+    path('cart/', include('apps.cart.urls')),
+    path('tasks/', include('apps.tasks.urls')),
+    path('warranty/', include('apps.warranty.urls')),
+
 ]

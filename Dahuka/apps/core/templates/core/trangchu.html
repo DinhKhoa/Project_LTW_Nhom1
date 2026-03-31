@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}DAHUKA - Nâng tầm sống khỏe chuẩn Nhật{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/premium_dahuka.css' %}">
+<style>
+    .home-hero-full {
+        width: 100%;
+        overflow: hidden;
+    }
+    .home-hero-full img {
+        width: 100%;
+        display: block;
+    }
+
+    .category-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin: 60px 0;
+    }
+    .category-box {
+        text-align: center;
+    }
+    .category-box img {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .category-box p {
+        color: var(--ink);
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    .category-box h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .brand-logo-section {
+        text-align: center;
+        padding: 40px 0;
+    }
+    .brand-logo-section h2 {
+        font-size: 42px;
+        font-weight: 900;
+        letter-spacing: -1px;
+        margin: 0;
+        color: #111;
+    }
+
+    .promo-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+        margin: 60px 0;
+    }
+    .promo-content h2 {
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 25px;
+        line-height: 1.2;
+    }
+    .promo-content p {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #444;
+        margin-bottom: 25px;
+    }
+    .promo-content b {
+        display: block;
+        margin-bottom: 20px;
+        font-weight: 700;
+        font-style: italic;
+    }
+
+    .experience-full {
+        height: 600px;
+        background: url("{% static 'img/Khám phá 1.png' %}") center/cover;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 100px;
+    }
+    .experience-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.3);
+    }
+    .experience-card {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        color: #fff;
+    }
+    .experience-card h2 {
+        font-size: 28px;
+        font-weight: 300;
+        font-style: italic;
+        margin-bottom: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- 1. Hero Banner -->
+    <section class="home-hero-full">
+        <img src="{% static 'img/BANNER.png' %}" alt="Banner Dahuka">
+    </section>
+
+    <div class="container-shell">
+        <!-- 2. Categories -->
+        <section class="category-section">
+            <div class="category-box">
+                <img src="{% static 'img/1.png' %}" alt="Máy lọc nước">
+                <h3>Máy lọc nước</h3>
+                <p>Hơn cả sạch là tốt cho sức khỏe</p>
+            </div>
+            <div class="category-box">
+                <img src="{% static 'img/2.png' %}" alt="Cây nước nóng lạnh">
+                <h3>Cây nước nóng lạnh</h3>
+                <p>Hơn cả ngon là tận hưởng hạnh phúc</p>
+            </div>
+        </section>
+
+        <!-- 3. MUTOSI PRO Logo -->
+        <section class="brand-logo-section">
+            <h2>MUTOSI•PRO</h2>
+        </section>
+
+        <!-- 4. Hydrogen Pro Promo -->
+        <section class="promo-section">
+            <div class="promo-content">
+                <h2>Mutosi<br>Hydrogen Pro</h2>
+                <p>Mutosi Pro mới, với công nghệ Hydrogen Pro vượt trội giúp hỗ trợ cân bằng axit dư trong cơ thể, phục hồi năng lượng, ngăn ngừa lão hóa và tăng cường bảo vệ sức khỏe.</p>
+                <p>Tận tâm tạo tác từng giọt nước dùng mỗi ngày. Để bảo vệ sức khỏe gia đình tốt hơn Chuẩn Nhật.</p>
+                <b>Uống nước mỗi ngày - Khoẻ vượt kỳ vọng</b>
+                <a href="{% url 'core:xem_san_pham' %}" class="btn-minimal">Khám phá ngay</a>
+            </div>
+            <div class="promo-visual">
+                <img src="{% static 'img/MUTOSI PRO.png' %}" alt="Mutosi Pro Visual" style="width: 100%;">
+            </div>
+        </section>
+
+        <!-- 5. Hydrogen Showcase Grid -->
+        <section class="home-section">
+            <h2 class="section-title-main">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h2>
+            <div class="home-grid-4">
+                <div class="showcase-item">
+                    <img src="{% static 'img/Khám phá 1.png' %}" alt="MP-P89K">
+                    <h3>Máy lọc nước điện giải ion kiềm Hydrogen nóng nguội lạnh Mutosi MP-P89K</h3>
+                </div>
+                <div class="showcase-item">
+                    <img src="{% static 'img/Khám phá 2.png' %}" alt="MP-T888">
+                    <h3>Máy lọc nước điện giải ion kiềm Hydrogen MP-T888</h3>
+                </div>
+                <div class="showcase-item">
+                    <img src="{% static 'img/Khám phá 3.png' %}" alt="MP-666">
+                    <h3>Máy lọc nước điện giải ion kiềm Hydrogen MP-666</h3>
+                </div>
+                <div class="showcase-item">
+                    <img src="{% static 'img/Khám phá 4.png' %}" alt="MP-S1021H">
+                    <h3>Máy lọc nước điện giải ion kiềm Hydrogen MP-S1021H</h3>
+                </div>
+            </div>
+            <div class="carousel-dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+            </div>
+        </section>
+
+        <!-- 6. Tin tiêu điểm -->
+        <section class="home-section">
+            <h2 class="section-title-main">Tin tiêu điểm</h2>
+            <div class="home-grid-3">
+                <div class="news-item">
+                    <img src="{% static 'img/Tin tiêu điểm 1.png' %}" alt="News 1">
+                    <p>Hướng dẫn sử dụng và lắp đặt máy lọc nước điện giải Mutosi</p>
+                </div>
+                <div class="news-item">
+                    <img src="{% static 'img/Tin tiêu điểm 2.png' %}" alt="News 2">
+                    <p>Công nghệ lọc nước RO và công nghệ điện phân đột phá từ Mutosi</p>
+                </div>
+                <div class="news-item">
+                    <img src="{% static 'img/Tin tiêu điểm 3.png' %}" alt="News 3">
+                    <p>Hướng dẫn đo nhiệt độ nước tại bầu nóng máy lọc nước Mutosi</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="#" class="btn-minimal">Xem tất cả</a>
+            </div>
+            <div class="carousel-dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 7. Final Experience CTA -->
+    <section class="experience-full">
+        <div class="experience-overlay"></div>
+        <div class="experience-card">
+            <h2>“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h2>
+            <a href="{% url 'core:xem_san_pham' %}" class="btn-minimal" style="color: #fff; border-color: #fff; padding: 12px 60px;">Khám phá ngay</a>
+        </div>
+    </section>
+{% endblock content %}

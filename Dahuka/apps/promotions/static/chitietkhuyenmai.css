@@ -1,0 +1,210 @@
+.promo-page {
+    padding: 18px 0 32px;
+}
+
+.promo-page h1 {
+    margin: 0;
+    font-size: 50px;
+    line-height: 1.1;
+}
+
+.promo-heading {
+    margin: 28px 0 40px;
+}
+
+.promo-heading h2 {
+    margin: 0 0 6px;
+    font-size: 44px;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.promo-heading p {
+    margin: 0;
+    color: #8ba0c1;
+    font-size: 18px;
+    font-style: italic;
+}
+
+.promo-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 274px;
+    gap: 56px;
+    align-items: start;
+}
+
+.promo-form-card,
+.promo-products-card {
+    border: 1px solid #aeb0b4;
+    background: #fff;
+}
+
+.promo-form-row {
+    display: grid;
+    grid-template-columns: 242px minmax(0, 1fr);
+    border-bottom: 1px solid #aeb0b4;
+}
+
+.promo-form-row:last-child {
+    border-bottom: none;
+}
+
+.promo-form-label {
+    padding: 28px 26px;
+    background: #f2f2f2;
+    border-right: 1px solid #aeb0b4;
+    color: #657a9b;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.promo-form-value {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+}
+
+.promo-form-value select,
+.promo-form-value input {
+    height: 60px;
+    border: 1px solid #4b4b4b;
+    border-radius: 6px;
+    padding: 0 18px;
+    font-size: 23px;
+    background: #fff;
+}
+
+.promo-form-value select {
+    min-width: 214px;
+}
+
+.promo-form-value input {
+    min-width: 192px;
+}
+
+.promo-form-value .promo-short {
+    min-width: 84px;
+    max-width: 84px;
+    text-align: center;
+}
+
+.promo-form-value strong {
+    font-size: 44px;
+    line-height: 1;
+}
+
+.promo-form-value em {
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 700;
+}
+
+.promo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.promo-actions button {
+    width: 100%;
+    min-height: 64px;
+    font-size: 20px;
+}
+
+.promo-products-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 14px 18px;
+    border-bottom: 1px solid #aeb0b4;
+}
+
+.promo-products-top h3 {
+    margin: 0;
+    color: #657a9b;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.promo-products-top .green-button {
+    min-height: 56px;
+    font-size: 18px;
+}
+
+.promo-products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 18px 60px 8px;
+}
+
+.promo-product-item {
+    min-height: 76px;
+    border: 1px solid #bcbcbc;
+    padding: 12px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 23px;
+    line-height: 1.18;
+}
+
+.btn-delete {
+    border: none;
+    background: transparent;
+    font-size: 34px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+
+.promo-pagination {
+    padding: 24px 0 30px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.promo-pagination button {
+    min-width: 34px;
+    height: 34px;
+    border: 1px solid #d6dce4;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #202e3f;
+}
+
+.promo-pagination button.is-active {
+    border-color: #5f44ff;
+    color: #5f44ff;
+}
+
+.promo-pagination button:disabled {
+    background: #d0d5de;
+    color: #fff;
+}
+
+.promo-footer-bar {
+    margin-top: 40px;
+    background: #020b0e;
+    color: #fff;
+}
+
+.promo-footer-inner {
+    min-height: 170px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.promo-footer-inner img {
+    width: 118px;
+}
+
+.promo-footer-inner span {
+    font-size: 28px;
+    font-style: italic;
+}

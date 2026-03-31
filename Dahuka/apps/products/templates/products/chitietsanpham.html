@@ -1,0 +1,474 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chi tiết sản phẩm - DAHUKA{% endblock title %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'chitietsanpham.css' %}">
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="container py-4">
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-section">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'core:trangchu' %}">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="#">Quản lý bán hàng</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Quản lý sản phẩm</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Page Title & Actions -->
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <h1 class="page-title mb-0" style="border:none; padding:0;">Xem chi tiết sản phẩm</h1>
+            <div class="action-buttons" style="margin-bottom:0;">
+                <a href="{% url 'products:danhsachsanpham' %}" class="btn-back"><span>‹</span> Quay lại</a>
+                <button class="btn-save" onclick="showToast()"><i class="fa fa-check"></i> Lưu thay đổi</button>
+            </div>
+        </div>
+
+        <hr style="margin-top: -10px; margin-bottom: 30px; border-color: #eee;">
+
+        <div class="product-detail-wrapper">
+            <!-- Left: Product Images -->
+            <div class="product-images">
+                <div class="product-main-image">
+                    <button class="edit-image-btn" onclick="openEditModal()"><i class="fa fa-pencil"></i> Sửa</button>
+                    <img src="{% static 'img/1.png' %}" alt="Máy lọc nước RO Mutosi MP-S96" id="mainProductImage">
+                    <div class="main-label">Ảnh chính</div>
+                </div>
+
+                <div class="image-accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-header active" onclick="toggleAccordion(this)">
+                            <span>▾ Ảnh chính</span>
+                            <span class="chevron"></span>
+                        </button>
+                        <div class="accordion-body show">
+                            <img src="{% static 'img/1.png' %}" alt="Ảnh chính thumbnail">
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header active" onclick="toggleAccordion(this)">
+                            <span>▾ Ảnh chi tiết</span>
+                            <span class="chevron"></span>
+                        </button>
+                        <div class="accordion-body show">
+                            <img src="{% static 'img/2.png' %}" alt="Ảnh chi tiết 1">
+                            <button class="add-btn" title="Thêm ảnh">+</button>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>› Ảnh thông số</span>
+                            <span class="chevron"></span>
+                        </button>
+                        <div class="accordion-body"></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>› Ảnh tính năng</span>
+                            <span class="chevron"></span>
+                        </button>
+                        <div class="accordion-body"></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>› Ảnh mô tả chi tiết</span>
+                            <span class="chevron"></span>
+                        </button>
+                        <div class="accordion-body"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Product Form -->
+            <div class="product-form">
+
+                <!-- Thông tin cơ bản -->
+                <div class="form-section-title">
+                    <span class="icon">⊙</span> Thông tin cơ bản
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Mã sản phẩm <span class="required">*</span></label>
+                            <input type="text" class="form-control" value="MP-S96-001" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Danh mục <span class="required">*</span></label>
+                            <div class="custom-dropdown-wrapper" id="dropdownDanhmuc">
+                                <div class="custom-dropdown-trigger" onclick="toggleDropdown('dropdownDanhmuc')">
+                                    <span class="dropdown-value">Máy lọc nước RO</span>
+                                    <span class="dropdown-arrow">▾</span>
+                                </div>
+                                <div class="custom-dropdown-menu">
+                                    <div class="dropdown-item selected"
+                                         onclick="selectDropdownItem(this, 'dropdownDanhmuc')">Máy lọc nước RO
+                                    </div>
+                                    <div class="dropdown-item" onclick="selectDropdownItem(this, 'dropdownDanhmuc')">Máy
+                                        lọc nước UV
+                                    </div>
+                                    <div class="dropdown-item" onclick="selectDropdownItem(this, 'dropdownDanhmuc')">
+                                        Linh kiện
+                                    </div>
+                                    <div class="dropdown-item" onclick="selectDropdownItem(this, 'dropdownDanhmuc')">Phụ
+                                        tùng
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tên sản phẩm <span class="required">*</span></label>
+                    <input type="text" class="form-control" value="Máy lọc nước RO Mutosi MP-S96">
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Giá tiền <span class="required">*</span></label>
+                            <div class="input-with-unit">
+                                <input type="text" class="form-control" value="11,645,000">
+                                <span class="input-unit">đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Số lượng tồn kho <span class="required">*</span></label>
+                            <div class="input-with-unit">
+                                <input type="text" class="form-control" value="42">
+                                <span class="input-unit">cái</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Loại máy</label>
+                            <div class="custom-dropdown-wrapper" id="dropdownLoaimay">
+                                <div class="custom-dropdown-trigger" onclick="toggleDropdown('dropdownLoaimay')">
+                                    <span class="dropdown-value">Máy lọc nước</span>
+                                    <span class="dropdown-arrow">▾</span>
+                                </div>
+                                <div class="custom-dropdown-menu">
+                                    <div class="dropdown-item selected"
+                                         onclick="selectDropdownItem(this, 'dropdownLoaimay')">Máy lọc nước
+                                    </div>
+                                    <div class="dropdown-item" onclick="selectDropdownItem(this, 'dropdownLoaimay')">Bộ
+                                        lọc
+                                    </div>
+                                    <div class="dropdown-item" onclick="selectDropdownItem(this, 'dropdownLoaimay')">Phụ
+                                        tùng
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Công nghệ lọc</label>
+                            <div class="custom-dropdown-wrapper" id="dropdownCongngheloc">
+                                <div class="custom-dropdown-trigger" onclick="toggleDropdown('dropdownCongngheloc')">
+                                    <span class="dropdown-value">RO (Reverse Osmosis)</span>
+                                    <span class="dropdown-arrow">▾</span>
+                                </div>
+                                <div class="custom-dropdown-menu">
+                                    <div class="dropdown-item selected"
+                                         onclick="selectDropdownItem(this, 'dropdownCongngheloc')">RO (Reverse Osmosis)
+                                    </div>
+                                    <div class="dropdown-item"
+                                         onclick="selectDropdownItem(this, 'dropdownCongngheloc')">UV
+                                    </div>
+                                    <div class="dropdown-item"
+                                         onclick="selectDropdownItem(this, 'dropdownCongngheloc')">Carbon
+                                    </div>
+                                    <div class="dropdown-item"
+                                         onclick="selectDropdownItem(this, 'dropdownCongngheloc')">UF
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông số kỹ thuật -->
+                <div class="form-section-title mt-4">
+                    <span class="icon">💬</span> Thông số kỹ thuật
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Công suất lọc</label>
+                            <div class="input-with-unit">
+                                <input type="text" class="form-control" value="50">
+                                <span class="input-unit">lít/ngày</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Dung tích bình</label>
+                            <div class="input-with-unit">
+                                <input type="text" class="form-control" value="8">
+                                <span class="input-unit">lít</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Nhiệt độ nóng</label>
+                            <div class="input-with-unit">
+                                <input type="text" class="form-control" value="85">
+                                <span class="input-unit">°C</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Nhiệt độ lạnh</label>
+                            <div class="input-with-unit">
+                                <input type="text" class="form-control" value="8">
+                                <span class="input-unit">°C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Số lõi lọc</label>
+                            <div class="input-with-unit">
+                                <input type="text" class="form-control" value="5">
+                                <span class="input-unit">lớp</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Năm ra mắt</label>
+                            <input type="text" class="form-control" value="2024">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Kích thước</label>
+                            <input type="text" class="form-control" value="Dài 30cm × Rộng 15cm × Cao 41cm">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Khối lượng</label>
+                            <div class="input-with-unit">
+                                <input type="text" class="form-control" value="6.5">
+                                <span class="input-unit">kg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Nơi sản xuất</label>
+                            <input type="text" class="form-control" value="Nhà máy Mutosi – Nhật Bản">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Thời gian bảo hành</label>
+                            <div class="input-with-unit">
+                                <input type="text" class="form-control" value="2">
+                                <span class="input-unit">năm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tính năng</label>
+                    <input type="text" class="form-control"
+                           value="Lọc nước, Diệt khuẩn UV, Giữ khoáng, Điều chỉnh nhiệt độ">
+                </div>
+                <div class="form-group">
+                    <label>Thông số</label>
+                    <input type="text" class="form-control" value="TDS: 0-5 ppm | pH: 6.5-8.5 | Power: 220V/50Hz">
+                </div>
+
+                <!-- Mô tả sản phẩm -->
+                <div class="form-section-title mt-4">
+                    <span class="icon">📄</span> Mô tả sản phẩm
+                </div>
+                <div class="form-group">
+                    <label>Mô tả ngắn</label>
+                    <textarea class="form-control" rows="3" style="resize: vertical;">Máy lọc nước RO Mutosi MP-S96 là thiết bị lọc nước hiện đại với công nghệ RO thế hệ mới, đảm bảo nguồn nước uống an toàn và giữ lại các khoáng chất thiết yếu.</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Mô tả chi tiết</label>
+                    <textarea class="form-control" rows="4" style="resize: vertical;">Máy lọc nước RO Mutosi MP-S96 được trang bị hệ lọc 5 lớp hiện đại gồm: Lớp 1 – Lọc cát (PP 5μm), Lớp 2 – Lọc than hoạt tính, Lớp 3 – Màng RO (Semi-permeable), Lớp 4 – Lọc post-carbon, Lớp 5 – Lọc diệt khuẩn UV. Thiết kế gọn gàng, lắp đặt đơn giản, phù hợp cho hộ gia đình và văn phòng nhỏ. Hệ thống báo thay bộ lọc tự động giúp duy trì chất lượng nước tối ưu.</textarea>
+                </div>
+
+                <!-- Trạng thái -->
+                <div class="form-section-title mt-4">
+                    <span class="icon">⏱</span> Trạng thái
+                </div>
+                <div class="form-group">
+                    <label>Trạng thái hiển thị</label>
+                    <div class="d-flex align-items-center mt-1">
+                        <label class="toggle-switch mb-0">
+                            <input type="checkbox" id="toggleStatus" checked onchange="updateToggleLabel(this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label" id="toggleStatusLabel">Hiển thị trên website</span>
+                    </div>
+                </div>
+
+                <!-- Bottom Actions -->
+                <hr class="mt-4">
+                <div class="action-buttons">
+                    <a href="{% url 'products:danhsachsanpham' %}" class="btn-back">Hủy</a>
+                    <button class="btn-save" onclick="showToast()"><i class="fa fa-check"></i> Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (Edit Image) -->
+    <div class="modal-overlay" id="imageModal">
+        <div class="modal-box">
+            <div class="modal-header-custom">
+                <h4>Sửa ảnh sản phẩm</h4>
+                <button class="modal-close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body-custom">
+                <p>Chọn ảnh mới cho sản phẩm (Hỗ trợ: JPG, PNG, WEBP)</p>
+                <div class="upload-dropzone" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon"><i class="fa fa-cloud-upload"></i></div>
+                    <div class="upload-text">Kéo thả ảnh hoặc nhấn để chọn tệp</div>
+                    <input type="file" id="fileInput" hidden accept="image/*" onchange="previewImage(this)">
+                    <img id="imagePreview" class="preview-img d-none">
+                </div>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="modal-btn-cancel" onclick="closeEditModal()">Hủy</button>
+                <button class="modal-btn-save" onclick="saveImage()"><i class="fa fa-check"></i> Lưu ảnh</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-notification" id="saveToast">
+        <i class="fa fa-check-circle toast-icon"></i>
+        <span>Lưu thay đổi thành công!</span>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+    <script>
+        function toggleAccordion(btn) {
+            btn.classList.toggle('active');
+            const body = btn.nextElementSibling;
+            body.classList.toggle('show');
+            const span = btn.querySelector('span');
+            if (btn.classList.contains('active')) {
+                span.textContent = span.textContent.replace('›', '▾');
+            } else {
+                span.textContent = span.textContent.replace('▾', '›');
+            }
+        }
+
+        function toggleDropdown(id) {
+            const wrapper = document.getElementById(id);
+            if (!wrapper) return;
+            const trigger = wrapper.querySelector('.custom-dropdown-trigger');
+            const menu = wrapper.querySelector('.custom-dropdown-menu');
+
+            // Close other dropdowns
+            document.querySelectorAll('.custom-dropdown-trigger').forEach(t => {
+                if (t !== trigger) t.classList.remove('open');
+            });
+            document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
+                if (m !== menu) m.classList.remove('show');
+            });
+
+            trigger.classList.toggle('open');
+            menu.classList.toggle('show');
+        }
+
+        function selectDropdownItem(item, id) {
+            const wrapper = document.getElementById(id);
+            const valueSpan = wrapper.querySelector('.dropdown-value');
+            const menu = wrapper.querySelector('.custom-dropdown-menu');
+            const trigger = wrapper.querySelector('.custom-dropdown-trigger');
+
+            wrapper.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('selected'));
+            item.classList.add('selected');
+            valueSpan.textContent = item.textContent;
+
+            trigger.classList.remove('open');
+            menu.classList.remove('show');
+        }
+
+        function updateToggleLabel(checkbox) {
+            const label = document.getElementById('toggleStatusLabel');
+            label.textContent = checkbox.checked ? 'Hiển thị trên website' : 'Ẩn khỏi website';
+        }
+
+        function openEditModal() {
+            document.getElementById('imageModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('imageModal').classList.remove('show');
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const preview = document.getElementById('imagePreview');
+                    const dropzone = preview.parentElement;
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                    dropzone.classList.add('has-image');
+                    dropzone.querySelector('.upload-icon').style.display = 'none';
+                    dropzone.querySelector('.upload-text').style.display = 'none';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveImage() {
+            const previewSrc = document.getElementById('imagePreview').src;
+            if (previewSrc) {
+                document.getElementById('mainProductImage').src = previewSrc;
+            }
+            closeEditModal();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('saveToast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.toggle('show', false);
+            }, 3000);
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-dropdown-wrapper')) {
+                document.querySelectorAll('.custom-dropdown-trigger').forEach(el => el.classList.remove('open'));
+                document.querySelectorAll('.custom-dropdown-menu').forEach(el => el.classList.remove('show'));
+            }
+        });
+    </script>
+{% endblock extra_js %}

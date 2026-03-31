@@ -1,0 +1,219 @@
+{% extends 'account/account_base.html' %}
+
+{% block title %}Thông tin tài khoản - DAHUKA{% endblock %}
+
+{% block account_body %}
+    <style>
+        .profile-card {
+            padding: 22px;
+        }
+
+        .profile-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .profile-column {
+            padding: 12px 18px 14px;
+        }
+
+        .profile-column + .profile-column {
+            border-left: 2px solid #d7d9de;
+        }
+
+        .profile-subtitle {
+            font-size: 14px;
+            color: #586272;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .profile-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: #eef2f8;
+            color: #a5afbb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 84px 1fr;
+            gap: 10px 12px;
+            align-items: center;
+        }
+
+        .profile-radio-group {
+            display: flex;
+            gap: 16px;
+            color: #697282;
+            font-size: 14px;
+        }
+
+        .profile-radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+        }
+
+        .profile-inline-triple {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .profile-social {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .profile-summary {
+            margin-top: 18px;
+            padding: 18px 22px;
+        }
+
+        .profile-summary h3 {
+            font-size: 14px;
+            color: #586272;
+            font-weight: 700;
+            margin: 0 0 18px;
+        }
+
+        .profile-summary-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 12px 28px;
+            font-size: 14px;
+        }
+
+        .profile-summary-grid div:nth-child(odd) {
+            color: #667084;
+            font-weight: 600;
+        }
+
+        .profile-summary-grid div:nth-child(even) {
+            color: #9299a5;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 22px;
+        }
+
+        @media (max-width: 900px) {
+            .profile-panel,
+            .profile-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-column + .profile-column {
+                border-left: 0;
+                border-top: 2px solid #d7d9de;
+            }
+        }
+    </style>
+
+    <h1 class="account-heading">Thông tin tài khoản</h1>
+
+    <form method="post" class="account-card profile-card" novalidate>
+        {% csrf_token %}
+        <div class="profile-panel">
+            <section class="profile-column">
+                <div class="profile-subtitle">THÔNG TIN CÁ NHÂN</div>
+                <div class="profile-avatar">
+                    <i class="fa fa-user-o"></i>
+                </div>
+
+                <div class="profile-grid">
+                    <label class="account-label">Họ tên</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        {{ form.last_name }}
+                        {{ form.first_name }}
+                    </div>
+
+                    <label class="account-label">Giới tính</label>
+                    <div class="profile-radio-group">
+                        <label><input type="radio" name="gioitinh" id="nam" checked> Nam</label>
+                        <label><input type="radio" name="gioitinh" id="nu"> Nữ</label>
+                        <label><input type="radio" name="gioitinh" id="khac"> Khác</label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="profile-column">
+                <div class="profile-subtitle">Số điện thoại và email</div>
+
+                <div class="profile-grid" style="grid-template-columns: 110px 1fr;">
+                    <label class="account-label">Số điện thoại</label>
+                    {{ form.phone }}
+
+                    <label class="account-label">Email</label>
+                    {{ form.email }}
+
+                    <label class="account-label">Ngày sinh</label>
+                    <div class="profile-inline-triple">
+                        <select class="account-select">
+                            <option>18</option>
+                        </select>
+                        <select class="account-select">
+                            <option>01</option>
+                        </select>
+                        <select class="account-select">
+                            <option>2005</option>
+                        </select>
+                    </div>
+
+                    <label class="account-label">Mật khẩu</label>
+                    <div>
+                        <a href="{% url 'change_password' %}" class="account-btn-outline"
+                           style="min-width: 102px; height: 34px;">Cập nhật</a>
+                    </div>
+                </div>
+
+                <div style="margin-top: 18px; color: #8a9099; font-size: 12px;">Liên kết mạng xã hội</div>
+                <div class="profile-social">
+                    <div style="display: flex; align-items: center; gap: 10px; color: #6c7481;">
+                        <span style="font-size: 24px; color: #ea4335; font-weight: 700;">G</span>
+                        <span>Google</span>
+                    </div>
+                    <button type="button" class="account-btn-outline" style="min-width: 112px; height: 34px;">Đã liên
+                        kết
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        {% if form.non_field_errors %}
+            <ul class="account-errors">{{ form.non_field_errors }}</ul>
+        {% endif %}
+
+        <div class="profile-actions">
+            <button type="submit" class="account-btn-outline">Lưu thay đổi</button>
+        </div>
+    </form>
+
+    {% if not user.is_staff %}
+    <section class="account-card profile-summary">
+        <h3>TỔNG QUAN THỨ BẬC</h3>
+        <div class="profile-summary-grid">
+            <div>Hạng thành viên</div>
+            <div>Classic</div>
+            <div>Số điểm hiện tại</div>
+            <div>0 điểm</div>
+            <div>Số điểm cần tích lũy thêm để tăng hạng</div>
+            <div>200 điểm nữa để thăng hạng Đồng</div>
+        </div>
+    </section>
+    {% endif %}
+{% endblock %}
