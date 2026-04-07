@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Xóa danh mục - DAHUKA{% endblock %}
+{% block nav_qlbh_active %}font-weight-bold{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'quanlydanhmuc/css/danhmuc.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent px-0">
+            <li class="breadcrumb-item"><a href="{% url 'core:trangchu' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="#">Quản lý bán hàng</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'categories:danh_sach' %}">Quản lý danh mục sản phẩm</a></li>
+            <li class="breadcrumb-item active">Xóa danh mục</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex align-items-center mb-4">
+        <h2 class="page-title mb-0">Xóa danh mục</h2>
+        <div class="title-line ml-3"></div>
+    </div>
+
+    <div class="card form-card">
+        <div class="card-body text-center py-5">
+            <i class="fa fa-exclamation-triangle text-warning" style="font-size: 48px;"></i>
+            <h4 class="mt-3">Bạn có chắc chắn muốn xóa danh mục này?</h4>
+            <p class="text-muted mt-2">
+                <strong>{{ danh_muc.ma_danh_muc }}</strong> - {{ danh_muc.ten_danh_muc }}
+            </p>
+            <p class="text-danger">
+                <small>Danh mục này có {{ danh_muc.so_luong_san_pham }} sản phẩm. Tất cả sản phẩm thuộc danh mục cũng sẽ bị xóa!</small>
+            </p>
+            <form method="POST" class="d-inline">
+                {% csrf_token %}
+                <a href="{% url 'categories:danh_sach' %}" class="btn btn-secondary mr-2">
+                    <i class="fa fa-arrow-left"></i> Quay lại
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fa fa-trash"></i> Xác nhận xóa
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

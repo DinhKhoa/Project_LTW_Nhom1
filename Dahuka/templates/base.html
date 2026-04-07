@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/fonts/montserrat/google-fonts.css' %}">
+    {% block extra_css %}{% endblock %}
     <style>
         :root {
             --brand: #4d8b6f;
@@ -33,24 +34,38 @@
         }
 
         .site-header-inner {
-            width: min(1180px, calc(100% - 32px));
+            width: min(1200px, calc(100% - 60px));
             margin: 0 auto;
-            min-height: 96px;
+            min-height: 50px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 28px;
+        }
+
+        .site-logo {
+            flex-shrink: 0;
+            display: block;
         }
 
         .site-logo img {
-            width: 90px;
+            height: 90px;
+            width: auto;
             display: block;
+        }
+
+        .header-content-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 15px;
+            flex-grow: 1;
         }
 
         .site-nav {
             display: flex;
             align-items: center;
-            gap: 34px;
-            flex: 1;
+            gap: 24px;
+            align-self: center;
         }
 
         .site-nav a {
@@ -65,11 +80,74 @@
             color: var(--brand-dark);
         }
 
+        /* Nav Dropdown */
+        .site-nav .nav-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .site-nav .nav-dropdown > a::after {
+            content: "\f107";
+            font-family: FontAwesome;
+            margin-left: 6px;
+        }
+
+        .site-nav .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            min-width: 260px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+            padding: 8px 0;
+            z-index: 100;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-top: 5px; /* Giảm khoảng cách */
+        }
+
+        /* Bridge - Cầu nối vô hình giúp không bị mất hover */
+        .site-nav .nav-dropdown::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            display: none;
+        }
+
+        .site-nav .nav-dropdown:hover::before {
+            display: block;
+        }
+
+        .site-nav .dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--ink);
+            font-size: 13.5px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .site-nav .dropdown-menu a:last-child {
+            border-bottom: 0;
+        }
+
+        .site-nav .dropdown-menu a:hover {
+            background: #f8fafc;
+            color: var(--brand);
+        }
+
+        .site-nav .nav-dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
         .site-actions {
             display: flex;
             align-items: center;
-            gap: 18px;
-            font-size: 18px;
+            gap: 24px;
+            font-size: 20px;
             color: var(--brand);
         }
 
@@ -96,6 +174,434 @@
             color: #fff;
             font-size: 10px;
             padding: 0 4px;
+        }
+
+        .feature-popup {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 2000;
+        }
+
+        .feature-popup.is-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .feature-popup__dialog {
+            position: relative;
+            width: min(820px, calc(100vw - 72px));
+            max-height: min(88vh, 760px);
+            border-radius: 28px;
+            padding: 34px 28px 24px;
+            background:
+                radial-gradient(circle at 15% 52%, rgba(255, 146, 77, 0.24), transparent 18%),
+                radial-gradient(circle at 83% 41%, rgba(60, 127, 220, 0.16), transparent 20%),
+                linear-gradient(180deg, #f8fcfe 0%, #edf5fb 100%);
+            box-shadow: 0 26px 70px rgba(52, 93, 138, 0.18);
+            overflow: hidden;
+        }
+
+        .feature-popup__close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.92);
+            color: #2563b8;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(37, 99, 184, 0.14);
+        }
+
+        .feature-popup__close:hover {
+            background: #fff;
+        }
+
+        .feature-popup__title {
+            margin: 0;
+            text-align: center;
+            font-size: clamp(28px, 3.4vw, 48px);
+            line-height: 1.04;
+            font-weight: 800;
+            color: #1e63b5;
+            letter-spacing: -0.03em;
+            white-space: nowrap;
+        }
+
+        .feature-popup__subtitle {
+            margin: 12px auto 0;
+            max-width: 470px;
+            text-align: center;
+            font-size: 14px;
+            color: #5e7899;
+        }
+
+        .feature-popup__art {
+            position: relative;
+            min-height: 348px;
+            margin-top: 2px;
+        }
+
+        .feature-popup__ghost-line,
+        .feature-popup__ghost-button,
+        .feature-popup__panel,
+        .feature-popup__progress,
+        .feature-popup__tool {
+            position: absolute;
+            filter: blur(1px);
+            opacity: 0.45;
+        }
+
+        .feature-popup__ghost-line {
+            left: 28px;
+            width: 250px;
+            height: 16px;
+            border-radius: 999px;
+            background: rgba(151, 184, 225, 0.4);
+        }
+
+        .feature-popup__ghost-line--1 { top: 116px; }
+        .feature-popup__ghost-line--2 {
+            top: 164px;
+            width: 280px;
+            background: rgba(255, 161, 84, 0.45);
+        }
+        .feature-popup__ghost-line--3 {
+            top: 212px;
+            width: 240px;
+        }
+
+        .feature-popup__ghost-button {
+            left: 56px;
+            top: 270px;
+            width: 104px;
+            height: 34px;
+            border-radius: 14px;
+            background: rgba(181, 202, 236, 0.56);
+        }
+
+        .feature-popup__panel {
+            right: 22px;
+            top: 104px;
+            width: 250px;
+            height: 180px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, rgba(211, 224, 245, 0.8), rgba(245, 249, 253, 0.94));
+            transform: rotate(12deg);
+        }
+
+        .feature-popup__progress {
+            right: 74px;
+            top: 216px;
+            width: 172px;
+            height: 24px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(255, 153, 87, 0.9) 0%, rgba(255, 200, 143, 0.72) 58%, rgba(255, 255, 255, 0.3) 58%, rgba(255, 255, 255, 0.82) 100%);
+            transform: rotate(12deg);
+        }
+
+        .feature-popup__tool {
+            color: rgba(105, 136, 182, 0.5);
+            font-size: 38px;
+        }
+
+        .feature-popup__tool--1 {
+            right: 108px;
+            top: 286px;
+            transform: rotate(24deg);
+        }
+
+        .feature-popup__tool--2 {
+            right: 34px;
+            top: 304px;
+            transform: rotate(-26deg);
+        }
+
+        .feature-popup__center {
+            position: absolute;
+            left: 50%;
+            top: 116px;
+            transform: translateX(-50%);
+            width: 360px;
+            height: 292px;
+            max-width: calc(100% - 160px);
+            overflow: visible;
+        }
+
+        .feature-popup__board {
+            position: absolute;
+            inset: 32px 0 22px;
+            z-index: 1;
+            border-radius: 20px;
+            border: 6px solid #2d77ca;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+                linear-gradient(180deg, #2d77ca 0%, #1c5ba5 100%);
+            background-size: 30px 30px, 30px 30px, cover;
+            box-shadow: 0 18px 36px rgba(34, 87, 151, 0.2);
+        }
+
+        .feature-popup__board::after {
+            content: "";
+            position: absolute;
+            inset: 18px;
+            border: 1px solid rgba(203, 227, 255, 0.35);
+            border-radius: 12px;
+        }
+
+        .feature-popup__board-rail {
+            position: absolute;
+            top: -18px;
+            right: -18px;
+            width: 20px;
+            height: calc(100% + 36px);
+            border-radius: 12px;
+            background: #2567b4;
+        }
+
+        .feature-popup__robot {
+            position: absolute;
+            left: 50%;
+            top: 8px;
+            z-index: 3;
+            transform: translateX(-50%);
+            width: 172px;
+            height: 246px;
+        }
+
+        .feature-popup__helmet {
+            position: absolute;
+            top: 0;
+            left: 26px;
+            width: 128px;
+            height: 72px;
+            border-radius: 70px 70px 32px 32px;
+            background: linear-gradient(180deg, #ffc868 0%, #f49a31 100%);
+            box-shadow: inset 0 -6px 0 rgba(210, 122, 30, 0.55);
+        }
+
+        .feature-popup__helmet::before,
+        .feature-popup__helmet::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            width: 6px;
+            height: 44px;
+            border-radius: 999px;
+            background: rgba(201, 118, 31, 0.78);
+        }
+
+        .feature-popup__helmet::before { left: 34px; transform: rotate(10deg); }
+        .feature-popup__helmet::after { right: 34px; transform: rotate(-10deg); }
+
+        .feature-popup__head {
+            position: absolute;
+            top: 48px;
+            left: 34px;
+            width: 112px;
+            height: 104px;
+            border-radius: 36px;
+            background: linear-gradient(180deg, #edf5fe 0%, #bdd4ef 100%);
+            box-shadow: inset 0 -10px 0 rgba(154, 181, 213, 0.48);
+        }
+
+        .feature-popup__face {
+            position: absolute;
+            inset: 16px 18px 18px;
+            border-radius: 26px;
+            background: linear-gradient(180deg, #17366f 0%, #102752 100%);
+        }
+
+        .feature-popup__eye,
+        .feature-popup__smile {
+            position: absolute;
+            background: #86f0ff;
+        }
+
+        .feature-popup__eye {
+            top: 34px;
+            width: 10px;
+            height: 26px;
+            border-radius: 999px;
+        }
+
+        .feature-popup__eye--left { left: 28px; }
+        .feature-popup__eye--right { right: 28px; }
+
+        .feature-popup__smile {
+            left: 50%;
+            bottom: 22px;
+            width: 28px;
+            height: 12px;
+            border-radius: 0 0 18px 18px;
+            transform: translateX(-50%);
+            clip-path: inset(45% 0 0 0);
+        }
+
+        .feature-popup__ear {
+            position: absolute;
+            top: 76px;
+            width: 22px;
+            height: 42px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #d8e5f5 0%, #aec6e3 100%);
+        }
+
+        .feature-popup__ear--left { left: 18px; }
+        .feature-popup__ear--right { right: 18px; }
+
+        .feature-popup__body {
+            position: absolute;
+            top: 138px;
+            left: 40px;
+            width: 100px;
+            height: 86px;
+            border-radius: 34px 34px 42px 42px;
+            background: linear-gradient(180deg, #f6fbff 0%, #cadbf0 100%);
+        }
+
+        .feature-popup__body::after {
+            content: "\f0ad";
+            position: absolute;
+            left: 50%;
+            top: 30px;
+            transform: translateX(-50%);
+            font-family: FontAwesome;
+            font-size: 34px;
+            color: rgba(118, 137, 164, 0.72);
+        }
+
+        .feature-popup__limb {
+            position: absolute;
+            background: linear-gradient(180deg, #d9e6f7 0%, #b9cde8 100%);
+            border-radius: 999px;
+        }
+
+        .feature-popup__limb--arm-left {
+            left: 18px;
+            top: 156px;
+            width: 34px;
+            height: 86px;
+            transform: rotate(28deg);
+        }
+
+        .feature-popup__limb--arm-right {
+            right: 12px;
+            top: 152px;
+            width: 34px;
+            height: 86px;
+            transform: rotate(-16deg);
+        }
+
+        .feature-popup__limb--leg-left {
+            left: 48px;
+            top: 206px;
+            width: 34px;
+            height: 78px;
+            transform: rotate(24deg);
+        }
+
+        .feature-popup__limb--leg-right {
+            right: 46px;
+            top: 206px;
+            width: 34px;
+            height: 78px;
+            transform: rotate(-28deg);
+        }
+
+        .feature-popup__hand,
+        .feature-popup__foot {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #c7d9ef;
+        }
+
+        .feature-popup__hand--left { left: 10px; top: 212px; }
+        .feature-popup__hand--right { right: 6px; top: 208px; }
+        .feature-popup__foot--left { left: 34px; bottom: -4px; }
+        .feature-popup__foot--right { right: 26px; bottom: -4px; }
+
+        .feature-popup__gear {
+            position: absolute;
+            right: 16px;
+            top: 188px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #ffbf59 0%, #f19125 100%);
+            box-shadow: 0 8px 18px rgba(233, 145, 37, 0.26);
+        }
+
+        .feature-popup__gear::before {
+            content: "";
+            position: absolute;
+            inset: 16px;
+            border-radius: 50%;
+            background: #edf5fb;
+        }
+
+        .feature-popup__barrier {
+            position: absolute;
+            left: 8px;
+            bottom: 18px;
+            z-index: 4;
+            width: 96px;
+            height: 62px;
+            transform: rotate(-1deg);
+        }
+
+        .feature-popup__barrier::before,
+        .feature-popup__barrier::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            background:
+                repeating-linear-gradient(120deg, #fff 0 16px, #ff902d 16px 32px);
+            box-shadow: 0 8px 16px rgba(27, 61, 103, 0.12);
+        }
+
+        .feature-popup__barrier::after {
+            top: 34px;
+            height: 36px;
+        }
+
+        .feature-popup__barrier-leg {
+            position: absolute;
+            bottom: -32px;
+            width: 8px;
+            height: 40px;
+            border-radius: 999px;
+            background: #91a8c4;
+        }
+
+        .feature-popup__barrier-leg--left {
+            left: 22px;
+            transform: rotate(6deg);
+        }
+
+        .feature-popup__barrier-leg--right {
+            left: 86px;
+            transform: rotate(-6deg);
         }
 
         .site-user {
@@ -189,6 +695,10 @@
             color: #fff;
         }
 
+        .site-user-logout {
+            border-top: 1px solid #eee;
+        }
+
         .site-toast-wrap {
             position: fixed;
             top: 118px;
@@ -235,7 +745,7 @@
         }
 
         .home-section {
-            width: min(1180px, calc(100% - 32px));
+            width: min(1200px, calc(100% - 60px));
             margin: 0 auto;
             padding: 40px 0;
         }
@@ -306,21 +816,9 @@
             border-color: #111827;
         }
 
-        .account-btn-dark {
-            background: #171b2a;
-            border: 1px solid #171b2a;
-            color: #fff;
-        }
-
-        .account-btn-dark:hover {
-            background: #fff;
-            color: #111827 !important;
-            border-color: #111827;
-        }
-
+        .btn-ghost:focus,
         .account-btn-outline:focus,
-        .account-btn-dark:focus,
-        .btn-ghost:focus {
+        .account-btn-dark:focus {
             outline: none;
             box-shadow: none;
         }
@@ -331,7 +829,7 @@
         }
 
         .site-footer-top-inner {
-            width: min(1180px, calc(100% - 32px));
+            width: min(1200px, calc(100% - 60px));
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -361,17 +859,18 @@
         }
 
         .site-footer-bottom-inner {
-            width: min(1180px, calc(100% - 32px));
+            width: min(1200px, calc(100% - 60px));
             margin: 0 auto;
-            min-height: 64px;
+            min-height: 80px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 20px;
         }
 
         .site-footer-bottom img {
-            width: 44px;
-            filter: brightness(0) invert(1);
+            height: 70px;
+            width: auto;
+            display: block;
         }
 
         @media (max-width: 980px) {
@@ -393,9 +892,6 @@
                 width: min(220px, calc(100vw - 32px));
             }
 
-            .home-grid-2,
-            .home-grid-3,
-            .home-grid-4,
             .site-footer-top-inner {
                 grid-template-columns: 1fr;
             }
@@ -405,60 +901,107 @@
 <body>
     <header class="site-header">
         <div class="site-header-inner">
-            <a href="{% url 'home' %}" class="site-logo">
+            <a href="{% url 'core:trangchu' %}" class="site-logo">
                 <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
             </a>
 
-            <nav class="site-nav">
-                <a href="#">MÁY LỌC NƯỚC</a>
-                <a href="#">LINH KIỆN</a>
-                <a href="#">DỊCH VỤ</a>
-                <a href="#">HƯỚNG DẪN LẮP ĐẶT</a>
-                <a href="#">ĐIỂM BÁN - BẢO HÀNH</a>
-            </nav>
-
-            <div class="site-actions">
-                <a href="#" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
-                <a href="#" aria-label="Điện thoại"><i class="fa fa-phone"></i></a>
-                <a href="#" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
-                <div class="site-user" id="siteUserMenu">
-                    <a href="#" aria-label="Tài khoản" id="siteUserToggle">
-                        <i class="fa fa-user-o"></i>
-                    </a>
-                    <div class="site-user-menu">
-                        {% if user.is_authenticated %}
-                            <div class="site-user-card">
-                                <div class="site-user-card-top">
-                                    <div class="site-user-avatar-lg">
-                                        <i class="fa fa-user-o"></i>
-                                    </div>
-                                    <div class="site-user-meta">
-                                        <strong>{{ user.get_full_name|default:user.username }}</strong>
-                                        <div>Người Tiêu Dùng</div>
-                                        <div>Điểm: 0</div>
-                                        <div>Xếp hạng: Classic</div>
+            <div class="header-content-right">
+                <div class="site-actions">
+                    <a href="#" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
+                    <a href="#" aria-label="Điện thoại"><i class="fa fa-phone"></i></a>
+                    {% if user.is_authenticated and not user.is_staff %}
+                        <a href="{% url 'cart:cart' %}" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
+                    {% endif %}
+                    <div class="site-user" id="siteUserMenu">
+                        <a href="#" aria-label="Tài khoản" id="siteUserToggle">
+                            <i class="fa fa-user-o"></i>
+                        </a>
+                        <div class="site-user-menu">
+                            {% if user.is_authenticated %}
+                                <div class="site-user-card">
+                                    <div class="site-user-card-top">
+                                        <div class="site-user-avatar-lg">
+                                            <i class="fa fa-user-o"></i>
+                                        </div>
+                                        <div class="site-user-meta">
+                                            <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                            {% if user.is_superuser %}
+                                                <div>Chủ Cửa Hàng</div>
+                                            {% elif user.is_staff %}
+                                                <div>Nhân Viên</div>
+                                            {% else %}
+                                                <div>Người Tiêu Dùng</div>
+                                                <div>Điểm: 0</div>
+                                                <div>Xếp hạng: Classic</div>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="site-user-links">
-                                <a href="{% url 'profile_view' %}"><i class="fa fa-user-o"></i><span>Thông tin tài khoản</span></a>
-                                <a href="{% url 'address_list' %}"><i class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
-                                <a href="{% url 'order_list' %}"><i class="fa fa-shopping-bag"></i><span>Quản lý đơn hàng</span></a>
-                            </div>
-                            <div class="site-user-logout">
-                                <a href="{% url 'logout' %}"><i class="fa fa-sign-out"></i><span>Đăng xuất</span></a>
+                                <div class="site-user-links">
+                                    <a href="{% url 'profile_view' %}"><i class="fa fa-user-o"></i><span>Thông tin tài khoản</span></a>
+                                    {% if not user.is_staff %}
+                                    <a href="{% url 'address_list' %}"><i class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
+                                    <a href="{% url 'order_list' %}"><i class="fa fa-shopping-bag"></i><span>Quản lý đơn hàng</span></a>
+                                    {% endif %}
+                                </div>
+                                <div class="site-user-logout">
+                                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                                        {% csrf_token %}
+                                    </form>
+                                    <a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit();">
+                                        <i class="fa fa-sign-out"></i><span>Đăng xuất</span>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="site-user-links">
+                                    <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i><span>Đăng nhập</span></a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if user.is_authenticated %}
+                        <div style="position: relative;">
+                            <i class="fa fa-bell-o"></i>
+                            <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -8px;">3</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <nav class="site-nav">
+                    {% if user.is_authenticated and user.is_staff %}
+                        <a href="#">CHĂM SÓC NƯỚC</a>
+                        {% if user.is_superuser %}
+                            <div class="nav-dropdown">
+                                <a href="javascript:void(0)">QUẢN LÝ BÁN HÀNG</a>
+                                <div class="dropdown-menu">
+                                    <a href="{% url 'orders:danh_sach' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
+                                    <a href="{% url 'categories:danh_sach' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
+                                    <a href="{% url 'products:danhsachsanpham' %}">QUẢN LÝ SẢN PHẨM</a>
+                                    <a href="{% url 'promotions:chi_tiet_khuyen_mai' %}">QUẢN LÝ KHUYẾN MÃI</a>
+                                </div>
                             </div>
                         {% else %}
-                            <div class="site-user-links">
-                                <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i><span>Đăng nhập</span></a>
-                            </div>
+                            <a href="{% url 'tasks:danh_sach' %}">QUẢN LÝ NHIỆM VỤ</a>
                         {% endif %}
-                    </div>
-                </div>
-                <div style="position: relative;">
-                    <i class="fa fa-bell-o"></i>
-                    <span class="badge">1</span>
-                </div>
+                        <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
+                        <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                    {% else %}
+                        <div class="nav-dropdown">
+                            <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                            <div class="dropdown-menu">
+                                <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                                <a href="{% url 'core:xem_san_pham' %}?cat=ion-kiem-hydrogen">MÁY LỌC NƯỚC ION KIỀM HYDROGEN</a>
+                                <a href="{% url 'core:xem_san_pham' %}?cat=probiotics">MÁY LỌC NƯỚC PROBIOTICS</a>
+                                <a href="{% url 'core:xem_san_pham' %}?cat=dien-giai">MÁY LỌC NƯỚC ĐIỆN GIẢI</a>
+                                <a href="{% url 'core:xem_san_pham' %}?cat=de-gam">MÁY LỌC NƯỚC ĐỂ GẦM</a>
+                            </div>
+                        </div>
+                        <a href="{% url 'core:xem_san_pham' %}?cat=linh-kien">LINH KIỆN</a>
+                        <a href="{% url 'core:xem_san_pham' %}?cat=dich-vu">DỊCH VỤ</a>
+                        <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
+                        <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                    {% endif %}
+                </nav>
             </div>
         </div>
     </header>
@@ -474,80 +1017,56 @@
         </div>
     {% endif %}
 
-    {% block content %}
-        <section class="home-banner">
-            <img src="{% static 'img/BANNER.png' %}" alt="Banner">
-        </section>
-
-        <section class="home-section">
-            <div class="home-grid-2">
-                <div class="home-card">
-                    <img src="{% static 'img/1.png' %}" alt="Máy lọc nước">
-                    <h3>Máy lọc nước</h3>
-                    <p>Hơn cả sạch là tốt cho sức khỏe</p>
-                </div>
-                <div class="home-card">
-                    <img src="{% static 'img/2.png' %}" alt="Cây nước nóng lạnh">
-                    <h3>Cây nước nóng lạnh</h3>
-                    <p>Hơn cả ngon là tận hưởng hạnh phúc</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="home-section">
-            <div style="text-align: center; font-size: 34px; font-weight: 700; color: #111827; margin-bottom: 24px;">MUTOSI PRO</div>
-            <div class="home-grid-2" style="align-items: center;">
-                <div>
-                    <h2 style="font-size: 42px; line-height: 1.1; color: #111827; font-weight: 700;">Mutosi<br>Hydrogen Pro</h2>
-                    <p>Mutosi Pro mới với công nghệ Hydrogen Pro vượt trội giúp nâng cao trải nghiệm dùng nước sạch mỗi ngày.</p>
-                    <a href="#" class="btn-ghost">Khám phá ngay</a>
-                </div>
-                <div>
-                    <img src="{% static 'img/MUTOSI PRO.png' %}" alt="Mutosi Pro" class="hero-image">
-                </div>
-            </div>
-        </section>
-
-        <section class="home-section">
-            <h2 class="home-title">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h2>
-            <div class="home-grid-4">
-                <div class="home-card">
-                    <img src="{% static 'img/Khám phá 1.png' %}" alt="">
-                    <p>Máy lọc nước điện giải ion kiềm Hydrogen nguội lạnh Mutosi MP-P89K</p>
-                </div>
-                <div class="home-card">
-                    <img src="{% static 'img/Khám phá 2.png' %}" alt="">
-                    <p>Máy lọc nước điện giải ion kiềm Hydrogen MP-T888</p>
-                </div>
-                <div class="home-card">
-                    <img src="{% static 'img/Khám phá 3.png' %}" alt="">
-                    <p>Máy lọc nước điện giải ion kiềm Hydrogen MP-666</p>
-                </div>
-                <div class="home-card">
-                    <img src="{% static 'img/Khám phá 4.png' %}" alt="">
-                    <p>Máy lọc nước điện giải ion kiềm Hydrogen MP-S1021H</p>
+    <div class="feature-popup" id="featurePopup" aria-hidden="true">
+        <div class="feature-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="featurePopupTitle">
+            <button type="button" class="feature-popup__close" id="featurePopupClose" aria-label="Đóng popup">x</button>
+            <h2 class="feature-popup__title" id="featurePopupTitle">Đang cập nhật chức năng</h2>
+            <p class="feature-popup__subtitle">Tính năng Hướng dẫn lắp đặt đang được hoàn thiện. Popup sẽ tự đóng sau 1 phút.</p>
+            <div class="feature-popup__art" aria-hidden="true">
+                <span class="feature-popup__ghost-line feature-popup__ghost-line--1"></span>
+                <span class="feature-popup__ghost-line feature-popup__ghost-line--2"></span>
+                <span class="feature-popup__ghost-line feature-popup__ghost-line--3"></span>
+                <span class="feature-popup__ghost-button"></span>
+                <span class="feature-popup__panel"></span>
+                <span class="feature-popup__progress"></span>
+                <i class="fa fa-wrench feature-popup__tool feature-popup__tool--1"></i>
+                <i class="fa fa-wrench feature-popup__tool feature-popup__tool--2"></i>
+                <div class="feature-popup__center">
+                    <div class="feature-popup__board">
+                        <span class="feature-popup__board-rail"></span>
+                    </div>
+                    <div class="feature-popup__barrier">
+                        <span class="feature-popup__barrier-leg feature-popup__barrier-leg--left"></span>
+                        <span class="feature-popup__barrier-leg feature-popup__barrier-leg--right"></span>
+                    </div>
+                    <div class="feature-popup__robot">
+                        <span class="feature-popup__helmet"></span>
+                        <span class="feature-popup__ear feature-popup__ear--left"></span>
+                        <span class="feature-popup__ear feature-popup__ear--right"></span>
+                        <div class="feature-popup__head">
+                            <div class="feature-popup__face">
+                                <span class="feature-popup__eye feature-popup__eye--left"></span>
+                                <span class="feature-popup__eye feature-popup__eye--right"></span>
+                                <span class="feature-popup__smile"></span>
+                            </div>
+                        </div>
+                        <span class="feature-popup__body"></span>
+                        <span class="feature-popup__limb feature-popup__limb--arm-left"></span>
+                        <span class="feature-popup__limb feature-popup__limb--arm-right"></span>
+                        <span class="feature-popup__limb feature-popup__limb--leg-left"></span>
+                        <span class="feature-popup__limb feature-popup__limb--leg-right"></span>
+                        <span class="feature-popup__hand feature-popup__hand--left"></span>
+                        <span class="feature-popup__hand feature-popup__hand--right"></span>
+                        <span class="feature-popup__foot feature-popup__foot--left"></span>
+                        <span class="feature-popup__foot feature-popup__foot--right"></span>
+                        <span class="feature-popup__gear"></span>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <section class="home-section">
-            <h2 class="home-title">Tin tiêu điểm</h2>
-            <div class="home-grid-3">
-                <div class="home-card">
-                    <img src="{% static 'img/Tin tiêu điểm 1.png' %}" alt="">
-                    <p>Hướng dẫn sử dụng và lắp đặt máy lọc nước điện giải Mutosi</p>
-                </div>
-                <div class="home-card">
-                    <img src="{% static 'img/Tin tiêu điểm 2.png' %}" alt="">
-                    <p>Công nghệ lọc nước RO và công nghệ điện phân đột phá từ Mutosi</p>
-                </div>
-                <div class="home-card">
-                    <img src="{% static 'img/Tin tiêu điểm 3.png' %}" alt="">
-                    <p>Hướng dẫn đo nhiệt độ nước tại bầu nóng máy lọc nước Mutosi</p>
-                </div>
-            </div>
-        </section>
-    {% endblock %}
+    {% block content %}{% endblock %}
 
     <footer>
         <div class="site-footer-top">
@@ -619,17 +1138,69 @@
             }
 
             var toasts = document.querySelectorAll('.site-toast');
-            if (!toasts.length) return;
-            setTimeout(function () {
-                toasts.forEach(function (toast) {
-                    toast.classList.add('hide');
+            if (toasts.length) {
+                setTimeout(function () {
+                    toasts.forEach(function (toast) {
+                        toast.classList.add('hide');
+                    });
+                }, 2000);
+                setTimeout(function () {
+                    var wrap = document.getElementById('siteToastWrap');
+                    if (wrap) wrap.remove();
+                }, 2450);
+            }
+
+            var featurePopup = document.getElementById('featurePopup');
+            var featurePopupClose = document.getElementById('featurePopupClose');
+            var featurePopupTriggers = document.querySelectorAll('[data-feature-popup-trigger="guide-install"]');
+            var featurePopupTimer = null;
+
+            function closeFeaturePopup() {
+                if (!featurePopup) return;
+                featurePopup.classList.remove('is-open');
+                featurePopup.setAttribute('aria-hidden', 'true');
+                if (featurePopupTimer) {
+                    clearTimeout(featurePopupTimer);
+                    featurePopupTimer = null;
+                }
+            }
+
+            function openFeaturePopup() {
+                if (!featurePopup) return;
+                featurePopup.classList.add('is-open');
+                featurePopup.setAttribute('aria-hidden', 'false');
+                if (featurePopupTimer) {
+                    clearTimeout(featurePopupTimer);
+                }
+                featurePopupTimer = setTimeout(closeFeaturePopup, 60000);
+            }
+
+            featurePopupTriggers.forEach(function (trigger) {
+                trigger.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    openFeaturePopup();
                 });
-            }, 2000);
-            setTimeout(function () {
-                var wrap = document.getElementById('siteToastWrap');
-                if (wrap) wrap.remove();
-            }, 2450);
+            });
+
+            if (featurePopupClose) {
+                featurePopupClose.addEventListener('click', closeFeaturePopup);
+            }
+
+            if (featurePopup) {
+                featurePopup.addEventListener('click', function (event) {
+                    if (event.target === featurePopup) {
+                        closeFeaturePopup();
+                    }
+                });
+            }
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    closeFeaturePopup();
+                }
+            });
         })();
     </script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

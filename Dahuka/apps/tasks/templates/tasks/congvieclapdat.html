@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quản lý nhiệm vụ - DAHUKA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tasks/congvieclapdat.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="install-jobs-page container-shell mt-4">
+    <div class="page-breadcrumbs">Trang chủ / <i>Dịch vụ</i> / <b>Quản lý nhiệm vụ</b></div>
+
+    <div class="section-title-row install-jobs-title-row">
+        <h1>Quản lý nhiệm vụ</h1>
+        <div class="line"></div>
+    </div>
+
+    <section class="worker-summary-grid">
+        <article class="summary-card summary-card--accent">
+            <span class="summary-label">Nhân viên phụ trách</span>
+            <strong>Nguyễn Văn Kỹ Thuật</strong>
+            <p>Khu vực: Hải Châu - Thanh Khê - Cẩm Lệ</p>
+        </article>
+        <article class="summary-card">
+            <span class="summary-label">Tổng công việc</span>
+            <strong>08 đơn</strong>
+            <p>Hôm nay 27/03/2026</p>
+        </article>
+        <article class="summary-card">
+            <span class="summary-label">Đã hoàn thành</span>
+            <strong>03 đơn</strong>
+            <p>Cập nhật theo trạng thái lắp đặt</p>
+        </article>
+        <article class="summary-card">
+            <span class="summary-label">Đang xử lý</span>
+            <strong>05 đơn</strong>
+            <p>Ưu tiên các đơn đến hạn hôm nay</p>
+        </article>
+    </section>
+
+    <section class="job-toolbar">
+        <div class="job-search">
+            <i class="fa fa-search"></i>
+            <input type="text" id="jobSearch" placeholder="Tìm theo mã đơn, khách hàng hoặc địa chỉ">
+        </div>
+        <div class="job-filter-group">
+            <button class="filter-chip is-active" type="button" data-filter="all">Tất cả</button>
+            <button class="filter-chip" type="button" data-filter="pending">Chưa hoàn thành</button>
+            <button class="filter-chip" type="button" data-filter="done">Đã lắp đặt</button>
+        </div>
+    </section>
+
+    <section class="job-list-card">
+        <div class="job-list-head">
+            <h2>Danh sách công việc</h2>
+            <span>Hiển thị các đơn đã phân công cho nhân viên</span>
+        </div>
+
+        <div class="job-table-wrap">
+            <table class="job-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Khách hàng</th>
+                        <th>Thời gian tạo đơn</th>
+                        <th>Thời gian hoàn thành</th>
+                        <th>Trạng thái lắp đặt</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="jobTableBody">
+                    <tr data-status="pending">
+                        <td><strong>#DHK-240327-01</strong></td>
+                        <td>
+                            <div class="customer-cell">Trần Hoàng Nam</div>
+                            <small>23 Nguyễn Văn Linh, Hải Châu, Đà Nẵng</small>
+                        </td>
+                        <td>27/03/2026 - 08:15</td>
+                        <td><span class="empty-value">Chưa hoàn thành</span></td>
+                        <td><span class="status-badge status-badge--pending">Chưa lắp đặt</span></td>
+                        <td>
+                            <a class="dark-button small-btn" href="{% url 'tasks:chi_tiet_lap_dat' %}">Xem chi tiết</a>
+                        </td>
+                    </tr>
+                    <tr data-status="pending">
+                        <td><strong>#DHK-240327-02</strong></td>
+                        <td>
+                            <div class="customer-cell">Lê Minh Hương</div>
+                            <small>51 Tôn Đức Thắng, Liên Chiểu, Đà Nẵng</small>
+                        </td>
+                        <td>27/03/2026 - 09:05</td>
+                        <td><span class="empty-value">Chưa hoàn thành</span></td>
+                        <td><span class="status-badge status-badge--progress">Đang xử lý</span></td>
+                        <td>
+                            <a class="dark-button small-btn" href="{% url 'tasks:chi_tiet_lap_dat' %}">Xem chi tiết</a>
+                        </td>
+                    </tr>
+                    <tr data-status="done">
+                        <td><strong>#DHK-240326-15</strong></td>
+                        <td>
+                            <div class="customer-cell">Phạm Đức Khánh</div>
+                            <small>117 Hàm Nghi, Thanh Khê, Đà Nẵng</small>
+                        </td>
+                        <td>26/03/2026 - 15:20</td>
+                        <td>26/03/2026 - 18:05</td>
+                        <td><span class="status-badge status-badge--done">Đã lắp đặt</span></td>
+                        <td>
+                            <a class="dark-button small-btn" href="{% url 'tasks:chi_tiet_lap_dat' %}">Xem chi tiết</a>
+                        </td>
+                    </tr>
+                    <tr data-status="pending">
+                        <td><strong>#DHK-240326-11</strong></td>
+                        <td>
+                            <div class="customer-cell">Võ Nhật Linh</div>
+                            <small>08 Hoàng Diệu, Hải Châu, Đà Nẵng</small>
+                        </td>
+                        <td>26/03/2026 - 11:45</td>
+                        <td><span class="empty-value">Chưa hoàn thành</span></td>
+                        <td><span class="status-badge status-badge--pending">Chưa lắp đặt</span></td>
+                        <td>
+                            <a class="dark-button small-btn" href="{% url 'tasks:chi_tiet_lap_dat' %}">Xem chi tiết</a>
+                        </td>
+                    </tr>
+                    <tr data-status="done">
+                        <td><strong>#DHK-240325-09</strong></td>
+                        <td>
+                            <div class="customer-cell">Đặng Thu Hà</div>
+                            <small>190 Điện Biên Phủ, Thanh Khê, Đà Nẵng</small>
+                        </td>
+                        <td>25/03/2026 - 13:10</td>
+                        <td>25/03/2026 - 16:40</td>
+                        <td><span class="status-badge status-badge--done">Đã lắp đặt</span></td>
+                        <td>
+                            <a class="dark-button small-btn" href="{% url 'tasks:chi_tiet_lap_dat' %}">Xem chi tiết</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'quanlynhiemvu/congvieclapdat.js' %}"></script>
+{% endblock %}
