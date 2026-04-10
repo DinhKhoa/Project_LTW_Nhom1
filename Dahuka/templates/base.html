@@ -205,10 +205,9 @@
             max-height: min(88vh, 760px);
             border-radius: 28px;
             padding: 34px 28px 24px;
-            background:
-                radial-gradient(circle at 15% 52%, rgba(255, 146, 77, 0.24), transparent 18%),
-                radial-gradient(circle at 83% 41%, rgba(60, 127, 220, 0.16), transparent 20%),
-                linear-gradient(180deg, #f8fcfe 0%, #edf5fb 100%);
+            background: radial-gradient(circle at 15% 52%, rgba(255, 146, 77, 0.24), transparent 18%),
+            radial-gradient(circle at 83% 41%, rgba(60, 127, 220, 0.16), transparent 20%),
+            linear-gradient(180deg, #f8fcfe 0%, #edf5fb 100%);
             box-shadow: 0 26px 70px rgba(52, 93, 138, 0.18);
             overflow: hidden;
         }
@@ -276,12 +275,16 @@
             background: rgba(151, 184, 225, 0.4);
         }
 
-        .feature-popup__ghost-line--1 { top: 116px; }
+        .feature-popup__ghost-line--1 {
+            top: 116px;
+        }
+
         .feature-popup__ghost-line--2 {
             top: 164px;
             width: 280px;
             background: rgba(255, 161, 84, 0.45);
         }
+
         .feature-popup__ghost-line--3 {
             top: 212px;
             width: 240px;
@@ -350,10 +353,9 @@
             z-index: 1;
             border-radius: 20px;
             border: 6px solid #2d77ca;
-            background:
-                linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-                linear-gradient(180deg, #2d77ca 0%, #1c5ba5 100%);
+            background: linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+            linear-gradient(180deg, #2d77ca 0%, #1c5ba5 100%);
             background-size: 30px 30px, 30px 30px, cover;
             box-shadow: 0 18px 36px rgba(34, 87, 151, 0.2);
         }
@@ -408,8 +410,15 @@
             background: rgba(201, 118, 31, 0.78);
         }
 
-        .feature-popup__helmet::before { left: 34px; transform: rotate(10deg); }
-        .feature-popup__helmet::after { right: 34px; transform: rotate(-10deg); }
+        .feature-popup__helmet::before {
+            left: 34px;
+            transform: rotate(10deg);
+        }
+
+        .feature-popup__helmet::after {
+            right: 34px;
+            transform: rotate(-10deg);
+        }
 
         .feature-popup__head {
             position: absolute;
@@ -442,8 +451,13 @@
             border-radius: 999px;
         }
 
-        .feature-popup__eye--left { left: 28px; }
-        .feature-popup__eye--right { right: 28px; }
+        .feature-popup__eye--left {
+            left: 28px;
+        }
+
+        .feature-popup__eye--right {
+            right: 28px;
+        }
 
         .feature-popup__smile {
             left: 50%;
@@ -464,8 +478,13 @@
             background: linear-gradient(180deg, #d8e5f5 0%, #aec6e3 100%);
         }
 
-        .feature-popup__ear--left { left: 18px; }
-        .feature-popup__ear--right { right: 18px; }
+        .feature-popup__ear--left {
+            left: 18px;
+        }
+
+        .feature-popup__ear--right {
+            right: 18px;
+        }
 
         .feature-popup__body {
             position: absolute;
@@ -535,10 +554,25 @@
             background: #c7d9ef;
         }
 
-        .feature-popup__hand--left { left: 10px; top: 212px; }
-        .feature-popup__hand--right { right: 6px; top: 208px; }
-        .feature-popup__foot--left { left: 34px; bottom: -4px; }
-        .feature-popup__foot--right { right: 26px; bottom: -4px; }
+        .feature-popup__hand--left {
+            left: 10px;
+            top: 212px;
+        }
+
+        .feature-popup__hand--right {
+            right: 6px;
+            top: 208px;
+        }
+
+        .feature-popup__foot--left {
+            left: 34px;
+            bottom: -4px;
+        }
+
+        .feature-popup__foot--right {
+            right: 26px;
+            bottom: -4px;
+        }
 
         .feature-popup__gear {
             position: absolute;
@@ -575,8 +609,7 @@
             position: absolute;
             inset: 0;
             border-radius: 10px;
-            background:
-                repeating-linear-gradient(120deg, #fff 0 16px, #ff902d 16px 32px);
+            background: repeating-linear-gradient(120deg, #fff 0 16px, #ff902d 16px 32px);
             box-shadow: 0 8px 16px rgba(27, 61, 103, 0.12);
         }
 
@@ -899,308 +932,314 @@
     </style>
 </head>
 <body>
-    <header class="site-header">
-        <div class="site-header-inner">
-            <a href="{% url 'core:trangchu' %}" class="site-logo">
-                <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
-            </a>
+<header class="site-header">
+    <div class="site-header-inner">
+        <a href="{% url 'core:trangchu' %}" class="site-logo">
+            <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
+        </a>
 
-            <div class="header-content-right">
-                <div class="site-actions">
-                    <a href="#" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
-                    <a href="#" aria-label="Điện thoại"><i class="fa fa-phone"></i></a>
-                    {% if user.is_authenticated and not user.is_staff %}
-                        <a href="{% url 'cart:cart' %}" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
-                    {% endif %}
-                    <div class="site-user" id="siteUserMenu">
-                        <a href="#" aria-label="Tài khoản" id="siteUserToggle">
-                            <i class="fa fa-user-o"></i>
-                        </a>
-                        <div class="site-user-menu">
-                            {% if user.is_authenticated %}
-                                <div class="site-user-card">
-                                    <div class="site-user-card-top">
-                                        <div class="site-user-avatar-lg">
-                                            <i class="fa fa-user-o"></i>
-                                        </div>
-                                        <div class="site-user-meta">
-                                            <strong>{{ user.get_full_name|default:user.username }}</strong>
-                                            {% if user.is_superuser %}
-                                                <div>Chủ Cửa Hàng</div>
-                                            {% elif user.is_staff %}
-                                                <div>Nhân Viên</div>
-                                            {% else %}
-                                                <div>Người Tiêu Dùng</div>
-                                                <div>Điểm: 0</div>
-                                                <div>Xếp hạng: Classic</div>
-                                            {% endif %}
-                                        </div>
+        <div class="header-content-right">
+            <div class="site-actions">
+                <a href="#" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
+                <a href="#" aria-label="Điện thoại"><i class="fa fa-phone"></i></a>
+                {% if user.is_authenticated and not user.is_staff %}
+                    <a href="{% url 'cart:cart' %}" aria-label="Giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
+                {% endif %}
+                <div class="site-user" id="siteUserMenu">
+                    <a href="#" aria-label="Tài khoản" id="siteUserToggle">
+                        <i class="fa fa-user-o"></i>
+                    </a>
+                    <div class="site-user-menu">
+                        {% if user.is_authenticated %}
+                            <div class="site-user-card">
+                                <div class="site-user-card-top">
+                                    <div class="site-user-avatar-lg">
+                                        <i class="fa fa-user-o"></i>
+                                    </div>
+                                    <div class="site-user-meta">
+                                        <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                        {% if user.is_superuser %}
+                                            <div>Chủ Cửa Hàng</div>
+                                        {% elif user.is_staff %}
+                                            <div>Nhân Viên</div>
+                                        {% else %}
+                                            <div>Người Tiêu Dùng</div>
+                                            <div>Điểm: 0</div>
+                                            <div>Xếp hạng: Classic</div>
+                                        {% endif %}
                                     </div>
                                 </div>
-                                <div class="site-user-links">
-                                    <a href="{% url 'profile_view' %}"><i class="fa fa-user-o"></i><span>Thông tin tài khoản</span></a>
-                                    {% if not user.is_staff %}
-                                    <a href="{% url 'address_list' %}"><i class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
+                            </div>
+                            <div class="site-user-links">
+                                <a href="{% url 'profile_view' %}"><i
+                                        class="fa fa-user-o"></i><span>Thông tin tài khoản</span></a>
+                                {% if not user.is_staff %}
+                                    <a href="{% url 'address_list' %}"><i
+                                            class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
                                     <a href="{% url 'order_list' %}"><i class="fa fa-shopping-bag"></i><span>Quản lý đơn hàng</span></a>
-                                    {% endif %}
-                                </div>
-                                <div class="site-user-logout">
-                                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
-                                        {% csrf_token %}
-                                    </form>
-                                    <a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit();">
-                                        <i class="fa fa-sign-out"></i><span>Đăng xuất</span>
-                                    </a>
-                                </div>
-                            {% else %}
-                                <div class="site-user-links">
-                                    <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i><span>Đăng nhập</span></a>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% if user.is_authenticated %}
-                        <div style="position: relative;">
-                            <i class="fa fa-bell-o"></i>
-                            <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -8px;">3</span>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <nav class="site-nav">
-                    {% if user.is_authenticated and user.is_staff %}
-                        <a href="#">CHĂM SÓC NƯỚC</a>
-                        {% if user.is_superuser %}
-                            <div class="nav-dropdown">
-                                <a href="javascript:void(0)">QUẢN LÝ BÁN HÀNG</a>
-                                <div class="dropdown-menu">
-                                    <a href="{% url 'orders:danh_sach' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
-                                    <a href="{% url 'categories:danh_sach' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
-                                    <a href="{% url 'products:danhsachsanpham' %}">QUẢN LÝ SẢN PHẨM</a>
-                                    <a href="{% url 'promotions:chi_tiet_khuyen_mai' %}">QUẢN LÝ KHUYẾN MÃI</a>
-                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="site-user-logout">
+                                <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                                    {% csrf_token %}
+                                </form>
+                                <a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit();">
+                                    <i class="fa fa-sign-out"></i><span>Đăng xuất</span>
+                                </a>
                             </div>
                         {% else %}
-                            <a href="{% url 'tasks:danh_sach' %}">QUẢN LÝ NHIỆM VỤ</a>
+                            <div class="site-user-links">
+                                <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i><span>Đăng nhập</span></a>
+                            </div>
                         {% endif %}
-                        <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
-                        <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
-                    {% else %}
-                        <div class="nav-dropdown">
-                            <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
-                            <div class="dropdown-menu">
-                                <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
-                                <a href="{% url 'core:xem_san_pham' %}?cat=ion-kiem-hydrogen">MÁY LỌC NƯỚC ION KIỀM HYDROGEN</a>
-                                <a href="{% url 'core:xem_san_pham' %}?cat=probiotics">MÁY LỌC NƯỚC PROBIOTICS</a>
-                                <a href="{% url 'core:xem_san_pham' %}?cat=dien-giai">MÁY LỌC NƯỚC ĐIỆN GIẢI</a>
-                                <a href="{% url 'core:xem_san_pham' %}?cat=de-gam">MÁY LỌC NƯỚC ĐỂ GẦM</a>
-                            </div>
-                        </div>
-                        <a href="{% url 'core:xem_san_pham' %}?cat=linh-kien">LINH KIỆN</a>
-                        <a href="{% url 'core:xem_san_pham' %}?cat=dich-vu">DỊCH VỤ</a>
-                        <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
-                        <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
-                    {% endif %}
-                </nav>
-            </div>
-        </div>
-    </header>
-
-    {% if messages %}
-        <div class="site-toast-wrap" id="siteToastWrap">
-            {% for message in messages %}
-                <div class="site-toast {{ message.tags|default:'success' }}">
-                    <i class="fa {% if message.tags == 'error' %}fa-times-circle{% else %}fa-check-circle-o{% endif %}"></i>
-                    <span>{{ message }}</span>
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+                {% if user.is_authenticated %}
+                    <div style="position: relative;">
+                        <i class="fa fa-bell-o"></i>
+                        <span class="badge"
+                              style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -8px;">3</span>
+                    </div>
+                {% endif %}
+            </div>
 
-    <div class="feature-popup" id="featurePopup" aria-hidden="true">
-        <div class="feature-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="featurePopupTitle">
-            <button type="button" class="feature-popup__close" id="featurePopupClose" aria-label="Đóng popup">x</button>
-            <h2 class="feature-popup__title" id="featurePopupTitle">Đang cập nhật chức năng</h2>
-            <p class="feature-popup__subtitle">Tính năng Hướng dẫn lắp đặt đang được hoàn thiện. Popup sẽ tự đóng sau 1 phút.</p>
-            <div class="feature-popup__art" aria-hidden="true">
-                <span class="feature-popup__ghost-line feature-popup__ghost-line--1"></span>
-                <span class="feature-popup__ghost-line feature-popup__ghost-line--2"></span>
-                <span class="feature-popup__ghost-line feature-popup__ghost-line--3"></span>
-                <span class="feature-popup__ghost-button"></span>
-                <span class="feature-popup__panel"></span>
-                <span class="feature-popup__progress"></span>
-                <i class="fa fa-wrench feature-popup__tool feature-popup__tool--1"></i>
-                <i class="fa fa-wrench feature-popup__tool feature-popup__tool--2"></i>
-                <div class="feature-popup__center">
-                    <div class="feature-popup__board">
-                        <span class="feature-popup__board-rail"></span>
-                    </div>
-                    <div class="feature-popup__barrier">
-                        <span class="feature-popup__barrier-leg feature-popup__barrier-leg--left"></span>
-                        <span class="feature-popup__barrier-leg feature-popup__barrier-leg--right"></span>
-                    </div>
-                    <div class="feature-popup__robot">
-                        <span class="feature-popup__helmet"></span>
-                        <span class="feature-popup__ear feature-popup__ear--left"></span>
-                        <span class="feature-popup__ear feature-popup__ear--right"></span>
-                        <div class="feature-popup__head">
-                            <div class="feature-popup__face">
-                                <span class="feature-popup__eye feature-popup__eye--left"></span>
-                                <span class="feature-popup__eye feature-popup__eye--right"></span>
-                                <span class="feature-popup__smile"></span>
+            <nav class="site-nav">
+                {% if user.is_authenticated and user.is_staff %}
+                    <a href="#">CHĂM SÓC NƯỚC</a>
+                    {% if user.is_superuser %}
+                        <div class="nav-dropdown">
+                            <a href="javascript:void(0)">QUẢN LÝ BÁN HÀNG</a>
+                            <div class="dropdown-menu">
+                                <a href="{% url 'orders:danh_sach' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
+                                <a href="{% url 'categories:danh_sach' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
+                                <a href="{% url 'products:danhsachsanpham' %}">QUẢN LÝ SẢN PHẨM</a>
+                                <a href="{% url 'promotions:chi_tiet_khuyen_mai' %}">QUẢN LÝ KHUYẾN MÃI</a>
                             </div>
                         </div>
-                        <span class="feature-popup__body"></span>
-                        <span class="feature-popup__limb feature-popup__limb--arm-left"></span>
-                        <span class="feature-popup__limb feature-popup__limb--arm-right"></span>
-                        <span class="feature-popup__limb feature-popup__limb--leg-left"></span>
-                        <span class="feature-popup__limb feature-popup__limb--leg-right"></span>
-                        <span class="feature-popup__hand feature-popup__hand--left"></span>
-                        <span class="feature-popup__hand feature-popup__hand--right"></span>
-                        <span class="feature-popup__foot feature-popup__foot--left"></span>
-                        <span class="feature-popup__foot feature-popup__foot--right"></span>
-                        <span class="feature-popup__gear"></span>
+                    {% else %}
+                        <a href="{% url 'tasks:danh_sach' %}">QUẢN LÝ NHIỆM VỤ</a>
+                    {% endif %}
+                    <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
+                    <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                {% else %}
+                    <div class="nav-dropdown">
+                        <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                        <div class="dropdown-menu">
+                            <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                            <a href="{% url 'core:xem_san_pham' %}?cat=ion-kiem-hydrogen">MÁY LỌC NƯỚC ION KIỀM
+                                HYDROGEN</a>
+                            <a href="{% url 'core:xem_san_pham' %}?cat=probiotics">MÁY LỌC NƯỚC PROBIOTICS</a>
+                            <a href="{% url 'core:xem_san_pham' %}?cat=dien-giai">MÁY LỌC NƯỚC ĐIỆN GIẢI</a>
+                            <a href="{% url 'core:xem_san_pham' %}?cat=de-gam">MÁY LỌC NƯỚC ĐỂ GẦM</a>
+                        </div>
                     </div>
+                    <a href="{% url 'core:xem_san_pham' %}?cat=linh-kien">LINH KIỆN</a>
+                    <a href="{% url 'core:xem_san_pham' %}?cat=dich-vu">DỊCH VỤ</a>
+                    <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
+                    <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</header>
+
+{% if messages %}
+    <div class="site-toast-wrap" id="siteToastWrap">
+        {% for message in messages %}
+            <div class="site-toast {{ message.tags|default:'success' }}">
+                <i class="fa {% if message.tags == 'error' %}fa-times-circle{% else %}fa-check-circle-o{% endif %}"></i>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="feature-popup" id="featurePopup" aria-hidden="true">
+    <div class="feature-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="featurePopupTitle">
+        <button type="button" class="feature-popup__close" id="featurePopupClose" aria-label="Đóng popup">x</button>
+        <h2 class="feature-popup__title" id="featurePopupTitle">Đang cập nhật chức năng</h2>
+        <p class="feature-popup__subtitle">Tính năng Hướng dẫn lắp đặt đang được hoàn thiện. Popup sẽ tự đóng sau 1
+            phút.</p>
+        <div class="feature-popup__art" aria-hidden="true">
+            <span class="feature-popup__ghost-line feature-popup__ghost-line--1"></span>
+            <span class="feature-popup__ghost-line feature-popup__ghost-line--2"></span>
+            <span class="feature-popup__ghost-line feature-popup__ghost-line--3"></span>
+            <span class="feature-popup__ghost-button"></span>
+            <span class="feature-popup__panel"></span>
+            <span class="feature-popup__progress"></span>
+            <i class="fa fa-wrench feature-popup__tool feature-popup__tool--1"></i>
+            <i class="fa fa-wrench feature-popup__tool feature-popup__tool--2"></i>
+            <div class="feature-popup__center">
+                <div class="feature-popup__board">
+                    <span class="feature-popup__board-rail"></span>
+                </div>
+                <div class="feature-popup__barrier">
+                    <span class="feature-popup__barrier-leg feature-popup__barrier-leg--left"></span>
+                    <span class="feature-popup__barrier-leg feature-popup__barrier-leg--right"></span>
+                </div>
+                <div class="feature-popup__robot">
+                    <span class="feature-popup__helmet"></span>
+                    <span class="feature-popup__ear feature-popup__ear--left"></span>
+                    <span class="feature-popup__ear feature-popup__ear--right"></span>
+                    <div class="feature-popup__head">
+                        <div class="feature-popup__face">
+                            <span class="feature-popup__eye feature-popup__eye--left"></span>
+                            <span class="feature-popup__eye feature-popup__eye--right"></span>
+                            <span class="feature-popup__smile"></span>
+                        </div>
+                    </div>
+                    <span class="feature-popup__body"></span>
+                    <span class="feature-popup__limb feature-popup__limb--arm-left"></span>
+                    <span class="feature-popup__limb feature-popup__limb--arm-right"></span>
+                    <span class="feature-popup__limb feature-popup__limb--leg-left"></span>
+                    <span class="feature-popup__limb feature-popup__limb--leg-right"></span>
+                    <span class="feature-popup__hand feature-popup__hand--left"></span>
+                    <span class="feature-popup__hand feature-popup__hand--right"></span>
+                    <span class="feature-popup__foot feature-popup__foot--left"></span>
+                    <span class="feature-popup__foot feature-popup__foot--right"></span>
+                    <span class="feature-popup__gear"></span>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    {% block content %}{% endblock %}
+{% block content %}{% endblock %}
 
-    <footer>
-        <div class="site-footer-top">
-            <div class="site-footer-top-inner">
-                <div>
-                    <h4>Giới thiệu Mutosi</h4>
-                    <ul>
-                        <li>Giới thiệu về Mutosi</li>
-                        <li>Trách nhiệm xã hội</li>
-                        <li>Tin tuyển dụng</li>
-                        <li>Liên hệ</li>
-                    </ul>
-                    <h4 style="margin-top: 16px;">Chính sách mua hàng</h4>
-                    <ul>
-                        <li>Chính sách lắp đặt</li>
-                        <li>Chính sách giao hàng</li>
-                        <li>Chính sách đổi trả hàng</li>
-                        <li>Chính sách bảo hành</li>
-                        <li>Chính sách bảo mật</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4>Tin tức</h4>
-                    <ul>
-                        <li>Giải pháp nước sạch</li>
-                        <li>Tư vấn gia dụng</li>
-                        <li>Hướng dẫn lắp đặt</li>
-                    </ul>
-                    <h4 style="margin-top: 16px;">Hỗ trợ khách hàng - Đại lý</h4>
-                    <ul>
-                        <li>Đăng ký bảo hành</li>
-                        <li>Đăng ký đối tác</li>
-                        <li>Tra cứu mua hàng</li>
-                        <li>FAQ</li>
-                        <li>Sitemap</li>
-                    </ul>
-                </div>
-                <div>
-                    <p><strong>Hotline</strong><br>1900 636 567</p>
-                    <p><strong>Hỗ trợ xử lý sự cố</strong><br>1900 636 596</p>
-                    <p><strong>Email</strong><br>cskh@dahuka.com</p>
-                    <p><strong>Tư vấn mua hàng</strong><br>1900 636 053</p>
-                    <p style="margin-top: 20px;"><strong>Văn phòng đại diện:</strong><br>644 Nguyễn Hữu Thọ, Khuê Trung, Cẩm Lệ, Đà Nẵng</p>
-                </div>
+<footer>
+    <div class="site-footer-top">
+        <div class="site-footer-top-inner">
+            <div>
+                <h4>Giới thiệu Mutosi</h4>
+                <ul>
+                    <li>Giới thiệu về Mutosi</li>
+                    <li>Trách nhiệm xã hội</li>
+                    <li>Tin tuyển dụng</li>
+                    <li>Liên hệ</li>
+                </ul>
+                <h4 style="margin-top: 16px;">Chính sách mua hàng</h4>
+                <ul>
+                    <li>Chính sách lắp đặt</li>
+                    <li>Chính sách giao hàng</li>
+                    <li>Chính sách đổi trả hàng</li>
+                    <li>Chính sách bảo hành</li>
+                    <li>Chính sách bảo mật</li>
+                </ul>
+            </div>
+            <div>
+                <h4>Tin tức</h4>
+                <ul>
+                    <li>Giải pháp nước sạch</li>
+                    <li>Tư vấn gia dụng</li>
+                    <li>Hướng dẫn lắp đặt</li>
+                </ul>
+                <h4 style="margin-top: 16px;">Hỗ trợ khách hàng - Đại lý</h4>
+                <ul>
+                    <li>Đăng ký bảo hành</li>
+                    <li>Đăng ký đối tác</li>
+                    <li>Tra cứu mua hàng</li>
+                    <li>FAQ</li>
+                    <li>Sitemap</li>
+                </ul>
+            </div>
+            <div>
+                <p><strong>Hotline</strong><br>1900 636 567</p>
+                <p><strong>Hỗ trợ xử lý sự cố</strong><br>1900 636 596</p>
+                <p><strong>Email</strong><br>cskh@dahuka.com</p>
+                <p><strong>Tư vấn mua hàng</strong><br>1900 636 053</p>
+                <p style="margin-top: 20px;"><strong>Văn phòng đại diện:</strong><br>644 Nguyễn Hữu Thọ, Khuê Trung, Cẩm
+                    Lệ, Đà Nẵng</p>
             </div>
         </div>
-        <div class="site-footer-bottom">
-            <div class="site-footer-bottom-inner">
-                <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
-                <div>Nâng tầm sống khỏe chuẩn Nhật</div>
-            </div>
+    </div>
+    <div class="site-footer-bottom">
+        <div class="site-footer-bottom-inner">
+            <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
+            <div>Nâng tầm sống khỏe chuẩn Nhật</div>
         </div>
-    </footer>
+    </div>
+</footer>
 
-    <script>
-        (function () {
-            var userMenu = document.getElementById('siteUserMenu');
-            var userToggle = document.getElementById('siteUserToggle');
-            if (userMenu && userToggle) {
-                userToggle.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    userMenu.classList.toggle('open');
-                });
-                document.addEventListener('click', function (event) {
-                    if (!userMenu.contains(event.target)) {
-                        userMenu.classList.remove('open');
-                    }
-                });
-            }
-
-            var toasts = document.querySelectorAll('.site-toast');
-            if (toasts.length) {
-                setTimeout(function () {
-                    toasts.forEach(function (toast) {
-                        toast.classList.add('hide');
-                    });
-                }, 2000);
-                setTimeout(function () {
-                    var wrap = document.getElementById('siteToastWrap');
-                    if (wrap) wrap.remove();
-                }, 2450);
-            }
-
-            var featurePopup = document.getElementById('featurePopup');
-            var featurePopupClose = document.getElementById('featurePopupClose');
-            var featurePopupTriggers = document.querySelectorAll('[data-feature-popup-trigger="guide-install"]');
-            var featurePopupTimer = null;
-
-            function closeFeaturePopup() {
-                if (!featurePopup) return;
-                featurePopup.classList.remove('is-open');
-                featurePopup.setAttribute('aria-hidden', 'true');
-                if (featurePopupTimer) {
-                    clearTimeout(featurePopupTimer);
-                    featurePopupTimer = null;
-                }
-            }
-
-            function openFeaturePopup() {
-                if (!featurePopup) return;
-                featurePopup.classList.add('is-open');
-                featurePopup.setAttribute('aria-hidden', 'false');
-                if (featurePopupTimer) {
-                    clearTimeout(featurePopupTimer);
-                }
-                featurePopupTimer = setTimeout(closeFeaturePopup, 60000);
-            }
-
-            featurePopupTriggers.forEach(function (trigger) {
-                trigger.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    openFeaturePopup();
-                });
+<script>
+    (function () {
+        var userMenu = document.getElementById('siteUserMenu');
+        var userToggle = document.getElementById('siteUserToggle');
+        if (userMenu && userToggle) {
+            userToggle.addEventListener('click', function (event) {
+                event.preventDefault();
+                userMenu.classList.toggle('open');
             });
+            document.addEventListener('click', function (event) {
+                if (!userMenu.contains(event.target)) {
+                    userMenu.classList.remove('open');
+                }
+            });
+        }
 
-            if (featurePopupClose) {
-                featurePopupClose.addEventListener('click', closeFeaturePopup);
-            }
-
-            if (featurePopup) {
-                featurePopup.addEventListener('click', function (event) {
-                    if (event.target === featurePopup) {
-                        closeFeaturePopup();
-                    }
+        var toasts = document.querySelectorAll('.site-toast');
+        if (toasts.length) {
+            setTimeout(function () {
+                toasts.forEach(function (toast) {
+                    toast.classList.add('hide');
                 });
-            }
+            }, 2000);
+            setTimeout(function () {
+                var wrap = document.getElementById('siteToastWrap');
+                if (wrap) wrap.remove();
+            }, 2450);
+        }
 
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape') {
+        var featurePopup = document.getElementById('featurePopup');
+        var featurePopupClose = document.getElementById('featurePopupClose');
+        var featurePopupTriggers = document.querySelectorAll('[data-feature-popup-trigger="guide-install"]');
+        var featurePopupTimer = null;
+
+        function closeFeaturePopup() {
+            if (!featurePopup) return;
+            featurePopup.classList.remove('is-open');
+            featurePopup.setAttribute('aria-hidden', 'true');
+            if (featurePopupTimer) {
+                clearTimeout(featurePopupTimer);
+                featurePopupTimer = null;
+            }
+        }
+
+        function openFeaturePopup() {
+            if (!featurePopup) return;
+            featurePopup.classList.add('is-open');
+            featurePopup.setAttribute('aria-hidden', 'false');
+            if (featurePopupTimer) {
+                clearTimeout(featurePopupTimer);
+            }
+            featurePopupTimer = setTimeout(closeFeaturePopup, 60000);
+        }
+
+        featurePopupTriggers.forEach(function (trigger) {
+            trigger.addEventListener('click', function (event) {
+                event.preventDefault();
+                openFeaturePopup();
+            });
+        });
+
+        if (featurePopupClose) {
+            featurePopupClose.addEventListener('click', closeFeaturePopup);
+        }
+
+        if (featurePopup) {
+            featurePopup.addEventListener('click', function (event) {
+                if (event.target === featurePopup) {
                     closeFeaturePopup();
                 }
             });
-        })();
-    </script>
-    {% block extra_js %}{% endblock %}
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeFeaturePopup();
+            }
+        });
+    })();
+</script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>
