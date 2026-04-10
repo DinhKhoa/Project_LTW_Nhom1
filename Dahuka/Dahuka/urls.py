@@ -21,8 +21,7 @@ from apps.core import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("apps.core.urls")),
-    path("login/", views.DahukaLoginView.as_view(), name="login"),
-    path("logout/", views.DahukaLogoutView.as_view(), name="logout"),
+    path("accounts/", include("django.contrib.auth.urls")),
     path("account/", include("apps.account.urls")),
 
     # Restored App Routes
@@ -33,5 +32,4 @@ urlpatterns = [
     path('cart/', include('apps.cart.urls')),
     path('tasks/', include('apps.tasks.urls')),
     path('warranty/', include('apps.warranty.urls')),
-
 ]
