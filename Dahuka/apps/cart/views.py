@@ -12,9 +12,9 @@ def cart(request):
     # Initialize session state if not present
     if 'checkout_state' not in request.session:
         request.session['checkout_state'] = {
-            'current_screen': 'cart',  # 'cart', 'order', 'bank_payment', 'success'
-            'cart_payment_type': 'full',  # 'full' or 'deposit'
-            'order_method': 'bank',  # 'bank' or 'cod'
+            'current_screen': 'cart',
+            'cart_payment_type': 'full',
+            'order_method': 'bank',
             'deposit_percent': 10,
             'coupon_code': '',
             'customer': {
@@ -30,25 +30,20 @@ def cart(request):
 
     state = request.session['checkout_state']
 
-    # --- Product details management ---
-    # Default product if nothing is explicitly added to cart
     default_product = {
         'name': "Máy lọc nước điện giải ion kiềm Hydrogen MP-T888",
-        'variant': "Loại: Tiêu chuẩn",
+        'variant': "Tiêu chuẩn",
         'price': 5990000,
         'shipping_fee': 0
     }
 
-    # Use product from session, or default if not set
     current_product = request.session.get('current_cart_product', default_product)
 
     product_name = current_product['name']
     product_variant = current_product['variant']
     base_price = current_product['price']
     shipping_fee = current_product['shipping_fee']
-    # --- End product details management ---
 
-    # Calculate deposit amount
     deposit_amount = round(base_price * state['deposit_percent'] / 100)
 
     def checkout_payload():
@@ -62,7 +57,6 @@ def cart(request):
             'coupon_code': state.get('coupon_code', ''),
         }
 
-    # Handle POST requests
     if request.method == 'POST':
         action = request.POST.get('action')
         is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
@@ -70,14 +64,14 @@ def cart(request):
         if action == 'update_customer':
             state['customer']['name'] = request.POST.get('customer_name', state['customer']['name']).strip()
             state['customer']['phone'] = request.POST.get('customer_phone', state['customer']['phone']).strip()
-            state['customer']['email'] = request.POST.get('customer_email', state['customer']['email']).strip()
+            state['customer']['email'] = request.POST.get('customer_email', state['customer'].get('email', '')).strip()
             state['customer']['city'] = request.POST.get('customer_city', state['customer']['city'])
             state['customer']['district'] = request.POST.get('customer_district', state['customer']['district'])
             state['customer']['ward'] = request.POST.get('customer_ward', state['customer']['ward'])
             state['customer']['street'] = request.POST.get('customer_street', state['customer']['street']).strip()
             request.session.modified = True
             request.session['message'] = 'Cập nhật địa chỉ thành công'
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'update_deposit':
             try:
@@ -92,7 +86,7 @@ def cart(request):
             request.session.modified = True
             if is_ajax:
                 return JsonResponse({'ok': True, **checkout_payload()})
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'update_payment_type':
             new_payment_type = request.POST.get('cart_payment_type')
@@ -103,12 +97,12 @@ def cart(request):
             request.session.modified = True
             if is_ajax:
                 return JsonResponse({'ok': True, **checkout_payload()})
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'go_to_order':
             state['current_screen'] = 'order'
             request.session.modified = True
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'update_order_method':
             new_order_method = request.POST.get('order_method')
@@ -121,44 +115,44 @@ def cart(request):
             request.session.modified = True
             if is_ajax:
                 return JsonResponse({'ok': True, **checkout_payload()})
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'apply_coupon':
             state['coupon_code'] = request.POST.get('coupon_code', '').strip().upper()
             request.session.modified = True
             if is_ajax:
                 return JsonResponse({'ok': True, **checkout_payload()})
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'submit_order':
-            if state['order_method'] == 'bank':
+            if state['order_method'] == 'bank' or state['cart_payment_type'] == 'deposit':
                 state['current_screen'] = 'bank_payment'
             else:
                 state['current_screen'] = 'success'
             request.session.modified = True
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'confirm_bank_payment':
             state['current_screen'] = 'success'
             request.session.modified = True
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
-        elif action == 'go_home_again' or action == 'shop_again':
+        elif action in ('go_home_again', 'shop_again'):
             state['current_screen'] = 'cart'
             request.session.modified = True
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
-    # Prepare context for rendering
     context = {
         'product_name': product_name,
         'product_variant': product_variant,
-        'product_price': base_price,  # Pass raw price for JS calculations if any
-        'shipping_fee': shipping_fee,  # Pass raw shipping fee
+        'product_price': base_price,
+        'shipping_fee': shipping_fee,
         'formatted_base_price': format_money(base_price),
         'formatted_shipping_fee': format_money(shipping_fee),
         'formatted_total_price': format_money(base_price + shipping_fee),
         'deposit_amount': deposit_amount,
         'formatted_deposit_amount': format_money(deposit_amount),
+        'formatted_remaining_amount': format_money((base_price + shipping_fee) - deposit_amount),
         'state': state,
         'current_screen': state['current_screen'],
         'coupon_code': state.get('coupon_code', ''),
@@ -173,10 +167,9 @@ def cart(request):
 
 
 def add_product_to_cart(request):
-    if request.method == 'GET':  # Using GET for simplicity to demonstrate, POST is generally better for data changes
+    if request.method == 'GET':
         product_name = request.GET.get('name', "Sản phẩm không xác định")
-        product_variant = request.GET.get('variant', "Loại: Mặc định")
-        # Ensure price and shipping_fee are integers
+        product_variant = request.GET.get('variant', "Mặc định")
         try:
             product_price = int(request.GET.get('price', 0))
         except ValueError:
@@ -186,12 +179,11 @@ def add_product_to_cart(request):
         except ValueError:
             product_shipping_fee = 0
 
-        new_product = {
+        request.session['current_cart_product'] = {
             'name': product_name,
             'variant': product_variant,
             'price': product_price,
             'shipping_fee': product_shipping_fee
         }
-        request.session['current_cart_product'] = new_product
-        request.session.modified = True  # Mark session as modified
-    return redirect(reverse('cart'))
+        request.session.modified = True
+    return redirect(reverse('cart:cart'))

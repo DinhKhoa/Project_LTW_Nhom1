@@ -5,15 +5,30 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'cart/cart.css' %}">
+<style>
+    .page-content { padding-top: 20px; }
+    .back-nav-wrap { margin-bottom: 10px; }
+    .back-nav-btn {
+        border: none;
+        background: transparent;
+        color: #2f67ff;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 0;
+        cursor: pointer;
+    }
+    .back-nav-btn:hover { color: #1e4fe0; text-decoration: underline; }
+</style>
 {% endblock %}
 
 {% block content %}
 <main class="page-content">
-    <div class="back-nav-wrap">
-        <button type="button" class="back-nav-btn" id="backNavBtn">← Quay về trang trước</button>
-    </div>
-    
-    <div class="checkout-progress">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 18px;">
+        <div class="back-nav-wrap">
+            <button type="button" class="back-nav-btn" id="backNavBtn">← Quay về trang trước</button>
+        </div>
+
+        <div class="checkout-progress">
         <div class="progress-step {% if current_screen == 'cart' %}active{% elif current_screen == 'order' or current_screen == 'bank_payment' or current_screen == 'success' %}completed{% endif %}">
             <span>Giỏ hàng</span>
         </div>
@@ -112,12 +127,12 @@
                 </div>
             </div>
 
-            <div class="cart-bottom card">
-                <div class="cart-total">
+            <div class="cart-bottom card" style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;padding:22px 28px;margin-top:18px;">
+                <div class="cart-total" style="display:flex;flex-direction:column;align-items:flex-start;">
                     <div class="total-caption">Tổng cộng 1 sản phẩm</div>
                     <div class="total-price">{{ formatted_total_price }} đ</div>
                 </div>
-                <div class="bottom-actions">
+                <div class="bottom-actions" style="display:flex;gap:12px;align-items:center;">
                     <a href="/" class="btn btn-soft">Tiếp tục mua sắm</a>
                     <form method="post" style="display: inline;">
                         {% csrf_token %}
@@ -228,7 +243,11 @@
             <div class="bank-payment-container card">
                 <div class="bank-payment-header">
                     <h2><i class="fa fa-university mr-2"></i> Chuyển khoản ngân hàng</h2>
+                    {% if state.cart_payment_type == 'deposit' %}
+                    <p>Đơn này thanh toán cọc — vui lòng chuyển khoản <strong>tiền cọc</strong> để xác nhận đơn hàng</p>
+                    {% else %}
                     <p>Vui lòng quét mã QR hoặc chuyển khoản thủ công để hoàn tất</p>
+                    {% endif %}
                 </div>
 
                 <div class="bank-payment-content">
@@ -247,16 +266,30 @@
 
                     <div class="bank-info-section">
                         <div class="bank-info-title" style="font-weight: 700; margin-bottom: 12px; color: #555;">Thông tin tài khoản</div>
-                        
+
                         <div class="bank-details-card">
                             <div class="bank-info-row"><span class="label">Ngân hàng:</span><strong>Vietcombank</strong></div>
                             <div class="bank-info-row"><span class="label">Số tài khoản:</span><strong>1726371635</strong></div>
+                            {% if state.cart_payment_type == 'deposit' %}
+                            <div class="bank-info-row"><span class="label">Tổng đơn hàng:</span><strong>{{ formatted_total_price }} đ</strong></div>
+                            <div class="bank-info-row highlight">
+                                <span class="label">Tiền cọc cần trả ({{ state.deposit_percent }}%):</span>
+                                <strong class="amount" id="bankPaymentAmount">{{ formatted_deposit_amount }} đ</strong>
+                            </div>
+                            {% else %}
                             <div class="bank-info-row highlight">
                                 <span class="label">Số tiền cần trả:</span>
                                 <strong class="amount" id="bankPaymentAmount">{{ formatted_total_price }} đ</strong>
                             </div>
+                            {% endif %}
                             <div class="bank-info-row"><span class="label">Nội dung CK:</span><strong>DH{{ state.customer.phone|slice:"-4:" }}</strong></div>
                         </div>
+
+                        {% if state.cart_payment_type == 'deposit' %}
+                        <div class="deposit-remaining-note">
+                            Số tiền còn lại <strong>{{ formatted_remaining_amount }} đ</strong> sẽ thanh toán khi nhận hàng
+                        </div>
+                        {% endif %}
 
                         <div class="payment-timer">
                             <div class="timer-display">
@@ -307,22 +340,76 @@
 
 <!-- Modal Update Info -->
 <div class="modal" id="customerModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3>THÔNG TIN KHÁCH HÀNG</h3>
+    <div class="modal-box modal-customer">
+        <div class="cmodal-header">
+            <span>THÔNG TIN KHÁCH HÀNG</span>
             <button type="button" class="close-modal" data-close="customerModal">×</button>
         </div>
         <div class="modal-body">
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="update_customer">
-                <div class="form-grid">
-                    <label><span>Họ tên (*):</span><input name="customer_name" type="text" value="{{ state.customer.name }}" required></label>
-                    <label><span>Số điện thoại (*):</span><input name="customer_phone" type="text" value="{{ state.customer.phone }}" required></label>
-                    <label class="full-width"><span>Địa chỉ nhận hàng (*):</span><textarea name="customer_street" rows="2" required>{{ state.customer.street }}</textarea></label>
+
+                <div class="cform-row">
+                    <label class="cform-label">Số điện thoại (*):</label>
+                    <input class="cform-input" name="customer_phone" type="text" value="{{ state.customer.phone }}" required>
                 </div>
-                <div class="modal-footer mt-4 text-right">
-                    <button type="submit" class="btn btn-green">CẬP NHẬT THÔNG TIN</button>
+                <div class="cform-row">
+                    <label class="cform-label">Họ tên (*):</label>
+                    <input class="cform-input" name="customer_name" type="text" value="{{ state.customer.name }}" required>
+                </div>
+                <div class="cform-row">
+                    <label class="cform-label">Email:</label>
+                    <input class="cform-input" name="customer_email" type="email" value="{{ state.customer.email }}">
+                </div>
+                <div class="cform-row">
+                    <label class="cform-label">Tỉnh/Thành phố (*):</label>
+                    <select class="cform-input cform-select" name="customer_city" required>
+                        <option value="Đà Nẵng" {% if state.customer.city == 'Đà Nẵng' %}selected{% endif %}>Đà Nẵng</option>
+                        <option value="Hà Nội" {% if state.customer.city == 'Hà Nội' %}selected{% endif %}>Hà Nội</option>
+                        <option value="Hồ Chí Minh" {% if state.customer.city == 'Hồ Chí Minh' %}selected{% endif %}>Hồ Chí Minh</option>
+                        <option value="Hải Phòng" {% if state.customer.city == 'Hải Phòng' %}selected{% endif %}>Hải Phòng</option>
+                        <option value="Cần Thơ" {% if state.customer.city == 'Cần Thơ' %}selected{% endif %}>Cần Thơ</option>
+                    </select>
+                </div>
+                <div class="cform-row">
+                    <label class="cform-label">Quận/Huyện (*):</label>
+                    <input class="cform-input" name="customer_district" type="text" value="{{ state.customer.district }}" required>
+                </div>
+                <div class="cform-row">
+                    <label class="cform-label">Phường/Xã (*):</label>
+                    <input class="cform-input" name="customer_ward" type="text" value="{{ state.customer.ward }}" required>
+                </div>
+                <div class="cform-row cform-row--top">
+                    <label class="cform-label">Địa chỉ (*):</label>
+                    <textarea class="cform-input cform-textarea" name="customer_street" rows="4" required>{{ state.customer.street }}</textarea>
+                </div>
+                <div class="cform-row cform-row--type">
+                    <label class="cform-label">Loại địa chỉ:</label>
+                    <div class="cform-radios">
+                        <label class="cradio-label">
+                            <input type="radio" name="address_type" value="home" checked>
+                            <span class="cradio-dot"></span>
+                            Nhà riêng/ Chung cư
+                        </label>
+                        <label class="cradio-label">
+                            <input type="radio" name="address_type" value="office">
+                            <span class="cradio-dot"></span>
+                            Cơ quan/ Công ty
+                        </label>
+                    </div>
+                </div>
+                <div class="cform-row cform-row--check">
+                    <label class="cform-label"></label>
+                    <label class="ccheck-label">
+                        <input type="checkbox" name="is_default">
+                        <span class="ccheck-box"></span>
+                        Đặt địa chỉ mặc định
+                    </label>
+                </div>
+
+                <div class="cmodal-footer">
+                    <button type="submit" class="btn-confirm">XÁC NHẬN</button>
                 </div>
             </form>
         </div>
@@ -333,5 +420,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'quanlygiohang/cart.js' %}"></script>
+<script src="{% static 'cart/cart.js' %}"></script>
 {% endblock %}
