@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toastElement = document.getElementById('successToast');
     if (toastElement) {
         const toastMessage = toastElement.textContent.trim();
-        if (toastMessage && toastMessage !== 'Cập nhật địa chỉ thành công') {
+        if (toastMessage) {
             showToast(toastMessage);
         }
     }
