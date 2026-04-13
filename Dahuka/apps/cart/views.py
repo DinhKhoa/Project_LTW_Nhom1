@@ -30,6 +30,14 @@ def cart(request):
 
     state = request.session['checkout_state']
 
+    # Only reset to cart screen when navigating from outside (no referer from same cart)
+    if request.method == 'GET':
+        referer = request.META.get('HTTP_REFERER', '')
+        cart_url = request.build_absolute_uri(reverse('cart:cart'))
+        if not referer or not referer.startswith(cart_url.split('?')[0]):
+            state['current_screen'] = 'cart'
+            request.session.modified = True
+
     default_product = {
         'name': "Máy lọc nước điện giải ion kiềm Hydrogen MP-T888",
         'variant': "Tiêu chuẩn",
@@ -75,13 +83,14 @@ def cart(request):
 
         elif action == 'update_deposit':
             try:
-                delta = int(request.POST.get('deposit_delta', 0))
-                if delta != 0:
-                    new_deposit_percent = state['deposit_percent'] + delta
+                new_val = request.POST.get('deposit_percent_input')
+                if new_val is not None:
+                    new_deposit_percent = int(new_val)
                 else:
-                    new_deposit_percent = int(request.POST.get('deposit_percent_input', state['deposit_percent']))
-                state['deposit_percent'] = max(10, min(100, new_deposit_percent))
-            except ValueError:
+                    delta = int(request.POST.get('deposit_delta', 0))
+                    new_deposit_percent = state['deposit_percent'] + delta
+                state['deposit_percent'] = max(10, min(50, new_deposit_percent))
+            except (ValueError, TypeError):
                 pass
             request.session.modified = True
             if is_ajax:

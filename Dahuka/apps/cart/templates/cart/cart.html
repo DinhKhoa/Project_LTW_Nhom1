@@ -5,29 +5,11 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'cart/cart.css' %}">
-<style>
-    .page-content { padding-top: 20px; }
-    .back-nav-wrap { margin-bottom: 10px; }
-    .back-nav-btn {
-        border: none;
-        background: transparent;
-        color: #2f67ff;
-        font-weight: 700;
-        font-size: 14px;
-        padding: 0;
-        cursor: pointer;
-    }
-    .back-nav-btn:hover { color: #1e4fe0; text-decoration: underline; }
-</style>
 {% endblock %}
 
 {% block content %}
 <main class="page-content">
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 18px;">
-        <div class="back-nav-wrap">
-            <button type="button" class="back-nav-btn" id="backNavBtn">← Quay về trang trước</button>
-        </div>
-
         <div class="checkout-progress">
         <div class="progress-step {% if current_screen == 'cart' %}active{% elif current_screen == 'order' or current_screen == 'bank_payment' or current_screen == 'success' %}completed{% endif %}">
             <span>Giỏ hàng</span>
@@ -99,20 +81,18 @@
                     </div>
 
                     <div class="deposit-box {% if state.cart_payment_type != 'deposit' %}hidden{% endif %}">
-                        <div class="deposit-head">
-                            <span>Tiền cọc</span>
-                        </div>
+                        <div class="deposit-head">Tiền cọc</div>
                         <div class="deposit-info">
                             <div class="deposit-percent-wrap">
-                                <span id="depositPercentText">Số tiền cọc ({{ state.deposit_percent }}%)</span>
+                                <span id="depositPercentText">Số tiền cọc (<span id="depositPercentValue">{{ state.deposit_percent }}</span>%)</span>
                                 <div class="deposit-steppers">
-                                    <button type="button" class="deposit-stepper-btn" data-delta="1">▲</button>
-                                    <button type="button" class="deposit-stepper-btn" data-delta="-1">▼</button>
+                                    <button type="button" class="deposit-stepper-btn" data-delta="10">▲</button>
+                                    <button type="button" class="deposit-stepper-btn" data-delta="-10">▼</button>
                                 </div>
                             </div>
                             <strong id="depositAmountText">{{ formatted_deposit_amount }} đ</strong>
                         </div>
-                        <div class="deposit-note">Số phần trăm cọc tối thiểu là 10%</div>
+                        <div class="deposit-note">Tối thiểu 10% — tối đa 50%</div>
                     </div>
 
                     <div class="pay-info-box">
@@ -258,7 +238,7 @@
                         </div>
                         <div class="qr-display">
                             <div class="qr-box">
-                                <div class="qr-pattern"></div>
+                                <img src="{% static 'cart/qr.png' %}" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
                             </div>
                         </div>
                         <div class="qr-instruction text-center" style="font-size: 13px; color: #777;">Sử dụng ứng dụng Ngân hàng quét mã để nhận đầy đủ thông tin</div>
@@ -317,11 +297,7 @@
                 <p style="color: #666; max-width: 400px; margin: 12px auto 24px;">Đơn hàng của bạn đã được ghi nhận. Dahuka sẽ sớm liên hệ để xác nhận và giao hàng.</p>
                 <div class="success-status" style="display: inline-block; background: #e6f2ef; color: var(--brand-green); padding: 6px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; margin-bottom: 32px;">* ĐANG XỬ LÝ *</div>
                 <div class="success-actions d-flex justify-content-center gap-3">
-                    <form method="post" style="margin-right: 12px;">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="go_home_again">
-                        <button type="submit" class="btn btn-soft">VỀ TRANG CHỦ</button>
-                    </form>
+                    <a href="http://127.0.0.1:8000" class="btn btn-soft" style="margin-right:12px;">VỀ TRANG CHỦ</a>
                     <form method="post">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="shop_again">
@@ -416,7 +392,7 @@
     </div>
 </div>
 
-<div class="toast" id="successToast">{% if message %}{{ message }}{% else %}Cập nhật thành công{% endif %}</div>
+<div class="toast" id="successToast">{% if message %}{{ message }}{% endif %}</div>
 {% endblock %}
 
 {% block extra_js %}

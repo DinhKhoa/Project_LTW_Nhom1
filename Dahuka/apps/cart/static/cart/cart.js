@@ -3,17 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
     const cartEndpoint = window.location.pathname;
 
-    const backNavBtn = document.getElementById('backNavBtn');
-    if (backNavBtn) {
-        backNavBtn.addEventListener('click', () => {
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                window.location.href = '/';
-            }
-        });
-    }
-
     async function postCheckoutAction(payload) {
         const response = await fetch(cartEndpoint, {
             method: 'POST',
@@ -34,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function syncCheckoutUI(data) {
         const depositBox = document.querySelector('.deposit-box');
-        const depositPercentText = document.getElementById('depositPercentText');
         const depositAmountText = document.getElementById('depositAmountText');
         const summaryPayableAmount = document.getElementById('summaryPayableAmount');
         const codWarn = document.getElementById('codWarn');
@@ -47,12 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
             depositBox.classList.toggle('hidden', data.cart_payment_type !== 'deposit');
         }
 
-        if (depositPercentText) {
-            depositPercentText.textContent = `Số tiền cọc (${data.deposit_percent}%)`;
-        }
-
         if (depositAmountText) {
             depositAmountText.textContent = `${data.formatted_deposit_amount} đ`;
+        }
+
+        const depositPercentText = document.getElementById('depositPercentValue');
+        if (depositPercentText) {
+            depositPercentText.textContent = data.deposit_percent;
+        }
+
+        // Sync deposit input value if present
+        const depositInput = document.getElementById('depositPercentInput');
+        if (depositInput) {
+            depositInput.value = data.deposit_percent;
         }
 
         const payableText = data.cart_payment_type === 'deposit'
@@ -140,18 +135,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // In-place update for deposit percent stepper
+    // Deposit percent: ▲▼ steppers, step 10, min 10 max 50
+    let currentDepositPercent = parseInt(
+        document.getElementById('depositPercentValue')?.textContent || '10', 10
+    ) || 10;
+
+    async function applyDepositPercent(newVal) {
+        newVal = Math.max(10, Math.min(50, newVal));
+        currentDepositPercent = newVal;
+        const pv = document.getElementById('depositPercentValue');
+        if (pv) pv.textContent = newVal;
+        try {
+            const data = await postCheckoutAction({
+                action: 'update_deposit',
+                deposit_delta: 0,
+                deposit_percent_input: newVal
+            });
+            syncCheckoutUI(data);
+            currentDepositPercent = data.deposit_percent;
+        } catch (error) {
+            showToast(error.message);
+        }
+    }
+
     document.querySelectorAll('.deposit-stepper-btn').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-            try {
-                const data = await postCheckoutAction({
-                    action: 'update_deposit',
-                    deposit_delta: btn.dataset.delta
-                });
-                syncCheckoutUI(data);
-            } catch (error) {
-                showToast(error.message);
-            }
+        btn.addEventListener('click', () => {
+            applyDepositPercent(currentDepositPercent + parseInt(btn.dataset.delta, 10));
         });
     });
 
