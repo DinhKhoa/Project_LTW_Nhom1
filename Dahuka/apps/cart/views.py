@@ -46,6 +46,8 @@ def cart(request):
     }
 
     current_product = request.session.get('current_cart_product', default_product)
+    if not current_product.get('price'):
+        current_product = default_product
 
     product_name = current_product['name']
     product_variant = current_product['variant']

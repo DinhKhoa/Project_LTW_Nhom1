@@ -4,25 +4,34 @@
 {% block title %}Dahuka - Giỏ hàng{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'cart/cart.css' %}">
+<link rel="stylesheet" href="{% static 'cart/cart.css' %}?v=20260414-5">
 {% endblock %}
 
 {% block content %}
 <main class="page-content">
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 18px;">
-        <div class="checkout-progress">
-        <div class="progress-step {% if current_screen == 'cart' %}active{% elif current_screen == 'order' or current_screen == 'bank_payment' or current_screen == 'success' %}completed{% endif %}">
-            <span>Giỏ hàng</span>
-        </div>
-        <div class="progress-separator"></div>
-        <div class="progress-step {% if current_screen == 'order' or current_screen == 'bank_payment' %}active{% elif current_screen == 'success' %}completed{% endif %}">
-            <span>Thanh toán</span>
-        </div>
-        <div class="progress-separator"></div>
-        <div class="progress-step {% if current_screen == 'success' %}active{% endif %}">
-            <span>Hoàn tất</span>
-        </div>
+    <div class="back-nav-wrap">
+        {% if current_screen != 'cart' %}
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="go_home_again">
+            <button type="submit" class="back-nav-btn">&larr; Quay lại</button>
+        </form>
+        {% else %}
+        <button type="button" class="back-nav-btn" id="backNavBtn" data-fallback-url="/">&larr; Quay lại</button>
+        {% endif %}
     </div>
+    {% if current_screen != 'cart' %}
+        <div class="checkout-progress">
+            <div class="progress-step {% if current_screen == 'order' or current_screen == 'bank_payment' %}active{% elif current_screen == 'success' %}completed{% endif %}">
+                <span>Thanh toán</span>
+            </div>
+            <div class="progress-separator"></div>
+            <div class="progress-step {% if current_screen == 'success' %}active{% endif %}">
+                <span>Hoàn tất</span>
+            </div>
+        </div>
+    {% endif %}
 
     {% if current_screen == 'cart' %}
         <section class="screen active" id="cartScreen">
@@ -40,7 +49,8 @@
                         <button class="icon-btn" type="button" onclick="openModal('customerModal')">✎</button>
                     </div>
 
-                    <div class="cart-item">
+                    <div class="cart-item" data-item-price="{{ product_price }}">
+                        <input type="checkbox" class="item-checkbox" checked>
                         <div class="product-mock">
                             <img src="{% static 'img/1.png' %}" style="width: 100%; height: 100%; object-fit: contain;">
                             <span class="product-top"></span>
@@ -50,7 +60,8 @@
                             <h3>{{ product_name }}</h3>
                             <p>Loại: {{ product_variant }}</p>
                         </div>
-                        <div class="item-price">{{ formatted_base_price }} đ</div>
+                        <div class="item-price">{{ formatted_base_price }}&nbsp;đ</div>
+                        <button type="button" class="cart-item-delete-btn" title="Xóa sản phẩm">🗑</button>
                     </div>
                 </div>
 
@@ -86,8 +97,8 @@
                             <div class="deposit-percent-wrap">
                                 <span id="depositPercentText">Số tiền cọc (<span id="depositPercentValue">{{ state.deposit_percent }}</span>%)</span>
                                 <div class="deposit-steppers">
-                                    <button type="button" class="deposit-stepper-btn" data-delta="10">▲</button>
-                                    <button type="button" class="deposit-stepper-btn" data-delta="-10">▼</button>
+                                    <button type="button" class="deposit-stepper-btn" data-delta="5">▲</button>
+                                    <button type="button" class="deposit-stepper-btn" data-delta="-5">▼</button>
                                 </div>
                             </div>
                             <strong id="depositAmountText">{{ formatted_deposit_amount }} đ</strong>
@@ -110,11 +121,11 @@
             <div class="cart-bottom card" style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;padding:22px 28px;margin-top:18px;">
                 <div class="cart-total" style="display:flex;flex-direction:column;align-items:flex-start;">
                     <div class="total-caption">Tổng cộng 1 sản phẩm</div>
-                    <div class="total-price">{{ formatted_total_price }} đ</div>
+                    <div class="total-price" id="totalPrice">0 đ</div>
                 </div>
                 <div class="bottom-actions" style="display:flex;gap:12px;align-items:center;">
                     <a href="/" class="btn btn-soft">Tiếp tục mua sắm</a>
-                    <form method="post" style="display: inline;">
+                    <form method="post" style="display: inline;" id="cartCheckoutForm">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="go_to_order">
                         <button type="submit" class="btn btn-green">TIẾN HÀNH THANH TOÁN</button>
@@ -237,8 +248,10 @@
                             <span style="color: #001D3D; font-weight: 800; font-size: 20px;">QR</span>
                         </div>
                         <div class="qr-display">
-                            <div class="qr-box">
-                                <img src="{% static 'cart/qr.png' %}" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+                            <div class="qr-display">
+                                <div class="qr-box">
+                                    <img src="{% static 'cart/qr.png' %}" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+                                </div>
                             </div>
                         </div>
                         <div class="qr-instruction text-center" style="font-size: 13px; color: #777;">Sử dụng ứng dụng Ngân hàng quét mã để nhận đầy đủ thông tin</div>
@@ -314,7 +327,6 @@
     </div>
 </main>
 
-<!-- Modal Update Info -->
 <div class="modal" id="customerModal">
     <div class="modal-box modal-customer">
         <div class="cmodal-header">
@@ -393,8 +405,24 @@
 </div>
 
 <div class="toast" id="successToast">{% if message %}{{ message }}{% endif %}</div>
+
+<div class="modal" id="deleteConfirmModal">
+    <div class="modal-box delete-confirm-modal">
+        <div class="modal-header">
+            <span>Xác nhận xóa</span>
+            <button type="button" class="close-modal" data-close="deleteConfirmModal">×</button>
+        </div>
+        <div class="modal-body">
+            <p>Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng không?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-soft" data-close="deleteConfirmModal">Hủy</button>
+            <button type="button" class="btn btn-green" id="confirmDeleteBtn">Xóa</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'cart/cart.js' %}"></script>
+<script src="{% static 'cart/cart.js' %}?v=20260414-6"></script>
 {% endblock %}

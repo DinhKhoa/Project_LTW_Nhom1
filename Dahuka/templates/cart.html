@@ -261,10 +261,6 @@
             <button type="button" class="back-nav-btn" id="backNavBtn">← Quay về trang trước</button>
         </div>
         <div class="checkout-progress">
-            <div class="progress-step {% if current_screen == 'cart' %}active{% elif current_screen == 'order' or current_screen == 'bank_payment' or current_screen == 'success' %}completed{% endif %}">
-                <span>Giỏ hàng</span>
-            </div>
-            <div class="progress-separator"></div>
             <div class="progress-step {% if current_screen == 'order' or current_screen == 'bank_payment' %}active{% elif current_screen == 'success' %}completed{% endif %}">
                 <span>Thanh toán</span>
             </div>

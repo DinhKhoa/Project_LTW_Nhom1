@@ -3,6 +3,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
     const cartEndpoint = window.location.pathname;
 
+    const backNavBtn = document.getElementById('backNavBtn');
+    if (backNavBtn) {
+        const currentUrl = new URL(window.location.href);
+        const storedPrevUrl = sessionStorage.getItem('checkoutPrevUrl');
+
+        try {
+            if (document.referrer) {
+                const refUrl = new URL(document.referrer);
+                const isSameCartPage = refUrl.origin === currentUrl.origin && refUrl.pathname === currentUrl.pathname;
+                if (!isSameCartPage) {
+                    sessionStorage.setItem('checkoutPrevUrl', refUrl.href);
+                }
+            }
+        } catch (error) {
+            // Ignore malformed referrer and continue with safe fallback.
+        }
+
+        backNavBtn.addEventListener('click', () => {
+            const prevUrl = sessionStorage.getItem('checkoutPrevUrl') || storedPrevUrl;
+            if (prevUrl && prevUrl !== window.location.href) {
+                window.location.href = prevUrl;
+                return;
+            }
+
+            if (window.history.length > 2) {
+                window.history.go(-2);
+                return;
+            }
+
+            if (window.history.length > 1) {
+                window.history.back();
+                return;
+            }
+
+            window.location.href = backNavBtn.dataset.fallbackUrl || '/';
+        });
+    }
+
     async function postCheckoutAction(payload) {
         const response = await fetch(cartEndpoint, {
             method: 'POST',
@@ -85,6 +123,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.classList.toggle('disabled', data.cart_payment_type === 'full');
             }
         });
+    }
+
+    function formatMoney(value) {
+        return `${new Intl.NumberFormat('vi-VN').format(value)} đ`;
+    }
+
+    function updateCartSelectionSummary() {
+        const cartRows = Array.from(document.querySelectorAll('.cart-item[data-item-price]'));
+        const totalPriceEl = document.getElementById('totalPrice');
+        const totalCaptionEl = document.querySelector('.cart-total .total-caption');
+        const checkoutBtn = document.querySelector('#cartCheckoutForm button[type="submit"]');
+
+        let selectedCount = 0;
+        let selectedTotal = 0;
+
+        cartRows.forEach((row) => {
+            const checkbox = row.querySelector('.item-checkbox');
+            if (!checkbox || !checkbox.checked) return;
+            selectedCount += 1;
+            selectedTotal += parseInt(row.dataset.itemPrice || '0', 10);
+        });
+
+        if (totalCaptionEl) {
+            totalCaptionEl.textContent = `Tổng cộng ${selectedCount} sản phẩm`;
+        }
+
+        if (totalPriceEl) {
+            totalPriceEl.textContent = formatMoney(selectedTotal);
+        }
+
+        if (checkoutBtn) {
+            checkoutBtn.disabled = selectedCount === 0;
+        }
+
+        return selectedCount;
     }
 
     // Modal helpers
@@ -198,6 +271,91 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const cartItemCheckboxes = document.querySelectorAll('.cart-item .item-checkbox');
+    cartItemCheckboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', updateCartSelectionSummary);
+    });
+
+     const deleteButtons = document.querySelectorAll('.cart-item-delete-btn');
+     let currentDeleteItem = null;
+     deleteButtons.forEach((btn) => {
+         btn.addEventListener('click', (event) => {
+             event.preventDefault();
+             currentDeleteItem = btn.closest('.cart-item');
+             const modal = document.getElementById('deleteConfirmModal');
+             if (modal) {
+                 modal.classList.add('show');
+                 console.log('Delete button clicked, opening modal:', currentDeleteItem);
+             }
+         });
+     });
+
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (currentDeleteItem) {
+                // Remove the product item from cart
+                currentDeleteItem.remove();
+
+                // Check if cart is empty now
+                const remainingItems = document.querySelectorAll('.cart-item[data-item-price]');
+
+                if (remainingItems.length === 0) {
+                    // Cart is empty - show empty state and reset everything
+                    const cartLeftSection = document.querySelector('.cart-left');
+                    if (cartLeftSection) {
+                        // Find the cart-item container and replace with empty message
+                        const itemsContainer = cartLeftSection.querySelector('[class*="cart-item"]')?.parentElement;
+                        if (itemsContainer) {
+                            itemsContainer.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#999;"><p style="margin:0;font-size:16px;">Giỏ hàng trống</p></div>';
+                        }
+                    }
+
+                    // Reset total price to 0
+                    const totalPriceEl = document.getElementById('totalPrice');
+                    if (totalPriceEl) {
+                        totalPriceEl.textContent = '0 đ';
+                    }
+
+                    // Reset total caption
+                    const totalCaptionEl = document.querySelector('.cart-total .total-caption');
+                    if (totalCaptionEl) {
+                        totalCaptionEl.textContent = 'Tổng cộng 0 sản phẩm';
+                    }
+
+                    // Disable checkout button
+                    const checkoutBtn = document.querySelector('#cartCheckoutForm button[type="submit"]');
+                    if (checkoutBtn) {
+                        checkoutBtn.disabled = true;
+                    }
+
+                    // Reset deposit to 0
+                    const depositAmountText = document.getElementById('depositAmountText');
+                    if (depositAmountText) {
+                        depositAmountText.textContent = '0 đ';
+                    }
+                } else {
+                    // Still have items - update totals
+                    updateCartSelectionSummary();
+                }
+
+                window.closeModal('deleteConfirmModal');
+            }
+        });
+    }
+
+    const cartCheckoutForm = document.getElementById('cartCheckoutForm');
+    if (cartCheckoutForm) {
+        cartCheckoutForm.addEventListener('submit', (event) => {
+            if (updateCartSelectionSummary() === 0) {
+                event.preventDefault();
+                showToast('Vui long chon it nhat 1 san pham de thanh toan.');
+            }
+        });
+    }
+
+    updateCartSelectionSummary();
 
     // Display initial toast if needed
     const toastElement = document.getElementById('successToast');

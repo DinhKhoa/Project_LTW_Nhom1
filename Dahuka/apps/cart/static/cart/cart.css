@@ -16,9 +16,9 @@ button{cursor:pointer}
 .nav-menu a{text-decoration:none;font-size:12px;color:#3d4a59;font-weight:700}
 .header-line{height:3px;background:#0b9de8;margin-top:10px}
 .page-content{padding-top:20px;flex:1 0 auto;width:100%}
-.back-nav-wrap{margin-bottom:10px}
-.back-nav-btn{border:none;background:transparent;color:#2f67ff;font-weight:700;font-size:14px;padding:0;cursor:pointer}
-.back-nav-btn:hover{color:#1e4fe0;text-decoration:underline}
+.back-nav-wrap{margin-bottom:8px}
+.back-nav-btn{border:1px solid #e6eaf0;background:#fff;color:#667085;font-weight:600;font-size:12px;padding:6px 10px;border-radius:999px;cursor:pointer;line-height:1;transition:all .2s ease}
+.back-nav-btn:hover{color:#334155;border-color:#d0d7e2;background:#f8fafc}
 .breadcrumb{font-size:12px;margin-bottom:12px;color:#666}
 .breadcrumb span{color:#000}
 
@@ -42,16 +42,39 @@ button{cursor:pointer}
 .icon-btn{border:none;background:transparent;font-size:18px;color:#555;padding:4px 8px;transition:color .2s ease}
 .icon-btn:hover{color:#000}
 
-.cart-item{display:grid;grid-template-columns:86px 1fr auto;gap:18px;align-items:center;padding:18px 0;border-bottom:1px solid #f0f0f0}
+.cart-item-delete-btn{border:none;background:transparent;font-size:16px;color:#555;padding:6px 8px;cursor:pointer;transition:color .2s ease;flex:0 0 auto;margin-left:8px}
+.cart-item-delete-btn:hover{color:#d32f2f}
+
+.delete-confirm-modal{max-width:480px}
+.delete-confirm-modal .modal-header{display:none}
+.delete-confirm-modal .modal-box{border-radius:14px}
+.delete-confirm-modal .modal-body{padding:32px 28px 0;text-align:center}
+.delete-confirm-modal .modal-body p{margin:0 0 28px 0;font-size:16px;color:#222;line-height:1.8;font-weight:500}
+.delete-confirm-modal .modal-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:28px;border-top:1px solid #e0e0e0;border-top-width:2px}
+.delete-confirm-modal .modal-footer .btn{flex:1;border:none;background:transparent;color:#2f67ff;font-size:15px;font-weight:700;padding:12px 16px;cursor:pointer;transition:color .2s ease;border-radius:6px}
+.delete-confirm-modal .modal-footer .btn:hover{color:#1e4fb3;background:rgba(47,103,255,.05)}
+.delete-confirm-modal .modal-footer .btn-green{color:#dc3545}
+.delete-confirm-modal .modal-footer .btn-green:hover{color:#bb2d2d;background:rgba(220,53,69,.05)}
+
+.cart-item{display:flex;align-items:center;gap:18px;padding:18px 0;border-bottom:1px solid #f0f0f0}
+.item-checkbox{appearance:none;-webkit-appearance:none;display:inline-grid;place-content:center;width:20px;height:20px;border:2px solid #cfd6df;border-radius:50%;background:#fff;cursor:pointer;transition:border-color .2s ease,background-color .2s ease,box-shadow .2s ease;flex:0 0 20px;margin:0}
+.item-checkbox::before{content:"";width:10px;height:10px;border-radius:50%;transform:scale(0);transition:transform .16s ease-in-out;background:#1e8449}
+.item-checkbox:checked{border-color:#1e8449;background:#e9f7ef}
+.item-checkbox:checked::before{transform:scale(1)}
+.item-checkbox:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(30,132,73,.22)}
+.item-check-label{width:20px;height:20px;border:2px solid #c8d0dc;border-radius:50%;cursor:pointer;position:relative;transition:border-color .15s,background .15s;flex-shrink:0}
+.item-checkbox:checked+.item-check-label{border-color:#1e8449;background:#1e8449}
+.item-checkbox:checked+.item-check-label::after{content:'';position:absolute;top:3px;left:5px;width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg)}
 .product-thumb{width:86px;height:116px;object-fit:contain;border-radius:8px;background:#fff;border:1px solid #eceff3;padding:6px}
 .product-thumb.small{width:58px;height:92px}
 .product-mock{width:66px;height:116px;background:linear-gradient(180deg,#393939,#111);border-radius:8px;position:relative;box-shadow:inset -8px 0 0 rgba(255,255,255,.05)}
 .product-mock.small{width:52px;height:92px}
 .product-top{position:absolute;top:0;left:8px;width:18px;height:16px;background:#d9d9d9;border-radius:2px 2px 0 0}
 .product-light{position:absolute;top:24px;right:8px;width:12px;height:38px;background:linear-gradient(180deg,#cfd7df,#7fd6ff);border-radius:6px}
-.item-info h3,.order-item-name{font-size:14px;margin:0 0 6px}
+.item-info{flex:1;min-width:0}
+.item-info h3,.order-item-name{font-size:14px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .item-info p,.order-item-variant{font-size:12px;color:#888;margin:0}
-.item-price{font-size:14px;color:#f54f34;font-weight:800}
+.item-price{font-size:14px;color:#f54f34;font-weight:800;white-space:nowrap;word-break:keep-all;min-width:max-content;line-height:1.2;flex:0 0 auto;margin-left:auto}
 
 .pay-info-box{padding:12px 18px;border:1px solid #ececec;border-radius:14px;margin-bottom:12px;font-size:14px}
 .pay-info-box h4{margin:0 0 10px;font-size:14px;font-weight:700}
@@ -64,18 +87,19 @@ button{cursor:pointer}
 .radio-row input:checked+.radio-custom{border-color:#111}
 .radio-row input:checked+.radio-custom::after{content:"";position:absolute;inset:4px;background:#111;border-radius:50%}
 
-.deposit-box{padding:16px;border:1px solid #1e8449;border-radius:8px;background:#fff;margin-bottom:12px;box-shadow:0 4px 12px rgba(11,110,79,0.08)}
-.deposit-box .deposit-head{font-weight:700;margin-bottom:10px;color:#1e8449;font-size:14px}
-.deposit-box .deposit-info{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:nowrap}
-.deposit-box .deposit-info strong{font-size:14px;font-weight:800;color:#f54f34;white-space:nowrap;flex-shrink:0}
-.deposit-note{font-size:11px;color:#999;margin-top:8px}
+.deposit-box{padding:12px 18px;border:1px solid #ececec;border-radius:14px;background:#fcfcfc;margin-bottom:12px}
+.deposit-box .deposit-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:0}
+.deposit-box .deposit-head span{font-size:14px;font-weight:700;color:#222}
+.deposit-box .deposit-info{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:14px}
+.deposit-box .deposit-info span{font-size:14px;color:#666}
+.deposit-box .deposit-info strong{font-size:14px;font-weight:800;color:#f54f34}
+.deposit-note{font-size:12px;color:#ef5a49;margin-top:8px}
 
-.deposit-percent-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:0;flex-wrap:nowrap}
-.deposit-percent-wrap>span{font-size:13px;color:#666;white-space:nowrap}
-#depositPercentValue{display:inline}
-.deposit-steppers{display:flex;flex-direction:column;gap:3px}
-.deposit-stepper-btn{width:24px;height:24px;border-radius:4px;border:1px solid #ddd;background:#f8f9fa;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;color:#666;padding:0;transition:background .15s,color .15s,border-color .15s}
-.deposit-stepper-btn:hover{background:#1e8449;color:#fff;border-color:#1e8449}
+.deposit-percent-wrap{display:flex;align-items:center;gap:10px;min-width:0}
+.deposit-stepper-form{display:flex;flex-direction:column;gap:4px;margin:0}
+.deposit-stepper-btn{border:1px solid #d8dde5;background:#fff;color:#374151;width:26px;height:20px;border-radius:6px;line-height:1;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0}
+.deposit-stepper-btn:hover{border-color:#1e8449;color:#1e8449}
+#depositPercentText{display:inline-block;min-width:170px}
 #depositAmountText{display:inline-block;min-width:132px;text-align:right}
 
 .edit-link{border:none;background:none;padding:0;color:#f2664f;font-weight:700;font-size:12px;transition:color .2s ease}
@@ -105,6 +129,7 @@ button{cursor:pointer}
 
 .btn:hover{background-color:#222;color:#fff;border-color:#222}
 .btn-outline:hover{background-color:#222;color:#fff}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
 
 .screen{display:none}
 .screen.active{display:block}
@@ -236,8 +261,9 @@ button{cursor:pointer}
     .checkout-progress{font-size:13px;gap:5px}
     .progress-separator{width:15px}
     .cart-grid,.order-card,.success-card{padding:18px}
-    .cart-item{grid-template-columns:72px 1fr}
-    .item-price{grid-column:2}
+    .cart-item{gap:12px}
+    .product-mock{width:52px;height:92px}
+    .item-info h3{font-size:13px}
     .payment-method-wrap{flex-direction:column}
     .pay-btn{width:100%;text-align:left}
     .order-item-row{grid-template-columns:1fr}
