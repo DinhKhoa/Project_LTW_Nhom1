@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="22618c2a-49dd-4aa8-8e58-02285ea98582" name="Changes" comment="Start Project">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dahuka/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/Dahuka/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dahuka/db.sqlite3-shm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dahuka/db.sqlite3-wal" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dahuka/trangchu/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dahuka/trangchu/views.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -10,7 +17,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="23" />
+    <option name="cachedIndexableFilesCount" value="210" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -21,12 +28,12 @@
     &quot;assignee&quot;: &quot;DinhKhoa&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/DinhKhoa/Project_LTW_Nhom1.git&quot;,
-    &quot;accountId&quot;: &quot;fa3b7df6-3356-446f-91ef-28abc2de602b&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/DinhKhoa/Project_LTW_Nhom1.git",
+    "accountId": "5f6a9e7d-7ebe-44bd-b252-2f9460ebefbc"
   }
-}</component>
+}]]></component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -57,7 +64,7 @@
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "master",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "D:/File Code/PyCharm/Project_LTW_Nhom1",
+    "last_opened_file_path": "D:/NAM/NAM3/Kì II/laptrinhWeb/PythonProject/Project_LTW_Nhom1",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "to.speed.mode.migration.done": "true",
@@ -72,7 +79,6 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PY-253.31033.139" />
         <option value="bundled-python-sdk-2653e85de345-6d6dccd035ac-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.31033.139" />
       </set>
     </attachedChunks>
