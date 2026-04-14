@@ -193,19 +193,88 @@
     <script>
         /* ===== Handle Row Click ===== */
         function handleRowClick(event, url) {
-            if (event.target.tagName !== 'SELECT' && event.target.tagName !== 'INPUT' && event.target.className !== 'toggle-slider') {
+            if (!event.target.closest('.switch-wrapper')) {
                 window.location.href = url;
             }
         }
-        
+
+        /* ===== Filter Dropdowns ===== */
+        function toggleFilterDropdown(id) {
+            var wrapper = document.getElementById(id);
+            var btn = wrapper.querySelector('.filter-dropdown-btn');
+            var menu = wrapper.querySelector('.filter-dropdown-menu');
+
+            document.querySelectorAll('.filter-dropdown-wrapper').forEach(function (w) {
+                if (w.id !== id) {
+                    w.querySelector('.filter-dropdown-btn').classList.remove('open');
+                    w.querySelector('.filter-dropdown-menu').classList.remove('show');
+                }
+            });
+
+            btn.classList.toggle('open');
+            menu.classList.toggle('show');
+        }
+
+        function selectFilterItem(item, wrapperId) {
+            var wrapper = document.getElementById(wrapperId);
+            wrapper.querySelectorAll('.filter-item').forEach(el => el.classList.remove('selected'));
+            item.classList.add('selected');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.trim();
+            const category = document.getElementById('categoryFilter').querySelector('.filter-item.selected').getAttribute('data-value');
+            const inventory = document.getElementById('inventoryFilter').querySelector('.filter-item.selected').getAttribute('data-value');
+
+            let url = new URL(window.location.origin + window.location.pathname);
+            if (query) url.searchParams.set('q', query);
+            if (category !== 'all') url.searchParams.set('category', category);
+            if (inventory !== 'default') url.searchParams.set('inventory', inventory);
+            
+            window.location.href = url.toString();
+        }
+
+        function removeFilter(type) {
+            let url = new URL(window.location.href);
+            if (type === 'category') url.searchParams.delete('category');
+            if (type === 'inventory') url.searchParams.delete('inventory');
+            url.searchParams.set('page', '1');
+            window.location.href = url.toString();
+        }
+
+        /* ===== Setup Event Listeners ===== */
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyFilters();
+                }
+            });
+
+            // Initialize search input from URL
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('q')) {
+                document.getElementById('searchInput').value = params.get('q');
+            }
+
+            // Close on outside click
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.filter-dropdown-wrapper')) {
+                    document.querySelectorAll('.filter-dropdown-wrapper').forEach(function(w) {
+                        w.querySelector('.filter-dropdown-btn').classList.remove('open');
+                        w.querySelector('.filter-dropdown-menu').classList.remove('show');
+                    });
+                }
+            });
+        });
+
         /* ===== Toggle Visibility AJAX ===== */
         function toggleVisibility(event, productId, element) {
             event.stopPropagation();
-            
             const isVisible = !element.classList.contains('active-toggle');
             const label = element.querySelector('.toggle-label');
-            
-            fetch(`/products/toggle_visibility/${productId}/`, {
+
+            fetch(`/products/toggle-visibility/${productId}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -216,20 +285,14 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    if (data.is_visible) {
+                    if (data.is_active) {
                         element.classList.add('active-toggle');
                         label.textContent = 'Hiển thị';
                     } else {
                         element.classList.remove('active-toggle');
                         label.textContent = 'Ẩn';
                     }
-                } else {
-                    alert('Lỗi: ' + data.message);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra khi cập nhật trạng thái.');
             });
         }
 
@@ -247,192 +310,6 @@
             }
             return cookieValue;
         }
-
-        /* ===== Filter Dropdowns ===== */
-        function toggleFilterDropdown(id) {
-            var wrapper = document.getElementById(id);
-            var btn = wrapper.querySelector('.filter-dropdown-btn');
-            var menu = wrapper.querySelector('.filter-dropdown-menu');
-
-            // Close all other filter dropdowns
-            document.querySelectorAll('.filter-dropdown-wrapper').forEach(function (w) {
-                if (w.id !== id) {
-                    w.querySelector('.filter-dropdown-btn').classList.remove('open');
-                    w.querySelector('.filter-dropdown-menu').classList.remove('show');
-                }
-            });
-
-            btn.classList.toggle('open');
-            menu.classList.toggle('show');
-        }
-
-        function selectFilterItem(item, wrapperId) {
-            var wrapper = document.getElementById(wrapperId);
-            var valueSpan = wrapper.querySelector('.filter-value');
-            var btn = wrapper.querySelector('.filter-dropdown-btn');
-            var menu = wrapper.querySelector('.filter-dropdown-menu');
-
-            // Update selected state
-            wrapper.querySelectorAll('.filter-item').forEach(function (el) {
-                el.classList.remove('selected');
-            });
-            item.classList.add('selected');
-
-            // Update display text
-            var text = item.textContent.replace('✓', '').trim();
-            if (wrapperId === 'inventoryFilter') {
-                valueSpan.textContent = 'Tồn kho: ' + text;
-            } else {
-                valueSpan.textContent = text;
-            }
-
-            // Close dropdown
-            btn.classList.remove('open');
-            menu.classList.remove('show');
-        }
-
-        // Close filter dropdowns when clicking outside
-        document.addEventListener('click', function (e) {
-            if (!e.target.closest('.filter-dropdown-wrapper')) {
-                document.querySelectorAll('.filter-dropdown-wrapper').forEach(function (w) {
-                    w.querySelector('.filter-dropdown-btn').classList.remove('open');
-                    w.querySelector('.filter-dropdown-menu').classList.remove('show');
-                });
-            }
-        });
-
-        /* ===== Apply Filters ===== */
-        function applyFilters() {
-            var searchText = document.getElementById('searchInput').value.toLowerCase().trim();
-            var categoryWrapper = document.getElementById('categoryFilter');
-            var inventoryWrapper = document.getElementById('inventoryFilter');
-
-            var selectedCategory = categoryWrapper.querySelector('.filter-item.selected').getAttribute('data-value');
-            var selectedInventory = inventoryWrapper.querySelector('.filter-item.selected').getAttribute('data-value');
-
-            var rows = document.querySelectorAll('#productTableBody tr');
-            var visibleRows = [];
-
-            rows.forEach(function (row) {
-                var category = row.getAttribute('data-category');
-                var productCode = row.children[0].textContent.toLowerCase();
-                var productName = row.children[1].textContent.toLowerCase();
-                var show = true;
-
-                // Filter by category
-                if (selectedCategory !== 'all' && category !== selectedCategory) {
-                    show = false;
-                }
-
-                // Filter by search text
-                if (searchText && !productCode.includes(searchText) && !productName.includes(searchText)) {
-                    show = false;
-                }
-
-                if (show) {
-                    row.style.display = '';
-                    visibleRows.push(row);
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            // Sort by inventory if needed
-            if (selectedInventory !== 'default') {
-                var tbody = document.getElementById('productTableBody');
-                visibleRows.sort(function (a, b) {
-                    var stockA = parseInt(a.getAttribute('data-stock'));
-                    var stockB = parseInt(b.getAttribute('data-stock'));
-                    if (selectedInventory === 'low-to-high') {
-                        return stockA - stockB;
-                    } else {
-                        return stockB - stockA;
-                    }
-                });
-                visibleRows.forEach(function (row) {
-                    tbody.appendChild(row);
-                });
-            }
-
-            // Update filter tags
-            updateFilterTags(selectedCategory, selectedInventory);
-        }
-
-        /* ===== Filter Tags ===== */
-        function updateFilterTags(category, inventory) {
-            var categoryTag = document.getElementById('categoryTag');
-            var inventoryTag = document.getElementById('inventoryTag');
-
-            if (category !== 'all') {
-                var catName = document.querySelector('#categoryFilter .filter-item.selected').textContent.replace('✓', '').trim();
-                categoryTag.querySelector('.tag-text').textContent = 'Danh mục: ' + catName;
-                categoryTag.classList.add('show');
-            } else {
-                categoryTag.classList.remove('show');
-            }
-
-            if (inventory !== 'default') {
-                var invName = document.querySelector('#inventoryFilter .filter-item.selected').textContent.replace('✓', '').trim();
-                inventoryTag.querySelector('.tag-text').textContent = 'Tồn kho: ' + invName;
-                inventoryTag.classList.add('show');
-            } else {
-                inventoryTag.classList.remove('show');
-            }
-        }
-
-        function removeFilter(type) {
-            if (type === 'category') {
-                var wrapper = document.getElementById('categoryFilter');
-                wrapper.querySelectorAll('.filter-item').forEach(function (el) {
-                    el.classList.remove('selected');
-                });
-                wrapper.querySelector('[data-value="all"]').classList.add('selected');
-                wrapper.querySelector('.filter-value').textContent = 'Tất cả';
-                document.getElementById('categoryTag').classList.remove('show');
-            } else if (type === 'inventory') {
-                var wrapper = document.getElementById('inventoryFilter');
-                wrapper.querySelectorAll('.filter-item').forEach(function (el) {
-                    el.classList.remove('selected');
-                });
-                wrapper.querySelector('[data-value="default"]').classList.add('selected');
-                wrapper.querySelector('.filter-value').textContent = 'Tồn kho: Mặc định';
-                document.getElementById('inventoryTag').classList.remove('show');
-            }
-            applyFilters();
-        }
-
-
-        /* ===== Pagination ===== */
-        var currentPage = 1;
-
-        function changePage(page) {
-            if (page === 'prev') {
-                if (currentPage > 1) currentPage--;
-            } else if (page === 'next') {
-                if (currentPage < 10) currentPage++;
-            } else {
-                currentPage = page;
-            }
-
-            // Update active state
-            document.querySelectorAll('.pagination-wrapper .page-btn[data-page]').forEach(function (btn) {
-                btn.classList.remove('active');
-                if (parseInt(btn.getAttribute('data-page')) === currentPage) {
-                    btn.classList.add('active');
-                }
-            });
-
-            // Update prev/next disabled state
-            document.getElementById('prevBtn').classList.toggle('disabled', currentPage === 1);
-            document.getElementById('nextBtn').classList.toggle('disabled', currentPage === 10);
-        }
-
-        /* ===== Search on Enter ===== */
-        document.getElementById('searchInput').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                applyFilters();
-            }
-        });
     </script>
 {% endblock extra_js %}
 

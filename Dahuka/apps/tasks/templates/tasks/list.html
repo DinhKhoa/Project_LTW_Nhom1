@@ -25,7 +25,7 @@
         </article>
         <article class="summary-card">
             <span class="summary-label">Tổng công việc</span>
-            <strong>{{ nhiem_vus.count }} đơn</strong>
+            <strong>{{ tasks.paginator.count }} đơn</strong>
             <p>Hôm nay {% now "d/m/Y" %}</p>
         </article>
         <article class="summary-card">
@@ -71,31 +71,31 @@
                     </tr>
                 </thead>
                 <tbody id="jobTableBody">
-                    {% for nv in nhiem_vus %}
-                    <tr data-status="{% if nv.trang_thai == 'da_lap_dat' %}done{% else %}pending{% endif %}">
-                        <td><strong>#{{ nv.don_hang.ma_don_hang }}</strong></td>
+                    {% for task in tasks %}
+                    <tr data-status="{% if task.status == 'completed' %}done{% else %}pending{% endif %}">
+                        <td><strong>#{{ task.order.id }}</strong></td>
                         <td>
-                            <div class="customer-cell">{{ nv.don_hang.ho_ten }}</div>
-                            <small>{{ nv.don_hang.dia_chi }}</small>
+                            <div class="customer-cell">{{ task.order.full_name }}</div>
+                            <small>{{ task.order.address }}</small>
                         </td>
-                        <td>{{ nv.ngay_tao|date:"d/m/Y - H:i" }}</td>
+                        <td>{{ task.created_at|date:"d/m/Y - H:i" }}</td>
                         <td>
-                            {% if nv.ngay_hoan_thanh %}
-                            {{ nv.ngay_hoan_thanh|date:"d/m/Y - H:i" }}
+                            {% if task.completed_at %}
+                            {{ task.completed_at|date:"d/m/Y - H:i" }}
                             {% else %}
                             <span class="empty-value">Chưa hoàn thành</span>
                             {% endif %}
                         </td>
                         <td>
                             <span class="status-badge 
-                                {% if nv.trang_thai == 'cho_lap_dat' %}status-badge--pending
-                                {% elif nv.trang_thai == 'dang_xu_ly' %}status-badge--progress
+                                {% if task.status == 'pending' %}status-badge--pending
+                                {% elif task.status == 'in_progress' %}status-badge--progress
                                 {% else %}status-badge--done{% endif %}">
-                                {{ nv.get_trang_thai_display }}
+                                {{ task.get_status_display }}
                             </span>
                         </td>
                         <td>
-                            <a class="dark-button small-btn" href="{% url 'tasks:task_detail' nv.pk %}">Xem chi tiết</a>
+                            <a class="dark-button small-btn" href="{% url 'tasks:task_detail' task.pk %}">Xem chi tiết</a>
                         </td>
                     </tr>
                     {% empty %}
@@ -109,22 +109,22 @@
     </section>
 
     <!-- Pagination -->
-    {% if nhiem_vus.has_other_pages %}
+    {% if tasks.has_other_pages %}
     <div class="pagination-wrapper" style="display: flex; justify-content: center; gap: 8px; margin-top: 30px; margin-bottom: 40px;">
-        {% if nhiem_vus.has_previous %}
-            <a href="?page={{ nhiem_vus.previous_page_number }}" class="dark-button" style="min-width: 42px; text-decoration: none; display: flex; align-items: center; justify-content: center;">«</a>
+        {% if tasks.has_previous %}
+            <a href="?page={{ tasks.previous_page_number }}" class="dark-button" style="min-width: 42px; text-decoration: none; display: flex; align-items: center; justify-content: center;">«</a>
         {% endif %}
 
-        {% for num in nhiem_vus.paginator.page_range %}
-            {% if nhiem_vus.number == num %}
+        {% for num in tasks.paginator.page_range %}
+            {% if tasks.number == num %}
                 <button class="dark-button" style="min-width: 42px; background: #171b2a; color: white;">{{ num }}</button>
-            {% elif num > nhiem_vus.number|add:'-3' and num < nhiem_vus.number|add:'3' %}
+            {% elif num > tasks.number|add:'-3' and num < tasks.number|add:'3' %}
                 <a href="?page={{ num }}" class="dark-button" style="min-width: 42px; text-decoration: none; display: flex; align-items: center; justify-content: center; background: transparent; color: #171b2a; border: 1px solid #171b2a;">{{ num }}</a>
             {% endif %}
         {% endfor %}
 
-        {% if nhiem_vus.has_next %}
-            <a href="?page={{ nhiem_vus.next_page_number }}" class="dark-button" style="min-width: 42px; text-decoration: none; display: flex; align-items: center; justify-content: center;">»</a>
+        {% if tasks.has_next %}
+            <a href="?page={{ tasks.next_page_number }}" class="dark-button" style="min-width: 42px; text-decoration: none; display: flex; align-items: center; justify-content: center;">»</a>
         {% endif %}
     </div>
     {% endif %}

@@ -46,13 +46,26 @@ class CategoryService:
 
         products = []
         for p in products_qs:
+            # Logic for stock status
+            status_type = 'day_du'
+            status_display = 'Đầy đủ'
+            if p.stock == 0:
+                status_type = 'het_hang'
+                status_display = 'Hết hàng'
+            elif p.stock < 10:
+                status_type = 'thap'
+                status_display = 'Sắp hết'
+
             products.append({
                 'id': p.id,
                 'sku': p.sku,
-                'name': p.name,
-                'price': float(p.price),
-                'stock': p.stock,
-                'is_active': p.is_active,
+                'ma_san_pham': p.sku,
+                'ten_san_pham': p.name,
+                'gia_tien': float(p.price),
+                'ton_kho': p.stock,
+                'trang_thai_hien_thi': p.is_active,
+                'trang_thai_ton_kho': status_type,
+                'trang_thai_ton_kho_display': status_display,
                 'category': p.category.name,
             })
         return products

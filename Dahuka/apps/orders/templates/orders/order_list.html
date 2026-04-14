@@ -5,8 +5,7 @@
 {% block nav_qlbh_active %}font-weight-bold{% endblock %}
 
 {% block extra_css %}
-    
-    <link rel="stylesheet" href="{% static 'quanlydondathang/categories/donhang.categories' %}">
+    <link rel="stylesheet" href="{% static 'orders/css/donhang.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -20,21 +19,22 @@
         <!-- Title -->
         <h2 class="page-title">Quản lý đơn đặt hàng</h2>
 
-        <!-- Search and filter -->
-        <form method="GET" class="mb-4">
-            <div class="d-flex align-items-center">
-                <input type="text" name="q" class="form-control mr-3 search-input-dh"
-                       placeholder="Nhập mã đơn hàng" value="{{ query }}" style="max-width: 300px;">
-                <select name="trang_thai" class="form-control mr-3" style="max-width: 200px;">
-                    <option value="">Tất cả</option>
+        <div class="filter-bar d-flex justify-content-between align-items-center mb-4">
+            <form method="GET" class="d-flex align-items-center" style="gap: 10px;">
+                <input type="text" name="q" class="search-input" 
+                       placeholder="Tìm kiếm theo mã đơn hoặc tên khách..." value="{{ query }}">
+                
+                <select name="trang_thai" class="form-control" style="width: auto; height: 42px; border-radius: 6px;">
+                    <option value="">Tất cả trạng thái</option>
                     {% for value, label in trang_thai_choices %}
                         <option value="{{ value }}"
                                 {% if trang_thai_filter == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
-                <button type="submit" class="btn btn-search-dh">Tìm kiếm</button>
-            </div>
-        </form>
+                
+                <button type="submit" class="btn-search">Tìm kiếm</button>
+            </form>
+        </div>
 
         <!-- Order list -->
         {% for dh in page_obj %}
@@ -42,22 +42,22 @@
                 <div class="order-card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h5 class="order-code">{{ dh.ma_don_hang }}</h5>
+                            <h5 class="order-code">#{{ dh.id }}</h5>
                         </div>
                         <div>
-                            <span class="order-status status-{{ dh.trang_thai }}">{{ dh.get_trang_thai_display }}</span>
+                            <span class="order-status status-{{ dh.status }}">{{ dh.get_status_display }}</span>
                         </div>
                     </div>
                     <div class="order-info mt-2">
-                        <p><strong>Ngày đặt đơn:</strong> {{ dh.ngay_dat_don|date:"d-m-Y H:i" }}</p>
-                        <p><strong>Họ tên:</strong> {{ dh.ho_ten }}</p>
-                        <p><strong>Địa chỉ:</strong> {{ dh.dia_chi }}</p>
+                        <p><strong>Ngày đặt đơn:</strong> {{ dh.created_at|date:"d-m-Y H:i" }}</p>
+                        <p><strong>Họ tên:</strong> {{ dh.full_name }}</p>
+                        <p><strong>Địa chỉ:</strong> {{ dh.address }}</p>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-3">
                         <a href="{% url 'orders:order_detail' dh.pk %}" class="btn btn-xem-chitiet">Xem chi tiết</a>
                         <div class="order-total">
                             <span class="total-label">Tổng tiền:</span>
-                            <span class="total-amount">{{ dh.tong_tien_hang|floatformat:"0" }} đ</span>
+                            <span class="total-amount">{{ dh.total_amount|floatformat:"0" }} đ</span>
                         </div>
                     </div>
                 </div>

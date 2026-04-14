@@ -25,3 +25,14 @@ class Promotion(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def status_display(self):
+        from django.utils import timezone
+        today = timezone.now().date()
+        if not self.is_active or self.end_date < today:
+            return "Đã kết thúc"
+        elif self.start_date > today:
+            return "Sắp diễn ra"
+        else:
+            return "Đang hoạt động"

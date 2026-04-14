@@ -7,16 +7,16 @@ from .services import OrderService
 @login_required
 def order_list(request):
     query = request.GET.get('q', '')
-    status_filter = request.GET.get('status', '')
+    trang_thai_filter = request.GET.get('trang_thai', '')
     page_number = request.GET.get('page', 1)
 
-    page_obj = OrderService.get_orders(query, status_filter, page_number)
+    page_obj = OrderService.get_orders(query, trang_thai_filter, page_number)
 
     context = {
         'page_obj': page_obj,
         'query': query,
-        'status_filter': status_filter,
-        'status_choices': Order.STATUS_CHOICES,
+        'trang_thai_filter': trang_thai_filter,
+        'trang_thai_choices': Order.STATUS_CHOICES,
     }
     return render(request, 'orders/order_list.html', context)
 
@@ -37,8 +37,8 @@ def order_detail(request, pk):
     current_step = OrderService.calc_current_step(order)
 
     context = {
-        'order': order,
-        'items': items,
+        'don_hang': order,
+        'chi_tiet_items': items,
         'current_step': current_step,
     }
     return render(request, 'orders/detail.html', context)

@@ -40,20 +40,6 @@
             <input type="text" name="q" class="search-input" id="searchInput"
                    placeholder="Tìm kiếm theo tên hoặc mã danh mục..." value="{{ query }}">
 
-            <!-- Category Filter (Simplified version of product_list dropdown) -->
-            <div class="filter-dropdown-wrapper" id="categoryTypeFilter">
-                <input type="hidden" name="filter" id="categoryFilterInput" value="">
-                <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('categoryTypeFilter')">
-                    <span class="filter-value">Tất cả</span>
-                    <span class="arrow">▾</span>
-                </div>
-                <div class="filter-dropdown-menu">
-                    <div class="filter-item selected" data-value="" onclick="selectFilterItem(this, 'categoryTypeFilter')">
-                        Tất cả<span class="check-icon">✓</span>
-                    </div>
-                </div>
-            </div>
-
             <button type="submit" class="btn-search">Tìm kiếm</button>
         </form>
 
@@ -76,18 +62,18 @@
             <tbody>
                 {% for dm in page_obj %}
                 <tr class="dm-row" data-dm-id="{{ dm.pk }}" style="cursor: pointer;">
-                    <td class="text-center">{{ dm.ma_danh_muc }}</td>
-                    <td class="font-weight-bold">{{ dm.ten_danh_muc }}</td>
+                    <td class="text-center">{{ dm.code|default:dm.pk }}</td>
+                    <td class="font-weight-bold">{{ dm.name }}</td>
                     <td class="text-center">
-                        <span class="badge-count">{{ dm.so_luong_san_pham }}</span>
+                        <span class="badge-count">{{ dm.products.count }}</span>
                     </td>
                     <td class="text-center">
                         <button type="button" class="btn-edit-dm" title="Sửa" 
-                                onclick="event.stopPropagation(); openCategoryModal('edit', '{{ dm.pk }}', '{{ dm.ma_danh_muc }}', '{{ dm.ten_danh_muc }}')">
+                                onclick="event.stopPropagation(); openCategoryModal('edit', '{{ dm.pk }}', '{{ dm.code }}', '{{ dm.name }}')">
                             <i class="fa fa-pencil-square-o"></i>
                         </button>
                         <button type="button" class="btn-delete-dm" title="Xóa" 
-                                onclick="event.stopPropagation(); openDeleteModal('{{ dm.pk }}', '{{ dm.ten_danh_muc }}')">
+                                onclick="event.stopPropagation(); openDeleteModal('{{ dm.pk }}', '{{ dm.name }}')">
                             <i class="fa fa-trash"></i>
                         </button>
                     </td>
@@ -184,7 +170,7 @@
                 </div>
                 <div class="form-group">
                     <label style="font-weight: 700; display: block; margin-bottom: 5px;">Tên danh mục <span style="color: red;">*</span></label>
-                    <input type="text" name="ten_danh_muc" id="ten_danh_muc" class="form-control" required placeholder="Nhập tên danh mục">
+                    <input type="text" name="name" id="ten_danh_muc" class="form-control" required placeholder="Nhập tên danh mục">
                 </div>
             </div>
             <div class="modal-footer-custom">
@@ -224,56 +210,55 @@ document.addEventListener('DOMContentLoaded', function() {
         row.addEventListener('click', function() {
             var dmId = this.getAttribute('data-dm-id');
             var detailRow = document.getElementById('detail-' + dmId);
-            
+
             if (detailRow.style.display === 'none' || detailRow.style.display === '') {
                 // Toggle display
                 detailRow.style.display = 'table-row';
                 this.classList.add('expanded');
-                
+
                 // Fetch products (keeping existing AJAX logic but with updated HTML)
                 var tbody = detailRow.querySelector('.product-tbody');
-                
-                fetch('/categories/san-pham/' + dmId + '/')
-                    .then(response => response.json())
+
+                console.log('Fetching products for category:', dmId);
+                fetch('/categories/products/' + dmId + '/')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('Received data:', data);
                         tbody.innerHTML = '';
-                        if (data.products.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4">Chưa có sản phẩm nào trong danh mục này.</td></tr>';
+                        if (!data.products || data.products.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">Chưa có sản phẩm nào trong danh mục này.</td></tr>';
                             return;
                         }
 
                         data.products.forEach(p => {
-                            var statusType = p.trang_thai_ton_kho; 
-                            var statusText = p.trang_thai_ton_kho_display;
-                            var badgeClass = 'badge-' + statusType.replace('_', '');
-                            var rowClass = (statusType === 'het_hang') ? 'row-hethang' : (statusType === 'thap' ? 'row-thap' : 'row-daydu');
+                            const statusType = p.trang_thai_ton_kho || 'day_du'; 
+                            const statusText = p.trang_thai_ton_kho_display || 'Đầy đủ';
+                            const badgeClass = 'badge-' + statusType.replace('_', '');
+                            const rowClass = (statusType === 'het_hang') ? 'row-hethang' : (statusType === 'thap' ? 'row-thap' : 'row-daydu');
                             
-                            var toggleClass = p.trang_thai_hien_thi ? 'active-toggle' : '';
-                            var toggleText = p.trang_thai_hien_thi ? 'Hiển thị' : 'Ẩn';
+                            const toggleClass = p.trang_thai_hien_thi ? 'active-toggle' : '';
+                            const toggleText = p.trang_thai_hien_thi ? 'Hiển thị' : 'Ẩn';
                             
-                            // Format price with dots
-                            var formattedPrice = p.gia_tien.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                            const formattedPrice = (p.gia_tien || 0).toLocaleString('vi-VN');
                             
-                            // Handle infinity symbol for services or high stock
-                            var stockDisplay = p.ton_kho;
-                            if (parseInt(p.ton_kho) >= 999) {
-                                stockDisplay = '∞';
-                            }
+                            let stockDisplay = p.ton_kho;
+                            if (parseInt(p.ton_kho) >= 999) stockDisplay = '∞';
 
-                            var tr = document.createElement('tr');
+                            const tr = document.createElement('tr');
                             tr.className = rowClass;
                             tr.style.cursor = 'pointer';
                             tr.onclick = (e) => {
-                                // Ensure we don't redirect when clicking the toggle switch
-                                if (e.target.closest('.switch-wrapper')) {
-                                    return;
+                                if (!e.target.closest('.switch-wrapper')) {
+                                    window.location.href = `/products/detail/${p.id}/`;
                                 }
-                                window.location.href = `/products/product_detail/${p.id}/`;
                             };
                             
                             tr.innerHTML = `
-                                <td class="text-center">${p.ma_san_pham}</td>
-                                <td class="p-name">${p.ten_san_pham}</td>
+                                <td class="text-center">${p.ma_san_pham || ''}</td>
+                                <td class="p-name">${p.ten_san_pham || ''}</td>
                                 <td class="p-price text-center" style="color: #1a6b3c; font-weight: 700;">${formattedPrice} đ</td>
                                 <td class="p-stock text-center">${stockDisplay}</td>
                                 <td class="text-center">
@@ -292,8 +277,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             tbody.appendChild(tr);
                         });
                     })
-                    .catch(err => {
-                        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-danger">Lỗi khi tải sản phẩm.</td></tr>';
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Lỗi khi tải dữ liệu sản phẩm.</td></tr>';
                     });
             } else {
                 detailRow.style.display = 'none';
@@ -301,70 +287,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+});
 
-    /* ===== Filter Dropdowns Logic ===== */
-    window.toggleFilterDropdown = function(id) {
-        var wrapper = document.getElementById(id);
-        var btn = wrapper.querySelector('.filter-dropdown-btn');
-        var menu = wrapper.querySelector('.filter-dropdown-menu');
-
-        // Close all other filter dropdowns
-        document.querySelectorAll('.filter-dropdown-wrapper').forEach(function (w) {
-            if (w.id !== id) {
-                w.querySelector('.filter-dropdown-btn').classList.remove('open');
-                w.querySelector('.filter-dropdown-menu').classList.remove('show');
-            }
-        });
-
-        btn.classList.toggle('open');
-        menu.classList.toggle('show');
-    };
-
-    window.selectFilterItem = function(item, wrapperId) {
-        var wrapper = document.getElementById(wrapperId);
-        var valueSpan = wrapper.querySelector('.filter-value');
-        var btn = wrapper.querySelector('.filter-dropdown-btn');
-        var menu = wrapper.querySelector('.filter-dropdown-menu');
-        var hiddenInput = document.getElementById('categoryFilterInput');
-
-        // Update selected state
-        wrapper.querySelectorAll('.filter-item').forEach(function (el) {
-            el.classList.remove('selected');
-        });
-        item.classList.add('selected');
-
-        // Update display text
-        var text = item.textContent.replace('✓', '').trim();
-        valueSpan.textContent = text;
-        
-        // Update hidden input
-        if (hiddenInput) {
-            hiddenInput.value = item.getAttribute('data-value');
-        }
-
-        // Close dropdown
-        btn.classList.remove('open');
-        menu.classList.remove('show');
-    };
-
-    // Close filter dropdowns when clicking outside
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('.filter-dropdown-wrapper')) {
-            document.querySelectorAll('.filter-dropdown-wrapper').forEach(function (w) {
-                w.querySelector('.filter-dropdown-btn').classList.remove('open');
-                w.querySelector('.filter-dropdown-menu').classList.remove('show');
-            });
-        }
-    });
 
     /* ===== Toggle Visibility AJAX (Synced from Product List) ===== */
     window.toggleVisibility = function(event, productId, element) {
         event.stopPropagation();
-        
+
         const isVisible = !element.classList.contains('active-toggle');
         const label = element.querySelector('.toggle-label');
-        
-        fetch(`/products/toggle_visibility/${productId}/`, {
+        fetch(`/products/toggle-visibility/${productId}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -375,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                if (data.is_visible) {
+                if (data.is_active) {
                     element.classList.add('active-toggle');
                     label.textContent = 'Hiển thị';
                 } else {
@@ -406,7 +338,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return cookieValue;
     }
-});
 
 /* ===== Category Modal Logic ===== */
 function openCategoryModal(mode, id, ma, ten) {
@@ -420,10 +351,9 @@ function openCategoryModal(mode, id, ma, ten) {
 
     if (mode === 'edit') {
         title.textContent = 'CHỈNH SỬA DANH MỤC';
-        // Construct the URL using the categories prefix
-        form.action = '/categories/sua/' + id + '/';
+        form.action = '/categories/edit/' + id + '/';
         maGroup.style.display = 'block';
-        maInput.value = ma;
+        maInput.value = ma || id;
         tenInput.value = ten;
         submitBtn.innerHTML = 'Cập nhật';
     } else {
@@ -446,7 +376,7 @@ function openDeleteModal(id, name) {
     var form = document.getElementById('deleteForm');
     var nameSpan = document.getElementById('deleteTargetName');
 
-    form.action = '/categories/xoa/' + id + '/';
+    form.action = '/categories/delete/' + id + '/';
     nameSpan.textContent = name;
     modal.classList.add('show');
 }

@@ -10,14 +10,22 @@ def is_staff(user):
 @user_passes_test(is_staff)
 def task_list(request):
     """View list of all assigned installation jobs for current staff"""
-    tasks_list = InstallationTask.objects.all().order_by('-created_at')
+    # Lọc công việc theo nhân viên hiện tại để khớp với template
+    tasks_query = InstallationTask.objects.filter(staff_name=request.user.get_full_name() or request.user.username).order_by('-created_at')
+    
+    completed_count = tasks_query.filter(status='completed').count()
+    in_progress_count = tasks_query.filter(status='in_progress').count()
     
     # Pagination
-    paginator = Paginator(tasks_list, 10) 
+    paginator = Paginator(tasks_query, 10) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'tasks/list.html', {'tasks': page_obj})
+    return render(request, 'tasks/list.html', {
+        'tasks': page_obj,
+        'completed_count': completed_count,
+        'in_progress_count': in_progress_count
+    })
 
 @login_required
 @user_passes_test(is_staff)

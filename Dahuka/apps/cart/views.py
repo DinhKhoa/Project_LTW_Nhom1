@@ -111,8 +111,12 @@ def cart(request):
             display_title = 'Giỏ hàng'
 
     # Prepare context data
-    cart_items = cart_obj.items.all().select_related('product')
-    total_price = cart_obj.total_price
+    if current_screen == 'cart':
+        cart_items = cart_obj.items.all().select_related('product')
+    else:
+        cart_items = cart_obj.items.filter(is_selected=True).select_related('product')
+        
+    total_price = cart_obj.selected_total_price
     shipping_fee = 0 # Could be calculated
     deposit_amount = round(float(total_price) * state['deposit_percent'] / 100)
 
@@ -157,6 +161,19 @@ def cart(request):
                 return redirect(reverse('cart:cart'))
             else:
                 customer_form = form
+
+        elif action == 'toggle_select':
+            item_id = request.POST.get('item_id')
+            is_selected = request.POST.get('is_selected') == 'true'
+            from django.shortcuts import get_object_or_404
+            item = get_object_or_404(CartItem, id=item_id, cart=cart_obj)
+            item.is_selected = is_selected
+            item.save()
+            # Recalculate total_price explicitly after DB update so payload gets fresh data
+            total_price = cart_obj.selected_total_price
+            if is_ajax:
+                return JsonResponse({'ok': True, **checkout_payload()})
+            return redirect(reverse('cart:cart'))
 
         elif action == 'update_deposit':
             try:

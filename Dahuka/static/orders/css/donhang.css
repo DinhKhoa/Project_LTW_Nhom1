@@ -1,19 +1,5 @@
 /* Quản lý đơn đặt hàng - Styles */
 
-.page-title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #1a1a1a;
-    font-style: italic;
-    white-space: nowrap;
-}
-
-.title-line {
-    flex-grow: 1;
-    height: 3px;
-    background-color: #2c3e50;
-}
-
 /* Breadcrumb */
 .breadcrumb-item a {
     color: #00665b;
@@ -83,14 +69,13 @@
 .order-status {
     font-size: 14px;
     font-weight: 500;
-    font-style: italic;
 }
 
-.status-cho_xac_nhan { color: #e65100; }
-.status-da_xac_nhan { color: #1565c0; }
-.status-dang_giao_hang { color: #6a1b9a; }
-.status-giao_hang_thanh_cong { color: #2e7d32; }
-.status-da_huy { color: #c62828; }
+.status-pending { color: #e65100; }
+.status-confirmed { color: #1565c0; }
+.status-processing { color: #6a1b9a; }
+.status-completed { color: #2e7d32; }
+.status-cancelled { color: #c62828; }
 
 /* View detail button */
 .btn-xem-chitiet {
@@ -189,7 +174,6 @@
     font-size: 18px;
     color: #2e7d32;
     font-weight: 600;
-    font-style: italic;
 }
 
 /* Progress stepper */

@@ -64,8 +64,8 @@
                             </div>
 
                             {% for item in cart_items %}
-                                <div class="cart-item" data-item-id="{{ item.id }}" data-item-price="{{ item.price }}">
-                                    <input type="checkbox" class="item-checkbox" checked>
+                                <div class="cart-item" data-item-id="{{ item.id }}" data-item-subtotal="{{ item.subtotal }}">
+                                    <input type="checkbox" class="item-checkbox" {% if item.is_selected %}checked{% endif %}>
                                     <div class="product-mock">
                                         {% if item.product.image %}
                                             <img src="{{ item.product.image.url }}"
@@ -420,7 +420,7 @@
             {% endif %}
 
             <div class="experience-banner"
-                 style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static "img/BANNER.png" %}'); background-size: cover; background-position: center; border-radius: 12px; padding: 60px 24px; color: white; text-align: center; margin-top: 40px;">
+                 style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url({% static 'img/BANNER.png' %}); background-size: cover; background-position: center; border-radius: 12px; padding: 60px 24px; color: white; text-align: center; margin-top: 40px;">
                 <h3 style="font-style: italic; font-weight: 300; font-size: 24px; margin-bottom: 20px;">“Hãy đến và trải
                     nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
                 <button class="btn btn-outline-light"

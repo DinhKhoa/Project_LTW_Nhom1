@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCartSelectionSummary() {
-        const cartRows = Array.from(document.querySelectorAll('.cart-item[data-item-price]'));
+        const cartRows = Array.from(document.querySelectorAll('.cart-item[data-item-subtotal]'));
         const totalPriceEl = document.getElementById('totalPrice');
         const totalCaptionEl = document.querySelector('.cart-total .total-caption');
         const checkoutBtn = document.querySelector('#cartCheckoutForm button[type="submit"]');
@@ -138,7 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const checkbox = row.querySelector('.item-checkbox');
             if (!checkbox || !checkbox.checked) return;
             selectedCount += 1;
-            selectedTotal += parseInt(row.dataset.itemPrice || '0', 10);
+            const cleanValue = (row.dataset.itemSubtotal || '0').replace(/\D/g, '');
+            selectedTotal += parseInt(cleanValue || '0', 10);
         });
 
         if (totalCaptionEl) {
@@ -263,7 +264,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const cartItemCheckboxes = document.querySelectorAll('.cart-item .item-checkbox');
     cartItemCheckboxes.forEach((checkbox) => {
-        checkbox.addEventListener('change', updateCartSelectionSummary);
+        checkbox.addEventListener('change', async () => {
+            const row = checkbox.closest('.cart-item');
+            const itemId = row.dataset.itemId;
+            
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `action=toggle_select&item_id=${itemId}&is_selected=${checkbox.checked}`
+                });
+                
+                const data = await response.json();
+                if (!data.ok) throw new Error('Cập nhật thất bại');
+                
+                syncCheckoutUI(data);
+                updateCartSelectionSummary();
+            } catch (error) {
+                checkbox.checked = !checkbox.checked; // Revert visually
+                showToast(error.message);
+                updateCartSelectionSummary();
+            }
+        });
     });
 
     const deleteButtons = document.querySelectorAll('.cart-item-delete-btn');
