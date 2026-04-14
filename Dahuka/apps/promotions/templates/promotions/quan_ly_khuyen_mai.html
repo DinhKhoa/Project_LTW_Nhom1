@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quản lý khuyến mãi - DAHUKA{% endblock %}
+
+{% block extra_css %}
+
+<style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      color: #333;
+    }
+    .summary-container {
+      display: flex;
+      gap: 30px 20px;
+      margin: 20px 10px;
+      padding: 20px;
+    }
+
+    .summary-box {
+      flex: 1;
+      background-color: #f3f4f6; /* nền xám nhạt */
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+      border: 1px solid #0B6E4F;
+    }
+
+    .summary-box:hover {
+      transform: translateY(-5px);
+    }
+
+    .summary-box h3 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .summary-box p {
+      margin: 10px 0 0;
+      font-size: 20px;
+      font-weight: bold;
+      color: #2563EB;
+    }
+
+    .summary-box.active p {
+      color: #0B6E4F; /* xanh lá */
+    }
+    .summary-box.upcoming p {
+      color: #f59e0b; /* vàng cam */
+    }
+    .summary-box.ended p {
+      color: red;
+    }
+
+    table {
+      width: calc(100% - 40px);
+      border-collapse: collapse;
+      border: 2px solid black;
+      margin: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    .btn-add {
+      background-color: #0B6E4F;
+      color: #fff;
+      padding: 20px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    .btn-add:hover {
+      background-color: #fff;
+      color: #0B6E4F;
+      border: 1px solid #0B6E4F;
+    }
+    .icon {
+      cursor: pointer;
+      margin: 0 5px;
+      transition: transform 0.2s ease;
+    }
+    .icon:hover {
+      transform: scale(1.2);
+    }
+    .edit {
+      color: #2563EB;
+    }
+    .delete {
+      color: #888;
+    }
+    .delete:hover {
+      color: red;
+    }
+    .icon_edit{
+        cursor: pointer;
+        color: #2563EB;
+    }
+
+    .icon_delete{
+        cursor: pointer;
+        color: #DC2626;
+    }
+
+    .thaotac {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        border: none;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+      <h1 style="display: flex; align-items: center; gap: 10px; margin: 20px 10px">
+          Quản lý khuyến mãi
+          <span style="flex: 1; height: 5px; background-color: black;"></span>
+      </h1>
+        <div class="summary-container">
+          <div class="summary-box total">
+            <h3>Tổng khuyến mãi</h3>
+            <p>24</p>
+          </div>
+          <div class="summary-box active">
+            <h3>Đang hoạt động</h3>
+            <p>12</p>
+          </div>
+          <div class="summary-box upcoming">
+            <h3>Sắp diễn ra</h3>
+            <p>5</p>
+          </div>
+          <div class="summary-box ended">
+            <h3>Đã kết thúc</h3>
+            <p>7</p>
+          </div>
+        </div>
+
+      <button class="btn-add" style="margin: 20px 10px">+ Thêm khuyến mãi</button>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="border: 2px solid black;">TÊN CHƯƠNG TRÌNH</th>
+            <th style="border: 2px solid black;">ĐIỀU KIỆN ÁP DỤNG</th>
+            <th style="border: 2px solid black;">HÌNH THỨC</th>
+            <th style="border: 2px solid black;">THỜI HẠN</th>
+            <th style="border: 2px solid black;">TRẠNG THÁI</th>
+            <th style="border: 2px solid black;">THAO TÁC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border: 2px solid black;">
+                <div style="font-weight: bold;">CHÀO HÈ RỰC RỠ</div>
+                <div style="font-size: 12px; color: #888; font-style: italic;">
+                    Mã: SUMMER2026
+                </div>
+            </td>
+            <td style="border: 2px solid black;">Tổng đơn ≥ 5.000.000</td>
+            <td style="border: 2px solid black;">-10% Giá trị</td>
+            <td style="border: 2px solid black;">15/04/2026 – 15/06/2026</td>
+            <td style="border: 2px solid black;">Sắp diễn ra</td>
+            <td style="border: 2px solid black;">
+                <div class="thaotac">
+                    <span class="icon_edit">
+                        <i class="fa-solid fa-pencil"></i>
+                    </span>
+                    <span class="icon_delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </span>
+                </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="border: 2px solid black;">
+                <div style="font-weight: bold;">CHÀO MỪNG TẾT NGUYÊN ĐÁN 2025</div>
+                <div style="font-size: 12px; color: #888; font-style: italic;">
+                    Mã: TET2025
+                </div>
+            </td>
+            <td style="border: 2px solid black;">Không giới hạn</td>
+            <td style="border: 2px solid black;">-500.000</td>
+            <td style="border: 2px solid black;">01/02/2026 – 31/02/2026</td>
+            <td style="border: 2px solid black;">Đang hoạt động</td>
+            <td style="border: 2px solid black;">
+                <div class="thaotac">
+                    <span class="icon_edit">
+                        <i class="fa-solid fa-pencil"></i>
+                    </span>
+                    <span class="icon_delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </span>
+                </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Keeping logic if needed
+</script>
+{% endblock %}
