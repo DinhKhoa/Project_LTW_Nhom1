@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thêm khuyến mãi - DAHUKA{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-container {
+            width: 60%;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .form-row label {
+            flex: 0 0 180px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .input-field {
+            flex: 1;
+            height: 44px;
+            padding: 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-save, .btn-back {
+            height: 44px;
+            padding: 0 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save {
+            background-color: #2563EB;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-save:hover {
+            background-color: #fff;
+            color: #2563EB;
+            border: 1px solid #2563EB;
+        }
+
+        .btn-back {
+            background-color: #000;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-back:hover {
+            background-color: #fff;
+            color: #000;
+            border: 1px solid #000;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <main>
+        <div style="margin-bottom: 20px; font-size: 14px;">
+            <a href="{% url 'core:home' %}" style="text-decoration: none; color: inherit;">Trang chủ</a> /
+            Quản lý khuyến mãi / <b>Thêm khuyến mãi</b>
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: center;">
+            <h1 style="font-size: 32px; font-weight: 800; color: #333; margin: 0;">Thêm khuyến mãi</h1>
+            <div style="width: 80px; height: 3px; background: #16A34A; margin: 10px auto 0;"></div>
+        </div>
+
+        <div class="form-container">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    {{ form.ten_khuyen_mai.label_tag }}
+                    {{ form.ten_khuyen_mai }}
+                </div>
+                <div class="form-row">
+                    {{ form.ma_khuyen_mai.label_tag }}
+                    {{ form.ma_khuyen_mai }}
+                </div>
+                <div class="form-row">
+                    {{ form.tong_don.label_tag }}
+                    {{ form.tong_don }}
+                </div>
+                <div class="form-row">
+                    {{ form.hinh_thuc.label_tag }}
+                    {{ form.hinh_thuc }}
+                    {{ form.gia_tri }}
+                    <span id="discountUnit">%</span>
+                </div>
+                <div class="form-row">
+                    {{ form.ngay_bat_dau.label_tag }}
+                    {{ form.ngay_bat_dau }}
+                    {{ form.ngay_ket_thuc.label_tag }}
+                    {{ form.ngay_ket_thuc }}
+                </div>
+                <div class="form-row">
+                    {{ form.san_pham_ap_dung.label_tag }}
+                    {{ form.san_pham_ap_dung }}
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn-save"><i class="fa fa-save"></i> Lưu khuyến mãi</button>
+                    <button type="button" class="btn-back" onclick="window.history.back()"><i
+                            class="fa fa-arrow-left"></i> Quay lại
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+{% endblock %}

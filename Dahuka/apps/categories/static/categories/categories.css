@@ -1,0 +1,231 @@
+/* Quản lý danh mục - Styles */
+
+/* Breadcrumb */
+.breadcrumb {
+    background: transparent;
+    padding: 20px 0;
+    margin: 0;
+}
+
+.breadcrumb-item a {
+    color: #444;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.breadcrumb-item.active {
+    color: #888;
+    font-size: 14px;
+}
+
+/* Search bar on main category page */
+.search-container-main {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 30px;
+}
+
+.search-wrapper-main {
+    position: relative;
+    width: 300px;
+}
+
+.search-wrapper-main i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ccc;
+}
+
+.search-wrapper-main input {
+    width: 100%;
+    padding: 8px 10px 8px 35px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Add button */
+.btn-add-dm {
+    background-color: #00665b;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.btn-add-dm:hover {
+    background-color: #004d44;
+    color: white;
+}
+
+/* Category Table Restyled to match Mẫu bảng.png */
+.dm-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    margin-bottom: 20px;
+}
+
+.dm-table thead th {
+    background-color: #e6f7f4; /* Light green-blue header from Mẫu bảng.png */
+    color: #111;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+    padding: 16px 20px;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dm-table tbody td {
+    padding: 18px 20px;
+    vertical-align: middle;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    background-color: transparent;
+    transition: background-color 0.2s;
+}
+
+.dm-table tbody tr.dm-row:hover {
+    background-color: #f9fbfb !important;
+}
+
+.dm-row.expanded {
+    background-color: #e6f9f0 !important;
+    border-left: 4px solid #1a6b3c;
+}
+
+.dm-table tbody td:last-child {
+    border-right: none;
+}
+
+.dm-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badge count for categories (blue pill) - Matches DANH MỤC column in image */
+.badge-count {
+    display: inline-block;
+    background-color: #dae8fc; /* Light blue from image */
+    color: #1565c0; /* Blue from image */
+    padding: 4px 20px;
+    border-radius: 4px; /* Image has 4px radius for the blue tag */
+    font-weight: 700;
+    font-size: 12px;
+    text-align: center;
+    min-width: 60px;
+}
+
+/* Pencil icon for categories */
+.btn-edit-dm, .btn-delete-dm {
+    font-size: 20px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transition: 0.2s;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.btn-edit-dm {
+    color: #3f51b5;
+}
+
+.btn-edit-dm:hover {
+    color: #2979ff;
+    background-color: rgba(63, 81, 181, 0.1);
+}
+
+.btn-delete-dm {
+    color: #ef4444;
+}
+
+.btn-delete-dm:hover {
+    color: #dc2626;
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+
+/* Custom Pagination */
+.custom-pagination .page-item .page-link {
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0 6px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.custom-pagination .page-item.active .page-link {
+    background-color: #1f2937;
+    border-color: #1f2937;
+    color: #fff;
+}
+
+.custom-pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+    border-color: #10b981;
+    color: #10b981;
+    background-color: #f0fdf4;
+}
+
+/* ======================================== */
+/* Product List (Mẫu bảng.png design)       */
+/* ======================================== */
+
+.product-detail-row {
+    background-color: #f8fafc;
+}
+
+/* Detailed Product Container */
+.product-detail-content {
+    background: #d1d1d1; /* Very light green for better visibility */
+    padding: 24px;
+    border-radius: 12px;
+    margin: 10px 30px 25px 30px; /* Added left/right margin as requested */
+    border: 1px solid #c6f6d5; /* Matching light green border */
+    box-shadow: 0 4px 15px rgba(11, 110, 79, 0.05); /* Subtle brand color shadow */
+}
+
+.product-inner-table thead th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.product-inner-table tbody td {
+    padding: 14px 15px;
+    font-size: 13px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+/* Use global styles from dahuka.css for .p-name, .p-price, .p-stock, .stock-badge, .switch-wrapper */

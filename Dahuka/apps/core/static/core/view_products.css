@@ -1,0 +1,32 @@
+/* Catalog Page Styles */
+.catalog-hero {
+    position: relative;
+    height: 480px;
+    overflow: hidden;
+}
+.catalog-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.catalog-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, transparent 60%);
+    display: flex;
+    align-items: center;
+    padding-left: 80px;
+}
+.catalog-hero-text h1 {
+    font-size: 48px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 20px;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.catalog-hero-text p {
+    font-size: 18px;
+    color: rgba(255,255,255,0.9);
+    max-width: 500px;
+    line-height: 1.6;
+}

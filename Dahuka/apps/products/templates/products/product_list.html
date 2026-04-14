@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}Danh sách sản phẩm - DAHUKA{% endblock title %}
+
+{% block content %}
+<div class="content-wide-layout mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav class="page-breadcrumbs">
+        <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+        <b>Quản lý sản phẩm</b>
+    </nav>
+    <!-- Title -->
+    <h1 class="page-title">Quản lý sản phẩm</h1>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar d-flex justify-content-between align-items-center mt-3">
+            <div class="d-flex align-items-center" style="gap: 10px;">
+                <input type="text" class="search-input" id="searchInput"
+                       placeholder="Tìm kiếm theo tên hoặc mã sản phẩm...">
+
+                <!-- Category Filter -->
+                <div class="filter-dropdown-wrapper" id="categoryFilter">
+                    <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('categoryFilter')">
+                        <span class="filter-value">
+                            {% if category_id == 'all' %}Tất cả{% else %}
+                                {% for cat in categories %}{% if cat.id|stringformat:"i" == category_id %}
+                                    {{ cat.ten_danh_muc }}{% endif %}{% endfor %}
+                            {% endif %}
+                        </span>
+                        <span class="arrow">▾</span>
+                    </div>
+                    <div class="filter-dropdown-menu">
+                        <div class="filter-item {% if category_id == 'all' %}selected{% endif %}" data-value="all"
+                             onclick="selectFilterItem(this, 'categoryFilter')">Tất cả<span class="check-icon">✓</span>
+                        </div>
+                        {% for cat in categories %}
+                            <div class="filter-item {% if cat.id|stringformat:"i" == category_id %}selected{% endif %}"
+                                 data-value="{{ cat.id }}"
+                                 onclick="selectFilterItem(this, 'categoryFilter')">{{ cat.ten_danh_muc }}<span
+                                    class="check-icon">✓</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Inventory Filter -->
+                <div class="filter-dropdown-wrapper" id="inventoryFilter">
+                    <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('inventoryFilter')">
+                        <span class="filter-value">
+                            {% if inventory_filter == 'default' %}Tồn kho: Mặc định
+                            {% elif inventory_filter == 'low-to-high' %}Thấp → Cao
+                            {% elif inventory_filter == 'high-to-low' %}Cao → Thấp
+                            {% endif %}
+                        </span>
+                        <span class="arrow">▾</span>
+                    </div>
+                    <div class="filter-dropdown-menu">
+                        <div class="filter-item {% if inventory_filter == 'default' %}selected{% endif %}"
+                             data-value="default"
+                             onclick="selectFilterItem(this, 'inventoryFilter')">Mặc định<span class="check-icon">✓</span>
+                        </div>
+                        <div class="filter-item {% if inventory_filter == 'low-to-high' %}selected{% endif %}"
+                             data-value="low-to-high"
+                             onclick="selectFilterItem(this, 'inventoryFilter')">Thấp → Cao<span class="check-icon">✓</span>
+                        </div>
+                        <div class="filter-item {% if inventory_filter == 'high-to-low' %}selected{% endif %}"
+                             data-value="high-to-low"
+                             onclick="selectFilterItem(this, 'inventoryFilter')">Cao → Thấp<span class="check-icon">✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-search" onclick="applyFilters()">Tìm kiếm</button>
+            </div>
+
+            <a href="#" class="btn-dahuka-main">
+                <i class="fa fa-plus"></i> Thêm sản phẩm
+            </a>
+        </div>
+
+        <!-- Active Filters -->
+        <div class="active-filters">
+            <div class="filter-tag {% if category_id != 'all' %}show{% endif %}" id="categoryTag">
+                <span class="tag-text">Danh mục:
+                    {% for cat in categories %}{% if cat.id|stringformat:"i" == category_id %}{{ cat.ten_danh_muc }}
+                    {% endif %}{% endfor %}</span>
+                <span class="remove-filter" onclick="removeFilter('category')">✕</span>
+            </div>
+            <div class="filter-tag {% if inventory_filter != 'default' %}show{% endif %}" id="inventoryTag">
+                <span class="tag-text">Tồn kho: {% if inventory_filter == 'low-to-high' %}Thấp → Cao{% else %}Cao →
+                    Thấp{% endif %}</span>
+                <span class="remove-filter" onclick="removeFilter('inventory')">✕</span>
+            </div>
+        </div>
+
+        <!-- Stock Legend -->
+        <div class="stock-legend">
+            <span class="stock-legend-title">Báo màu tồn kho:</span>
+            <div class="stock-legend-item">
+                <span class="stock-dot dot-daydu"></span>
+                <span>Đầy đủ (≥10)</span>
+            </div>
+            <div class="stock-legend-item">
+                <span class="stock-dot dot-thap"></span>
+                <span>Thấp (1-9)</span>
+            </div>
+            <div class="stock-legend-item">
+                <span class="stock-dot dot-hethang"></span>
+                <span>Hết hàng (0)</span>
+            </div>
+        </div>
+
+        <!-- Product Table -->
+        <div class="product-table-wrapper">
+            <table class="product-table" id="productTable">
+                <thead>
+                <tr>
+                    <th>Mã sản phẩm</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá tiền</th>
+                    <th>Tồn kho</th>
+                    <th>Trạng thái tồn kho</th>
+                    <th>Trạng thái hiển thị</th>
+                    <th>Danh mục</th>
+                </tr>
+                </thead>
+                <tbody id="productTableBody">
+                {% for sp in page_obj %}
+                    {% url "products:product_detail" sp.id as detail_url %}
+                    <tr class="{% if sp.trang_thai_ton_kho == 'het_hang' %}row-hethang{% elif sp.trang_thai_ton_kho == 'thap' %}row-thap{% else %}row-daydu{% endif %}" 
+                        data-category="{{ sp.danh_muc.id }}" data-stock="{{ sp.ton_kho }}"
+                        onclick="handleRowClick(event, '{{ detail_url }}')">
+                        <td class="text-center">{{ sp.ma_san_pham }}</td>
+                        <td class="p-name">{{ sp.ten_san_pham }}</td>
+                        <td class="p-price text-center">{{ sp.gia_tien|intcomma }} đ</td>
+                        <td class="p-stock text-center">{{ sp.ton_kho }}</td>
+                        <td class="text-center">
+                            <div class="stock-badge {% if sp.trang_thai_ton_kho == 'het_hang' %}badge-hethang{% elif sp.trang_thai_ton_kho == 'thap' %}badge-thap{% else %}badge-daydu{% endif %}" style="margin: 0 auto;">
+                                <span class="dot"></span> {{ sp.trang_thai_ton_kho_display }}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="switch-wrapper {% if sp.trang_thai_hien_thi %}active-toggle{% endif %}" 
+                                 onclick="toggleVisibility(event, {{ sp.id }}, this)" style="margin: 0 auto;">
+                                <div class="toggle-slider"></div>
+                                <span class="toggle-label">{% if sp.trang_thai_hien_thi %}Hiển thị{% else %}Ẩn{% endif %}</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="p-cat-badge">{{ sp.danh_muc.ten_danh_muc }}</span>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">Không tìm thấy sản phẩm nào</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-wrapper">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&category={{ category_id }}&inventory={{ inventory_filter }}" class="page-btn">«</a>
+            {% else %}
+                <button class="page-btn disabled">«</button>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <button class="page-btn active">{{ num }}</button>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}&q={{ query }}&category={{ category_id }}&inventory={{ inventory_filter }}" class="page-btn">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&category={{ category_id }}&inventory={{ inventory_filter }}" class="page-btn">»</a>
+            {% else %}
+                <button class="page-btn disabled">»</button>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+    <script>
+        /* ===== Handle Row Click ===== */
+        function handleRowClick(event, url) {
+            if (event.target.tagName !== 'SELECT' && event.target.tagName !== 'INPUT' && event.target.className !== 'toggle-slider') {
+                window.location.href = url;
+            }
+        }
+        
+        /* ===== Toggle Visibility AJAX ===== */
+        function toggleVisibility(event, productId, element) {
+            event.stopPropagation();
+            
+            const isVisible = !element.classList.contains('active-toggle');
+            const label = element.querySelector('.toggle-label');
+            
+            fetch(`/products/toggle_visibility/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ is_visible: isVisible })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    if (data.is_visible) {
+                        element.classList.add('active-toggle');
+                        label.textContent = 'Hiển thị';
+                    } else {
+                        element.classList.remove('active-toggle');
+                        label.textContent = 'Ẩn';
+                    }
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi cập nhật trạng thái.');
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        /* ===== Filter Dropdowns ===== */
+        function toggleFilterDropdown(id) {
+            var wrapper = document.getElementById(id);
+            var btn = wrapper.querySelector('.filter-dropdown-btn');
+            var menu = wrapper.querySelector('.filter-dropdown-menu');
+
+            // Close all other filter dropdowns
+            document.querySelectorAll('.filter-dropdown-wrapper').forEach(function (w) {
+                if (w.id !== id) {
+                    w.querySelector('.filter-dropdown-btn').classList.remove('open');
+                    w.querySelector('.filter-dropdown-menu').classList.remove('show');
+                }
+            });
+
+            btn.classList.toggle('open');
+            menu.classList.toggle('show');
+        }
+
+        function selectFilterItem(item, wrapperId) {
+            var wrapper = document.getElementById(wrapperId);
+            var valueSpan = wrapper.querySelector('.filter-value');
+            var btn = wrapper.querySelector('.filter-dropdown-btn');
+            var menu = wrapper.querySelector('.filter-dropdown-menu');
+
+            // Update selected state
+            wrapper.querySelectorAll('.filter-item').forEach(function (el) {
+                el.classList.remove('selected');
+            });
+            item.classList.add('selected');
+
+            // Update display text
+            var text = item.textContent.replace('✓', '').trim();
+            if (wrapperId === 'inventoryFilter') {
+                valueSpan.textContent = 'Tồn kho: ' + text;
+            } else {
+                valueSpan.textContent = text;
+            }
+
+            // Close dropdown
+            btn.classList.remove('open');
+            menu.classList.remove('show');
+        }
+
+        // Close filter dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.filter-dropdown-wrapper')) {
+                document.querySelectorAll('.filter-dropdown-wrapper').forEach(function (w) {
+                    w.querySelector('.filter-dropdown-btn').classList.remove('open');
+                    w.querySelector('.filter-dropdown-menu').classList.remove('show');
+                });
+            }
+        });
+
+        /* ===== Apply Filters ===== */
+        function applyFilters() {
+            var searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+            var categoryWrapper = document.getElementById('categoryFilter');
+            var inventoryWrapper = document.getElementById('inventoryFilter');
+
+            var selectedCategory = categoryWrapper.querySelector('.filter-item.selected').getAttribute('data-value');
+            var selectedInventory = inventoryWrapper.querySelector('.filter-item.selected').getAttribute('data-value');
+
+            var rows = document.querySelectorAll('#productTableBody tr');
+            var visibleRows = [];
+
+            rows.forEach(function (row) {
+                var category = row.getAttribute('data-category');
+                var productCode = row.children[0].textContent.toLowerCase();
+                var productName = row.children[1].textContent.toLowerCase();
+                var show = true;
+
+                // Filter by category
+                if (selectedCategory !== 'all' && category !== selectedCategory) {
+                    show = false;
+                }
+
+                // Filter by search text
+                if (searchText && !productCode.includes(searchText) && !productName.includes(searchText)) {
+                    show = false;
+                }
+
+                if (show) {
+                    row.style.display = '';
+                    visibleRows.push(row);
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Sort by inventory if needed
+            if (selectedInventory !== 'default') {
+                var tbody = document.getElementById('productTableBody');
+                visibleRows.sort(function (a, b) {
+                    var stockA = parseInt(a.getAttribute('data-stock'));
+                    var stockB = parseInt(b.getAttribute('data-stock'));
+                    if (selectedInventory === 'low-to-high') {
+                        return stockA - stockB;
+                    } else {
+                        return stockB - stockA;
+                    }
+                });
+                visibleRows.forEach(function (row) {
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Update filter tags
+            updateFilterTags(selectedCategory, selectedInventory);
+        }
+
+        /* ===== Filter Tags ===== */
+        function updateFilterTags(category, inventory) {
+            var categoryTag = document.getElementById('categoryTag');
+            var inventoryTag = document.getElementById('inventoryTag');
+
+            if (category !== 'all') {
+                var catName = document.querySelector('#categoryFilter .filter-item.selected').textContent.replace('✓', '').trim();
+                categoryTag.querySelector('.tag-text').textContent = 'Danh mục: ' + catName;
+                categoryTag.classList.add('show');
+            } else {
+                categoryTag.classList.remove('show');
+            }
+
+            if (inventory !== 'default') {
+                var invName = document.querySelector('#inventoryFilter .filter-item.selected').textContent.replace('✓', '').trim();
+                inventoryTag.querySelector('.tag-text').textContent = 'Tồn kho: ' + invName;
+                inventoryTag.classList.add('show');
+            } else {
+                inventoryTag.classList.remove('show');
+            }
+        }
+
+        function removeFilter(type) {
+            if (type === 'category') {
+                var wrapper = document.getElementById('categoryFilter');
+                wrapper.querySelectorAll('.filter-item').forEach(function (el) {
+                    el.classList.remove('selected');
+                });
+                wrapper.querySelector('[data-value="all"]').classList.add('selected');
+                wrapper.querySelector('.filter-value').textContent = 'Tất cả';
+                document.getElementById('categoryTag').classList.remove('show');
+            } else if (type === 'inventory') {
+                var wrapper = document.getElementById('inventoryFilter');
+                wrapper.querySelectorAll('.filter-item').forEach(function (el) {
+                    el.classList.remove('selected');
+                });
+                wrapper.querySelector('[data-value="default"]').classList.add('selected');
+                wrapper.querySelector('.filter-value').textContent = 'Tồn kho: Mặc định';
+                document.getElementById('inventoryTag').classList.remove('show');
+            }
+            applyFilters();
+        }
+
+
+        /* ===== Pagination ===== */
+        var currentPage = 1;
+
+        function changePage(page) {
+            if (page === 'prev') {
+                if (currentPage > 1) currentPage--;
+            } else if (page === 'next') {
+                if (currentPage < 10) currentPage++;
+            } else {
+                currentPage = page;
+            }
+
+            // Update active state
+            document.querySelectorAll('.pagination-wrapper .page-btn[data-page]').forEach(function (btn) {
+                btn.classList.remove('active');
+                if (parseInt(btn.getAttribute('data-page')) === currentPage) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update prev/next disabled state
+            document.getElementById('prevBtn').classList.toggle('disabled', currentPage === 1);
+            document.getElementById('nextBtn').classList.toggle('disabled', currentPage === 10);
+        }
+
+        /* ===== Search on Enter ===== */
+        document.getElementById('searchInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+    </script>
+{% endblock extra_js %}
+

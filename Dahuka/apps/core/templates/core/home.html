@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}DAHUKA - Nâng tầm sống khỏe chuẩn Nhật{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/home.css' %}">
+{% endblock %}
+
+{% block content %}
+    <!-- 1. Hero Banner -->
+    <section class="home-hero-banner admin-edit-overlay">
+        {% if user.is_superuser %}
+        <button class="admin-edit-btn" onclick="openModal('modalBanner')"><i class="fa fa-pencil"></i> Sửa Banner</button>
+        {% endif %}
+        
+        {% if home_settings.banner_image %}
+        <img src="{{ home_settings.banner_image.url }}" alt="Dahuka Home Banner">
+        {% else %}
+        <img src="{% static 'img/BANNER.png' %}" alt="Dahuka Home Banner Default">
+        {% endif %}
+    </section>
+
+    <!-- 2. Main Categories -->
+    <section class="main-categories-section">
+        <div class="container-shell">
+            <div class="category-grid">
+                <!-- Cat One -->
+                <div class="category-card admin-edit-overlay">
+                    {% if user.is_superuser %}
+                    <button class="admin-edit-btn" style="top:10px; right:10px;" onclick="location.href='/admin/core/homepagesettings/'">
+                        <i class="fa fa-list"></i> Lựa chọn
+                    </button>
+                    {% endif %}
+                    
+                    {% with cat=home_settings.category_one %}
+                    <a href="{% if cat %}{% url 'products:product_list' %}?category={{ cat.id }}{% else %}{% url 'products:product_list' %}{% endif %}" class="d-block text-decoration-none color-inherit">
+                        <img src="{% if cat.anh_banner %}{{ cat.anh_banner.url }}{% else %}{% static 'img/1.png' %}{% endif %}" alt="Category 1">
+                        <h3>{% if cat %}{{ cat.ten_danh_muc }}{% else %}Máy lọc nước{% endif %}</h3>
+                        <p>{% if cat %}{{ cat.mo_ta|truncatechars:40 }}{% else %}Hơn cả sạch là tốt cho sức khỏe{% endif %}</p>
+                    </a>
+                    {% endwith %}
+                </div>
+                
+                <!-- Cat Two -->
+                <div class="category-card admin-edit-overlay">
+                    {% if user.is_staff %}
+                    <button class="admin-edit-btn" style="top:10px; right:10px;" onclick="location.href='/admin/core/homepagesettings/'">
+                        <i class="fa fa-list"></i> Lựa chọn
+                    </button>
+                    {% endif %}
+                    
+                    {% with cat=home_settings.category_two %}
+                    <a href="{% if cat %}{% url 'products:product_list' %}?category={{ cat.id }}{% else %}{% url 'products:product_list' %}{% endif %}" class="d-block text-decoration-none color-inherit">
+                        <img src="{% if cat.anh_banner %}{{ cat.anh_banner.url }}{% else %}{% static 'img/2.png' %}{% endif %}" alt="Category 2">
+                        <h3>{% if cat %}{{ cat.ten_danh_muc }}{% else %}Cây nước nóng lạnh{% endif %}</h3>
+                        <p>{% if cat %}{{ cat.mo_ta|truncatechars:40 }}{% else %}Hơn cả ngon là tận hưởng hạnh phúc{% endif %}</p>
+                    </a>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Mutosi Pro Section -->
+    <div class="mutosi-pro-full-wrap admin-edit-overlay">
+        {% if user.is_superuser %}
+        <button class="admin-edit-btn" onclick="openModal('modalMutosi')"><i class="fa fa-pencil"></i> Sửa nội dung & Ảnh</button>
+        {% endif %}
+        
+        <div class="container-shell">
+            <div class="mutosi-pro-brand">
+                <h2>MUTOSI•PRO</h2>
+            </div>
+            
+            <div class="mutosi-pro-content-grid">
+                <div class="promo-text-box">
+                    <h2>{{ home_settings.mutosi_pro_title|linebreaksbr }}</h2>
+                    <p>{{ home_settings.mutosi_pro_desc }}</p>
+                    <b>{{ home_settings.mutosi_pro_highlight }}</b>
+                    <a href="{% url 'core:product_catalog' %}" class="btn-explore">Khám phá ngay</a>
+                </div>
+                <div class="promo-image-box text-right">
+                    {% if home_settings.mutosi_pro_image %}
+                    <img src="{{ home_settings.mutosi_pro_image.url }}" alt="Mutosi Pro" style="max-width: 100%; border-radius: 20px;">
+                    {% else %}
+                    <img src="{% static 'img/MUTOSI PRO.png' %}" alt="Mutosi Pro Default" style="max-width: 100%; border-radius: 20px;">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Khám phá máy lọc nước -->
+    <section class="home-section py-5 admin-edit-overlay">
+        {% if user.is_superuser %}
+        <button class="admin-edit-btn" onclick="location.href='/admin/core/homepagesettings/'"><i class="fa fa-plus"></i> Thêm từ sản phẩm</button>
+        {% endif %}
+        
+        <div class="container-shell">
+            <h2 class="section-title-main">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h2>
+            <div class="showcase-grid" id="productCarousel">
+                {% for sp in featured_products %}
+                <div class="showcase-item">
+                    <a href="{% url 'products:product_detail' sp.id %}" style="text-decoration: none; color: inherit;">
+                        {% if sp.image %}
+                        <img src="{{ sp.image.url }}" alt="{{ sp.name }}">
+                        {% else %}
+                        <img src="{% static 'img/no-image.png' %}" alt="No image">
+                        {% endif %}
+                        <h3>{{ sp.name }}</h3>
+                    </a>
+                </div>
+                {% empty %}
+                <p class="text-center w-100">Hiện chưa có sản phẩm nổi bật.</p>
+                {% endfor %}
+            </div>
+            <div class="carousel-dots" id="productDots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals for Editing -->
+    {% if user.is_superuser %}
+    <!-- Modal Banner -->
+    <div id="modalBanner" class="modal-dahuka">
+        <div class="modal-dahuka-content" style="max-width: 700px;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="m-0" style="font-weight: 800; color: #111;"><i class="fa fa-image mr-2" style="color: var(--brand);"></i> Cập nhật Banner</h3>
+                <button type="button" class="close-modal-x" onclick="closeModal('modalBanner')" style="border:none; background:none; font-size: 24px;">&times;</button>
+            </div>
+            
+            <form action="{% url 'core:update_home_settings' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Current Preview -->
+                <div class="mb-4">
+                    <p style="font-weight: 700; font-size: 13px; color: #666; margin-bottom: 10px; text-transform: uppercase;">Banner Hiện Tại</p>
+                    <div style="border-radius: 12px; overflow: hidden; border: 1px solid #eee; background: #f9f9f9;">
+                        {% if home_settings.banner_image %}
+                        <img src="{{ home_settings.banner_image.url }}" style="width: 100%; height: 180px; object-fit: cover;">
+                        {% else %}
+                        <img src="{% static 'img/BANNER.png' %}" style="width: 100%; height: 180px; object-fit: cover; opacity: 0.5;">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Custom File Upload -->
+                <div class="form-group-dahuka">
+                    <label style="font-weight: 700; font-size: 13px; color: #666; text-transform: uppercase;">Tải lên Banner mới</label>
+                    <div class="custom-upload-zone" onclick="document.getElementById('bannerInput').click()">
+                        <div class="upload-icon-circle"><i class="fa fa-cloud-upload"></i></div>
+                        <p class="m-0">Kéo thả hoặc Click để chọn ảnh Banner</p>
+                        <small>Định dạng hỗ trợ: JPG, PNG, WEBP (Khuyên dùng 1920x800)</small>
+                        <input type="file" id="bannerInput" name="banner_image" accept="image/*" style="display: none;" onchange="updateFileName(this, 'bannerFileName')">
+                        <div id="bannerFileName" class="mt-2 text-brand font-weight-bold" style="font-size: 14px;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-5">
+                    <button type="button" class="btn-dahuka-outline mr-3" style="min-width: 120px;" onclick="closeModal('modalBanner')">Hủy bỏ</button>
+                    <button type="submit" class="btn-dahuka-dark" style="min-width: 150px; background: #111; border: none; padding: 12px 0; color: #fff !important;">Cập nhật ngay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Mutosi Pro -->
+    <div id="modalMutosi" class="modal-dahuka">
+        <div class="modal-dahuka-content" style="max-width: 700px;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="m-0" style="font-weight: 800; color: #111;"><i class="fa fa-pencil-square-o mr-2" style="color: var(--brand);"></i> Nội dung Mutosi Pro</h3>
+                <button type="button" class="close-modal-x" onclick="closeModal('modalMutosi')" style="border:none; background:none; font-size: 24px;">&times;</button>
+            </div>
+
+            <form action="{% url 'core:update_home_settings' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="form-group-dahuka">
+                            <label style="font-weight: 700; font-size: 13px; color: #666; text-transform: uppercase;">Tiêu đề Hydrogen Pro</label>
+                            <input type="text" name="mutosi_pro_title" value="{{ home_settings.mutosi_pro_title }}" class="form-control" style="border-radius: 10px; padding: 12px;">
+                        </div>
+                        <div class="form-group-dahuka mt-3">
+                            <label style="font-weight: 700; font-size: 13px; color: #666; text-transform: uppercase;">Mô tả chi tiết</label>
+                            <textarea name="mutosi_pro_desc" rows="5" class="form-control" style="border-radius: 10px; padding: 12px; line-height: 1.6;">{{ home_settings.mutosi_pro_desc }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <p style="font-weight: 700; font-size: 13px; color: #666; margin-bottom: 10px; text-transform: uppercase;">Ảnh Đại Diện Hiện Tại</p>
+                        <div class="mb-3" style="border-radius: 12px; overflow: hidden; border: 1px solid #eee; background: #f9f9f9; text-align: center;">
+                            {% if home_settings.mutosi_pro_image %}
+                            <img src="{{ home_settings.mutosi_pro_image.url }}" style="max-width: 100%; height: 160px; object-fit: contain; padding: 10px;">
+                            {% else %}
+                            <img src="{% static 'img/MUTOSI PRO.png' %}" style="max-width: 100%; height: 160px; object-fit: contain; opacity: 0.5; padding: 10px;">
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group-dahuka">
+                            <label style="font-weight: 700; font-size: 13px; color: #666; text-transform: uppercase;">Thay đổi ảnh</label>
+                            <div class="custom-upload-zone" style="padding: 20px 10px;" onclick="document.getElementById('brandInput').click()">
+                                <i class="fa fa-cloud-upload" style="font-size: 20px; color: var(--brand);"></i>
+                                <p class="m-0" style="font-size: 12px;">Click để đổi ảnh</p>
+                                <input type="file" id="brandInput" name="mutosi_pro_image" accept="image/*" style="display: none;" onchange="updateFileName(this, 'brandFileName')">
+                                <div id="brandFileName" class="mt-1 text-brand font-weight-bold" style="font-size: 11px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-5">
+                    <button type="button" class="btn-dahuka-outline mr-3" style="min-width: 120px;" onclick="closeModal('modalMutosi')">Hủy bỏ</button>
+                    <button type="submit" class="btn-dahuka-dark" style="min-width: 150px; background: #111; border: none; padding: 12px 0; color: #fff !important;">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'core/home.js' %}"></script>
+{% endblock %}

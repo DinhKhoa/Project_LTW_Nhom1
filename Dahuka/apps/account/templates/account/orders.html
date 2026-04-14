@@ -172,9 +172,28 @@
     {% endfor %}
 </div>
 
+{% if orders.has_other_pages %}
 <div class="pagination-lite">
-    <span>&lt;</span>
-    <span class="active">1</span>
-    <span>&gt;</span>
+    {% if orders.has_previous %}
+        <a href="?page={{ orders.previous_page_number }}" style="text-decoration: none;"><span>&lt;</span></a>
+    {% else %}
+        <span style="opacity: 0.5;">&lt;</span>
+    {% endif %}
+
+    {% for num in orders.paginator.page_range %}
+        {% if orders.number == num %}
+            <span class="active">{{ num }}</span>
+        {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+            <a href="?page={{ num }}" style="text-decoration: none;"><span>{{ num }}</span></a>
+        {% endif %}
+    {% endfor %}
+
+    {% if orders.has_next %}
+        <a href="?page={{ orders.next_page_number }}" style="text-decoration: none;"><span>&gt;</span></a>
+    {% else %}
+        <span style="opacity: 0.5;">&gt;</span>
+    {% endif %}
 </div>
+{% endif %}
 {% endblock %}
+

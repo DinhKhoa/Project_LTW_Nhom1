@@ -5,24 +5,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const backNavBtn = document.getElementById('backNavBtn');
     if (backNavBtn) {
+        const currentUrl = new URL(window.location.href);
+        const storedPrevUrl = sessionStorage.getItem('checkoutPrevUrl');
+
+        try {
+            if (document.referrer) {
+                const refUrl = new URL(document.referrer);
+                const isSameCartPage = refUrl.origin === currentUrl.origin && refUrl.pathname === currentUrl.pathname;
+                if (!isSameCartPage) {
+                    sessionStorage.setItem('checkoutPrevUrl', refUrl.href);
+                }
+            }
+        } catch (error) {
+            // Ignore malformed referrer and continue with safe fallback.
+        }
+
         backNavBtn.addEventListener('click', () => {
+            const prevUrl = sessionStorage.getItem('checkoutPrevUrl') || storedPrevUrl;
+            if (prevUrl && prevUrl !== window.location.href) {
+                window.location.href = prevUrl;
+                return;
+            }
+
+            if (window.history.length > 2) {
+                window.history.go(-2);
+                return;
+            }
+
             if (window.history.length > 1) {
                 window.history.back();
-            } else {
-                window.location.href = '/';
+                return;
             }
+
+            window.location.href = backNavBtn.dataset.fallbackUrl || '/';
         });
     }
 
     async function postCheckoutAction(payload) {
         const response = await fetch(cartEndpoint, {
-            method: 'POST',
-            headers: {
+            method: 'POST', headers: {
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                 'X-CSRFToken': csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: new URLSearchParams(payload).toString()
+            }, body: new URLSearchParams(payload).toString()
         });
 
         if (!response.ok) {
@@ -34,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function syncCheckoutUI(data) {
         const depositBox = document.querySelector('.deposit-box');
-        const depositPercentText = document.getElementById('depositPercentText');
         const depositAmountText = document.getElementById('depositAmountText');
         const summaryPayableAmount = document.getElementById('summaryPayableAmount');
         const codWarn = document.getElementById('codWarn');
@@ -47,17 +71,22 @@ document.addEventListener('DOMContentLoaded', () => {
             depositBox.classList.toggle('hidden', data.cart_payment_type !== 'deposit');
         }
 
-        if (depositPercentText) {
-            depositPercentText.textContent = `Số tiền cọc (${data.deposit_percent}%)`;
-        }
-
         if (depositAmountText) {
             depositAmountText.textContent = `${data.formatted_deposit_amount} đ`;
         }
 
-        const payableText = data.cart_payment_type === 'deposit'
-            ? `${data.formatted_deposit_amount} đ`
-            : `${data.formatted_total_price} đ`;
+        const depositPercentText = document.getElementById('depositPercentValue');
+        if (depositPercentText) {
+            depositPercentText.textContent = data.deposit_percent;
+        }
+
+        // Sync deposit input value if present
+        const depositInput = document.getElementById('depositPercentInput');
+        if (depositInput) {
+            depositInput.value = data.deposit_percent;
+        }
+
+        const payableText = data.cart_payment_type === 'deposit' ? `${data.formatted_deposit_amount} đ` : `${data.formatted_total_price} đ`;
 
         if (summaryPayableAmount) {
             summaryPayableAmount.textContent = payableText;
@@ -92,16 +121,51 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function formatMoney(value) {
+        return `${new Intl.NumberFormat('vi-VN').format(value)} đ`;
+    }
+
+    function updateCartSelectionSummary() {
+        const cartRows = Array.from(document.querySelectorAll('.cart-item[data-item-price]'));
+        const totalPriceEl = document.getElementById('totalPrice');
+        const totalCaptionEl = document.querySelector('.cart-total .total-caption');
+        const checkoutBtn = document.querySelector('#cartCheckoutForm button[type="submit"]');
+
+        let selectedCount = 0;
+        let selectedTotal = 0;
+
+        cartRows.forEach((row) => {
+            const checkbox = row.querySelector('.item-checkbox');
+            if (!checkbox || !checkbox.checked) return;
+            selectedCount += 1;
+            selectedTotal += parseInt(row.dataset.itemPrice || '0', 10);
+        });
+
+        if (totalCaptionEl) {
+            totalCaptionEl.textContent = `Tổng cộng ${selectedCount} sản phẩm`;
+        }
+
+        if (totalPriceEl) {
+            totalPriceEl.textContent = formatMoney(selectedTotal);
+        }
+
+        if (checkoutBtn) {
+            checkoutBtn.disabled = selectedCount === 0;
+        }
+
+        return selectedCount;
+    }
+
     // Modal helpers
-    window.openModal = function(id) {
+    window.openModal = function (id) {
         document.getElementById(id).classList.add('show');
     };
 
-    window.closeModal = function(id) {
+    window.closeModal = function (id) {
         document.getElementById(id).classList.remove('show');
     };
 
-    window.showToast = function(message) {
+    window.showToast = function (message) {
         const toast = document.getElementById('successToast');
         if (toast) {
             toast.textContent = message;
@@ -129,8 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
             radio.addEventListener('change', async () => {
                 try {
                     const data = await postCheckoutAction({
-                        action: 'update_payment_type',
-                        cart_payment_type: radio.value
+                        action: 'update_payment_type', cart_payment_type: radio.value
                     });
                     syncCheckoutUI(data);
                 } catch (error) {
@@ -140,18 +203,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // In-place update for deposit percent stepper
+    // Deposit percent: ▲▼ steppers, step 10, min 10 max 50
+    let currentDepositPercent = parseInt(document.getElementById('depositPercentValue')?.textContent || '10', 10) || 10;
+
+    async function applyDepositPercent(newVal) {
+        newVal = Math.max(10, Math.min(50, newVal));
+        currentDepositPercent = newVal;
+        const pv = document.getElementById('depositPercentValue');
+        if (pv) pv.textContent = newVal;
+        try {
+            const data = await postCheckoutAction({
+                action: 'update_deposit', deposit_delta: 0, deposit_percent_input: newVal
+            });
+            syncCheckoutUI(data);
+            currentDepositPercent = data.deposit_percent;
+        } catch (error) {
+            showToast(error.message);
+        }
+    }
+
     document.querySelectorAll('.deposit-stepper-btn').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-            try {
-                const data = await postCheckoutAction({
-                    action: 'update_deposit',
-                    deposit_delta: btn.dataset.delta
-                });
-                syncCheckoutUI(data);
-            } catch (error) {
-                showToast(error.message);
-            }
+        btn.addEventListener('click', () => {
+            applyDepositPercent(currentDepositPercent + parseInt(btn.dataset.delta, 10));
         });
     });
 
@@ -161,8 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btn.classList.contains('disabled')) return;
             try {
                 const data = await postCheckoutAction({
-                    action: 'update_order_method',
-                    order_method: btn.dataset.method
+                    action: 'update_order_method', order_method: btn.dataset.method
                 });
                 syncCheckoutUI(data);
             } catch (error) {
@@ -179,8 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const codeInput = document.getElementById('couponCodeInput');
             try {
                 const data = await postCheckoutAction({
-                    action: 'apply_coupon',
-                    coupon_code: codeInput ? codeInput.value : ''
+                    action: 'apply_coupon', coupon_code: codeInput ? codeInput.value : ''
                 });
                 syncCheckoutUI(data);
                 showToast(data.coupon_code ? 'Đã áp dụng mã giảm giá' : 'Đã xóa mã giảm giá');
@@ -190,11 +261,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const cartItemCheckboxes = document.querySelectorAll('.cart-item .item-checkbox');
+    cartItemCheckboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', updateCartSelectionSummary);
+    });
+
+    const deleteButtons = document.querySelectorAll('.cart-item-delete-btn');
+    let currentDeleteItem = null;
+    deleteButtons.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            currentDeleteItem = btn.closest('.cart-item');
+            const deleteUrl = btn.dataset.deleteUrl;
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmDeleteBtn && deleteUrl) {
+                confirmDeleteBtn.onclick = () => { window.location.href = deleteUrl; };
+            }
+            const modal = document.getElementById('deleteConfirmModal');
+            if (modal) {
+                modal.classList.add('show');
+            }
+        });
+    });
+
+    // confirmDeleteBtn onclick is now set dynamically in deleteButtons listener
+
+    const cartCheckoutForm = document.getElementById('cartCheckoutForm');
+    if (cartCheckoutForm) {
+        cartCheckoutForm.addEventListener('submit', (event) => {
+            if (updateCartSelectionSummary() === 0) {
+                event.preventDefault();
+                showToast('Vui long chon it nhat 1 san pham de thanh toan.');
+            }
+        });
+    }
+
+    updateCartSelectionSummary();
+
     // Display initial toast if needed
     const toastElement = document.getElementById('successToast');
     if (toastElement) {
         const toastMessage = toastElement.textContent.trim();
-        if (toastMessage && toastMessage !== 'Cập nhật địa chỉ thành công') {
+        if (toastMessage) {
             showToast(toastMessage);
         }
     }
@@ -204,6 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerSeconds = document.getElementById('timerSeconds');
     if (timerMinutes && timerSeconds) {
         let timeRemaining = 5 * 60;
+
         function updateTimer() {
             const mins = Math.floor(timeRemaining / 60);
             const secs = timeRemaining % 60;
@@ -214,6 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(updateTimer, 1000);
             }
         }
+
         updateTimer();
     }
 });

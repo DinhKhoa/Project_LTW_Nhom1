@@ -4,6 +4,6 @@ from . import views
 app_name = 'tasks'
 
 urlpatterns = [
-    path('', views.danh_sach_nhiem_vu, name='danh_sach'),
-    path('chi-tiet/', views.chi_tiet_nhiem_vu, name='chi_tiet_lap_dat'),
+    path('', views.task_list, name='task_list'),
+    path('chi-tiet/<int:pk>/', views.task_detail, name='task_detail'),
 ]

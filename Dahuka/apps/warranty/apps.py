@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class DiembanbaohanhConfig(AppConfig):
+class WarrantyConfig(AppConfig):
     name = 'apps.warranty'

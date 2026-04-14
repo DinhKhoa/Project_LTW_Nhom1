@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class QuanlykhuyenmaiConfig(AppConfig):
+class PromotionsConfig(AppConfig):
     name = 'apps.promotions'

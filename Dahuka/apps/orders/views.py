@@ -1,41 +1,44 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import DonDatHang
+from django.contrib.auth.decorators import login_required
+from .models import Order
 from .services import OrderService
 
 
-def danh_sach_don_hang(request):
+@login_required
+def order_list(request):
     query = request.GET.get('q', '')
-    trang_thai_filter = request.GET.get('trang_thai', '')
+    status_filter = request.GET.get('status', '')
     page_number = request.GET.get('page', 1)
 
-    page_obj = OrderService.get_don_hangs(query, trang_thai_filter, page_number)
+    page_obj = OrderService.get_orders(query, status_filter, page_number)
 
     context = {
         'page_obj': page_obj,
         'query': query,
-        'trang_thai_filter': trang_thai_filter,
-        'trang_thai_choices': DonDatHang.TRANG_THAI_CHOICES,
+        'status_filter': status_filter,
+        'status_choices': Order.STATUS_CHOICES,
     }
-    return render(request, 'orders/danh_sach.html', context)
+    return render(request, 'orders/order_list.html', context)
 
 
-def chi_tiet_don_hang(request, pk):
-    don_hang = get_object_or_404(DonDatHang, pk=pk)
-    chi_tiet_items = don_hang.chitietdonhang_set.all()
+@login_required
+def order_detail(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    items = order.items.all()
 
     if request.method == 'POST':
         action = request.POST.get('action', '')
-        nhan_vien = request.POST.get('nhan_vien_phu_trach', '')
+        staff_id = request.POST.get('assigned_staff', '')
         
-        OrderService.handle_order_action(don_hang, action, nhan_vien)
+        OrderService.handle_order_action(order, action, staff_id)
 
-        return redirect('orders:chi_tiet', pk=pk)
+        return redirect('orders:order_detail', pk=pk)
 
-    current_step = OrderService.calc_current_step(don_hang)
+    current_step = OrderService.calc_current_step(order)
 
     context = {
-        'don_hang': don_hang,
-        'chi_tiet_items': chi_tiet_items,
+        'order': order,
+        'items': items,
         'current_step': current_step,
     }
-    return render(request, 'orders/chi_tiet.html', context)
+    return render(request, 'orders/detail.html', context)

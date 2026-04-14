@@ -1,46 +1,72 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import DonDatHang
+from .models import Order, OrderItem
+from django.contrib.auth.models import User
 
 class OrderService:
     @staticmethod
-    def get_don_hangs(query='', trang_thai_filter='', page_number=1, per_page=5):
-        don_hangs = DonDatHang.objects.all()
+    def create_order(customer, full_name, phone, address, cart_items):
+        total_amount = sum(item['price'] * item.get('quantity', 1) for item in cart_items)
+        
+        order = Order.objects.create(
+            customer=customer,
+            full_name=full_name,
+            phone=phone,
+            address=address,
+            total_amount=total_amount,
+            status='pending'
+        )
+
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product_id=item['product_id'],
+                quantity=item.get('quantity', 1),
+                price=item['price']
+            )
+        
+        return order
+
+    @staticmethod
+    def get_orders(query='', status_filter='', page_number=1, per_page=10):
+        orders = Order.objects.all()
 
         if query:
-            don_hangs = don_hangs.filter(
-                Q(ma_don_hang__icontains=query) | Q(ho_ten__icontains=query)
+            orders = orders.filter(
+                Q(id__icontains=query) | Q(full_name__icontains=query) | Q(phone__icontains=query)
             )
 
-        if trang_thai_filter:
-            don_hangs = don_hangs.filter(trang_thai=trang_thai_filter)
+        if status_filter:
+            orders = orders.filter(status=status_filter)
 
-        paginator = Paginator(don_hangs, per_page)
+        orders = orders.order_by('-created_at')
+        paginator = Paginator(orders, per_page)
         return paginator.get_page(page_number)
 
     @staticmethod
-    def handle_order_action(don_hang, action, nhan_vien=''):
-        if action == 'xac_nhan':
-            don_hang.trang_thai = 'da_xac_nhan'
-            don_hang.save()
-        elif action == 'dang_giao':
-            don_hang.trang_thai = 'dang_giao_hang'
-            don_hang.save()
-        elif action == 'giao_thanh_cong':
-            don_hang.trang_thai = 'giao_hang_thanh_cong'
-            don_hang.trang_thai_thanh_toan = 'da_thanh_toan'
-            don_hang.save()
-        elif action == 'huy_don':
-            don_hang.trang_thai = 'da_huy'
-            don_hang.save()
-        elif action == 'luu_thay_doi':
-            don_hang.nhan_vien_phu_trach = nhan_vien
-            don_hang.save()
-        return don_hang
+    def handle_order_action(order, action, staff_id=''):
+        if action == 'confirm':
+            order.status = 'confirmed'
+        elif action == 'start_shipping':
+            order.status = 'processing'
+        elif action == 'complete':
+            order.status = 'completed'
+        elif action == 'cancel':
+            order.status = 'cancelled'
+        
+        if staff_id:
+            try:
+                staff = User.objects.get(id=staff_id)
+                order.assigned_staff = staff
+            except User.DoesNotExist:
+                pass
+        
+        order.save()
+        return order
 
     @staticmethod
-    def calc_current_step(don_hang):
-        trang_thai_steps = ['cho_xac_nhan', 'da_xac_nhan', 'dang_giao_hang', 'giao_hang_thanh_cong']
-        if don_hang.trang_thai in trang_thai_steps:
-            return trang_thai_steps.index(don_hang.trang_thai)
+    def calc_current_step(order):
+        status_steps = ['pending', 'confirmed', 'processing', 'completed']
+        if order.status in status_steps:
+            return status_steps.index(order.status)
         return 0

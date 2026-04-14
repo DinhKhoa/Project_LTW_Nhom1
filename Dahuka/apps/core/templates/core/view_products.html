@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Máy lọc nước Dahuka - Công nghệ lọc nước đỉnh cao{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'core/view_products.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="catalog-hero">
+    <img src="{% static 'img/BANNER.png' %}" alt="Máy lọc nước Dahuka">
+    <div class="catalog-hero-overlay">
+        <div class="catalog-hero-text">
+            <h1>Máy Lọc Nước Dahuka</h1>
+            <p>Giải pháp lọc nước thông minh từ Nhật Bản, mang lại nguồn nước tinh khiết đạt chuẩn uống trực tiếp tại vòi cho gia đình bạn.</p>
+        </div>
+    </div>
+</section>
+
+<main class="catalog-page container-shell" style="padding: 40px 0;">
+    <nav class="page-breadcrumbs">
+        <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+        <b>Máy lọc nước</b>
+    </nav>
+
+    <div class="section-title-row catalog-title-row" style="margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 24px; flex: 1;">
+            <h2 style="font-size: 32px; font-weight: 800; color: var(--ink-strong); margin: 0;">Danh mục sản phẩm</h2>
+            <div class="line" style="flex: 1; height: 1px; background: var(--border); max-width: 400px;"></div>
+        </div>
+        <div class="catalog-sort dropdown">
+            <button class="account-btn-outline" type="button" style="height: 42px; gap: 10px; padding: 0 20px;">
+                <span class="label">Sắp xếp: Mới nhất</span>
+                <i class="fa fa-angle-down"></i>
+            </button>
+        </div>
+    </div>
+
+    <section class="catalog-layout">
+        <aside class="catalog-filters">
+            <div class="filter-group">
+                <h3>Hệ thống lõi lọc</h3>
+                <div class="filter-options">
+                    <label class="filter-label"><input type="checkbox"> 3 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 7 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 8 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 9 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 10 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 11 lõi</label>
+                    <label class="filter-label"><input type="checkbox"> 12 lõi</label>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3>Loại nguồn nước</h3>
+                <div class="filter-options">
+                    <label class="filter-label"><input type="checkbox"> Nước lợ</label>
+                    <label class="filter-label"><input type="checkbox"> Nước máy</label>
+                    <label class="filter-label"><input type="checkbox"> Nước cứng</label>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3>Khoảng giá</h3>
+                <div class="filter-options">
+                    <label class="filter-label"><input type="checkbox"> Từ 4 - 6 triệu</label>
+                    <label class="filter-label"><input type="checkbox"> Từ 6 - 8 triệu</label>
+                    <label class="filter-label"><input type="checkbox"> Từ 8 - 10 triệu</label>
+                    <label class="filter-label"><input type="checkbox"> Trên 10 triệu</label>
+                </div>
+            </div>
+        </aside>
+
+        <div class="catalog-products">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">
+                {% for sp in products %}
+                <article class="catalog-card" data-id="{{ sp.id }}" data-name="{{ sp.name }}" data-price="{{ sp.price|floatformat:'0' }}đ" 
+                         data-img="{% if sp.image %}{{ sp.image.url }}{% else %}{% static 'img/no-image.png' %}{% endif %}">
+                    <div class="catalog-product-visual">
+                        {% if sp.image %}
+                        <img src="{{ sp.image.url }}" alt="{{ sp.name }}">
+                        {% else %}
+                        <img src="{% static 'img/no-image.png' %}" alt="No image">
+                        {% endif %}
+                    </div>
+                    <h3>{{ sp.name }}</h3>
+                    <p class="catalog-price">{{ sp.price|floatformat:"0" }}đ</p>
+                    <div class="catalog-card-actions">
+                        <a href="{% url 'products:product_detail' sp.pk %}" class="account-btn-dark" style="flex: 1;">Tìm hiểu thêm</a>
+                        <button class="account-btn-outline" type="button" style="width: 42px; padding: 0;"><i class="fa fa-shopping-cart"></i></button>
+                    </div>
+                    <button class="account-btn-outline compare-btn" type="button" style="margin-top: 12px; font-size: 13px; height: 36px; width: 100%; gap: 8px;">
+                        <i class="fa fa-plus-circle"></i> So sánh
+                    </button>
+                </article>
+                {% empty %}
+                <p class="text-center w-100">Hiện đang cập nhật sản phẩm.</p>
+                {% endfor %}
+            </div>
+
+            {% if products.has_other_pages %}
+            <div class="catalog-pagination" style="margin-top: 60px;">
+                {% if products.has_previous %}
+                    <a href="?page={{ products.previous_page_number }}" class="account-btn-outline"><i class="fa fa-angle-left"></i></a>
+                {% else %}
+                    <button class="account-btn-outline" disabled><i class="fa fa-angle-left"></i></button>
+                {% endif %}
+
+                {% for num in products.paginator.page_range %}
+                    {% if products.number == num %}
+                        <button class="account-btn-dark" style="width: 42px;">{{ num }}</button>
+                    {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                        <a href="?page={{ num }}" class="account-btn-outline" style="width: 42px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if products.has_next %}
+                    <a href="?page={{ products.next_page_number }}" class="account-btn-outline"><i class="fa fa-angle-right"></i></a>
+                {% else %}
+                    <button class="account-btn-outline" disabled><i class="fa fa-angle-right"></i></button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</main>
+
+<!-- Comparison Sticky Bar -->
+<div class="compare-bar" id="compareBar">
+    <div class="compare-bar-inner">
+        <div class="compare-items-list" id="compareItemsList">
+            <!-- Items will be added here via JS -->
+        </div>
+        <div class="compare-actions">
+            <span class="compare-count-label" id="compareCountLabel">Đã chọn 0 sản phẩm</span>
+            <a href="{% url 'core:product_comparison' %}" class="account-btn-dark" id="btnCompareGo" style="opacity: 0.5; pointer-events: none; height: 48px; padding: 0 40px;">So sánh ngay</a>
+            <button class="btn-ghost" type="button" id="btnClearAll" style="border: none;">Xóa tất cả</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/view_products.js' %}"></script>
+{% endblock %}
+

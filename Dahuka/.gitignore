@@ -53,3 +53,5 @@ Thumbs.db
 *.pdf
 # Avoid pushing the PDF guide mentioned in the user's files if it's too large
 "Web Development with Django_ A definitive guide to building modern Python web applications using Django 4.pdf"
+DJANGO_KNOWLEDGE.md
+

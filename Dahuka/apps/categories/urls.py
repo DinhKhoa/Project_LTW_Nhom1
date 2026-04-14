@@ -4,9 +4,9 @@ from . import views
 app_name = 'categories'
 
 urlpatterns = [
-    path('', views.danh_sach_danh_muc, name='danh_sach'),
-    path('them/', views.them_danh_muc, name='them'),
-    path('sua/<int:pk>/', views.sua_danh_muc, name='sua'),
-    path('xoa/<int:pk>/', views.xoa_danh_muc, name='xoa'),
-    path('san-pham/<int:pk>/', views.chi_tiet_san_pham_theo_danh_muc, name='san_pham_theo_danh_muc'),
+    path('', views.category_list, name='category_list'),
+    path('add/', views.category_add, name='category_add'),
+    path('edit/<int:pk>/', views.category_edit, name='category_edit'),
+    path('delete/<int:pk>/', views.category_delete, name='category_delete'),
+    path('products/<int:pk>/', views.products_by_category, name='products_by_category'),
 ]

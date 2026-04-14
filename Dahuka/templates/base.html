@@ -8,15 +8,10 @@
     <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/fonts/montserrat/google-fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dahuka.css' %}?v=1.3.9">
+    {#    <link rel="stylesheet" href="{% static 'css/dahuka.css' %}">#}
     {% block extra_css %}{% endblock %}
     <style>
-        :root {
-            --brand: #4d8b6f;
-            --brand-dark: #356954;
-            --ink: #5f6978;
-            --ink-strong: #2d3645;
-            --border: #e9ecef;
-        }
 
         body {
             margin: 0;
@@ -183,14 +178,13 @@
             align-items: center;
             justify-content: center;
             padding: 24px;
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(8px);
-            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
-            z-index: 2000;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            z-index: 2100;
         }
 
         .feature-popup.is-open {
@@ -201,441 +195,57 @@
 
         .feature-popup__dialog {
             position: relative;
-            width: min(820px, calc(100vw - 72px));
-            max-height: min(88vh, 760px);
-            border-radius: 28px;
-            padding: 34px 28px 24px;
-            background: radial-gradient(circle at 15% 52%, rgba(255, 146, 77, 0.24), transparent 18%),
-            radial-gradient(circle at 83% 41%, rgba(60, 127, 220, 0.16), transparent 20%),
-            linear-gradient(180deg, #f8fcfe 0%, #edf5fb 100%);
-            box-shadow: 0 26px 70px rgba(52, 93, 138, 0.18);
+            width: min(700px, calc(100vw - 40px));
+            background: #fff;
+            border-radius: 16px;
+            padding: 0;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             overflow: hidden;
+            line-height: 0;
+        }
+
+        .feature-popup.is-open .feature-popup__dialog {
+            transform: scale(1);
         }
 
         .feature-popup__close {
             position: absolute;
-            top: 18px;
-            right: 18px;
-            width: 40px;
-            height: 40px;
-            border: 0;
+            top: 12px;
+            right: 12px;
+            width: 34px;
+            height: 34px;
+            border: none;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.92);
-            color: #2563b8;
-            font-size: 24px;
-            line-height: 1;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            box-shadow: 0 10px 24px rgba(37, 99, 184, 0.14);
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 20;
         }
 
         .feature-popup__close:hover {
-            background: #fff;
+            background: #ff5f56;
+            color: #fff;
+            transform: scale(1.1) rotate(90deg);
         }
 
-        .feature-popup__title {
-            margin: 0;
-            text-align: center;
-            font-size: clamp(28px, 3.4vw, 48px);
-            line-height: 1.04;
-            font-weight: 800;
-            color: #1e63b5;
-            letter-spacing: -0.03em;
-            white-space: nowrap;
-        }
-
-        .feature-popup__subtitle {
-            margin: 12px auto 0;
-            max-width: 470px;
-            text-align: center;
-            font-size: 14px;
-            color: #5e7899;
-        }
-
-        .feature-popup__art {
-            position: relative;
-            min-height: 348px;
-            margin-top: 2px;
-        }
-
-        .feature-popup__ghost-line,
-        .feature-popup__ghost-button,
-        .feature-popup__panel,
-        .feature-popup__progress,
-        .feature-popup__tool {
-            position: absolute;
-            filter: blur(1px);
-            opacity: 0.45;
-        }
-
-        .feature-popup__ghost-line {
-            left: 28px;
-            width: 250px;
-            height: 16px;
-            border-radius: 999px;
-            background: rgba(151, 184, 225, 0.4);
-        }
-
-        .feature-popup__ghost-line--1 {
-            top: 116px;
-        }
-
-        .feature-popup__ghost-line--2 {
-            top: 164px;
-            width: 280px;
-            background: rgba(255, 161, 84, 0.45);
-        }
-
-        .feature-popup__ghost-line--3 {
-            top: 212px;
-            width: 240px;
-        }
-
-        .feature-popup__ghost-button {
-            left: 56px;
-            top: 270px;
-            width: 104px;
-            height: 34px;
-            border-radius: 14px;
-            background: rgba(181, 202, 236, 0.56);
-        }
-
-        .feature-popup__panel {
-            right: 22px;
-            top: 104px;
-            width: 250px;
-            height: 180px;
-            border-radius: 24px;
-            background: linear-gradient(180deg, rgba(211, 224, 245, 0.8), rgba(245, 249, 253, 0.94));
-            transform: rotate(12deg);
-        }
-
-        .feature-popup__progress {
-            right: 74px;
-            top: 216px;
-            width: 172px;
-            height: 24px;
-            border-radius: 999px;
-            background: linear-gradient(90deg, rgba(255, 153, 87, 0.9) 0%, rgba(255, 200, 143, 0.72) 58%, rgba(255, 255, 255, 0.3) 58%, rgba(255, 255, 255, 0.82) 100%);
-            transform: rotate(12deg);
-        }
-
-        .feature-popup__tool {
-            color: rgba(105, 136, 182, 0.5);
-            font-size: 38px;
-        }
-
-        .feature-popup__tool--1 {
-            right: 108px;
-            top: 286px;
-            transform: rotate(24deg);
-        }
-
-        .feature-popup__tool--2 {
-            right: 34px;
-            top: 304px;
-            transform: rotate(-26deg);
-        }
-
-        .feature-popup__center {
-            position: absolute;
-            left: 50%;
-            top: 116px;
-            transform: translateX(-50%);
-            width: 360px;
-            height: 292px;
-            max-width: calc(100% - 160px);
-            overflow: visible;
-        }
-
-        .feature-popup__board {
-            position: absolute;
-            inset: 32px 0 22px;
-            z-index: 1;
+        .feature-popup__img-content {
+            width: 100%;
+            display: block;
             border-radius: 20px;
-            border: 6px solid #2d77ca;
-            background: linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-            linear-gradient(180deg, #2d77ca 0%, #1c5ba5 100%);
-            background-size: 30px 30px, 30px 30px, cover;
-            box-shadow: 0 18px 36px rgba(34, 87, 151, 0.2);
         }
 
-        .feature-popup__board::after {
-            content: "";
-            position: absolute;
-            inset: 18px;
-            border: 1px solid rgba(203, 227, 255, 0.35);
-            border-radius: 12px;
-        }
 
-        .feature-popup__board-rail {
-            position: absolute;
-            top: -18px;
-            right: -18px;
-            width: 20px;
-            height: calc(100% + 36px);
-            border-radius: 12px;
-            background: #2567b4;
-        }
 
-        .feature-popup__robot {
-            position: absolute;
-            left: 50%;
-            top: 8px;
-            z-index: 3;
-            transform: translateX(-50%);
-            width: 172px;
-            height: 246px;
-        }
-
-        .feature-popup__helmet {
-            position: absolute;
-            top: 0;
-            left: 26px;
-            width: 128px;
-            height: 72px;
-            border-radius: 70px 70px 32px 32px;
-            background: linear-gradient(180deg, #ffc868 0%, #f49a31 100%);
-            box-shadow: inset 0 -6px 0 rgba(210, 122, 30, 0.55);
-        }
-
-        .feature-popup__helmet::before,
-        .feature-popup__helmet::after {
-            content: "";
-            position: absolute;
-            top: 10px;
-            width: 6px;
-            height: 44px;
-            border-radius: 999px;
-            background: rgba(201, 118, 31, 0.78);
-        }
-
-        .feature-popup__helmet::before {
-            left: 34px;
-            transform: rotate(10deg);
-        }
-
-        .feature-popup__helmet::after {
-            right: 34px;
-            transform: rotate(-10deg);
-        }
-
-        .feature-popup__head {
-            position: absolute;
-            top: 48px;
-            left: 34px;
-            width: 112px;
-            height: 104px;
-            border-radius: 36px;
-            background: linear-gradient(180deg, #edf5fe 0%, #bdd4ef 100%);
-            box-shadow: inset 0 -10px 0 rgba(154, 181, 213, 0.48);
-        }
-
-        .feature-popup__face {
-            position: absolute;
-            inset: 16px 18px 18px;
-            border-radius: 26px;
-            background: linear-gradient(180deg, #17366f 0%, #102752 100%);
-        }
-
-        .feature-popup__eye,
-        .feature-popup__smile {
-            position: absolute;
-            background: #86f0ff;
-        }
-
-        .feature-popup__eye {
-            top: 34px;
-            width: 10px;
-            height: 26px;
-            border-radius: 999px;
-        }
-
-        .feature-popup__eye--left {
-            left: 28px;
-        }
-
-        .feature-popup__eye--right {
-            right: 28px;
-        }
-
-        .feature-popup__smile {
-            left: 50%;
-            bottom: 22px;
-            width: 28px;
-            height: 12px;
-            border-radius: 0 0 18px 18px;
-            transform: translateX(-50%);
-            clip-path: inset(45% 0 0 0);
-        }
-
-        .feature-popup__ear {
-            position: absolute;
-            top: 76px;
-            width: 22px;
-            height: 42px;
-            border-radius: 999px;
-            background: linear-gradient(180deg, #d8e5f5 0%, #aec6e3 100%);
-        }
-
-        .feature-popup__ear--left {
-            left: 18px;
-        }
-
-        .feature-popup__ear--right {
-            right: 18px;
-        }
-
-        .feature-popup__body {
-            position: absolute;
-            top: 138px;
-            left: 40px;
-            width: 100px;
-            height: 86px;
-            border-radius: 34px 34px 42px 42px;
-            background: linear-gradient(180deg, #f6fbff 0%, #cadbf0 100%);
-        }
-
-        .feature-popup__body::after {
-            content: "\f0ad";
-            position: absolute;
-            left: 50%;
-            top: 30px;
-            transform: translateX(-50%);
-            font-family: FontAwesome;
-            font-size: 34px;
-            color: rgba(118, 137, 164, 0.72);
-        }
-
-        .feature-popup__limb {
-            position: absolute;
-            background: linear-gradient(180deg, #d9e6f7 0%, #b9cde8 100%);
-            border-radius: 999px;
-        }
-
-        .feature-popup__limb--arm-left {
-            left: 18px;
-            top: 156px;
-            width: 34px;
-            height: 86px;
-            transform: rotate(28deg);
-        }
-
-        .feature-popup__limb--arm-right {
-            right: 12px;
-            top: 152px;
-            width: 34px;
-            height: 86px;
-            transform: rotate(-16deg);
-        }
-
-        .feature-popup__limb--leg-left {
-            left: 48px;
-            top: 206px;
-            width: 34px;
-            height: 78px;
-            transform: rotate(24deg);
-        }
-
-        .feature-popup__limb--leg-right {
-            right: 46px;
-            top: 206px;
-            width: 34px;
-            height: 78px;
-            transform: rotate(-28deg);
-        }
-
-        .feature-popup__hand,
-        .feature-popup__foot {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #c7d9ef;
-        }
-
-        .feature-popup__hand--left {
-            left: 10px;
-            top: 212px;
-        }
-
-        .feature-popup__hand--right {
-            right: 6px;
-            top: 208px;
-        }
-
-        .feature-popup__foot--left {
-            left: 34px;
-            bottom: -4px;
-        }
-
-        .feature-popup__foot--right {
-            right: 26px;
-            bottom: -4px;
-        }
-
-        .feature-popup__gear {
-            position: absolute;
-            right: 16px;
-            top: 188px;
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: linear-gradient(180deg, #ffbf59 0%, #f19125 100%);
-            box-shadow: 0 8px 18px rgba(233, 145, 37, 0.26);
-        }
-
-        .feature-popup__gear::before {
-            content: "";
-            position: absolute;
-            inset: 16px;
-            border-radius: 50%;
-            background: #edf5fb;
-        }
-
-        .feature-popup__barrier {
-            position: absolute;
-            left: 8px;
-            bottom: 18px;
-            z-index: 4;
-            width: 96px;
-            height: 62px;
-            transform: rotate(-1deg);
-        }
-
-        .feature-popup__barrier::before,
-        .feature-popup__barrier::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 10px;
-            background: repeating-linear-gradient(120deg, #fff 0 16px, #ff902d 16px 32px);
-            box-shadow: 0 8px 16px rgba(27, 61, 103, 0.12);
-        }
-
-        .feature-popup__barrier::after {
-            top: 34px;
-            height: 36px;
-        }
-
-        .feature-popup__barrier-leg {
-            position: absolute;
-            bottom: -32px;
-            width: 8px;
-            height: 40px;
-            border-radius: 999px;
-            background: #91a8c4;
-        }
-
-        .feature-popup__barrier-leg--left {
-            left: 22px;
-            transform: rotate(6deg);
-        }
-
-        .feature-popup__barrier-leg--right {
-            left: 86px;
-            transform: rotate(-6deg);
-        }
 
         .site-user {
             position: relative;
@@ -934,7 +544,7 @@
 <body>
 <header class="site-header">
     <div class="site-header-inner">
-        <a href="{% url 'core:trangchu' %}" class="site-logo">
+        <a href="{% url 'core:home' %}" class="site-logo">
             <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
         </a>
 
@@ -947,14 +557,14 @@
                 {% endif %}
                 <div class="site-user" id="siteUserMenu">
                     <a href="#" aria-label="Tài khoản" id="siteUserToggle">
-                        <i class="fa fa-user-o"></i>
+                        <i class="fa fa-user-o" style="-webkit-text-stroke: 0.8px currentColor;"></i>
                     </a>
                     <div class="site-user-menu">
                         {% if user.is_authenticated %}
                             <div class="site-user-card">
                                 <div class="site-user-card-top">
                                     <div class="site-user-avatar-lg">
-                                        <i class="fa fa-user-o"></i>
+                                        <i class="fa fa-user-o" style="-webkit-text-stroke: 0.8px currentColor;"></i>
                                     </div>
                                     <div class="site-user-meta">
                                         <strong>{{ user.get_full_name|default:user.username }}</strong>
@@ -972,7 +582,7 @@
                             </div>
                             <div class="site-user-links">
                                 <a href="{% url 'profile_view' %}"><i
-                                        class="fa fa-user-o"></i><span>Thông tin tài khoản</span></a>
+                                        class="fa fa-user-o" style="-webkit-text-stroke: 0.5px currentColor;"></i><span>Thông tin tài khoản</span></a>
                                 {% if not user.is_staff %}
                                     <a href="{% url 'address_list' %}"><i
                                             class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
@@ -995,11 +605,18 @@
                     </div>
                 </div>
                 {% if user.is_authenticated %}
-                    <div style="position: relative;">
-                        <i class="fa fa-bell-o"></i>
-                        <span class="badge"
-                              style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -8px;">3</span>
-                    </div>
+                    <a href="{% if user.is_superuser %}{% url 'orders:order_list' %}{% elif user.is_staff %}{% url 'tasks:task_list' %}{% else %}{% url 'orders:order_list' %}{% endif %}" 
+                       aria-label="Thông báo" 
+                       style="position: relative; color: inherit; display: flex; align-items: center;">
+                        <i class="fa fa-bell" style="font-size: 1.1rem;"></i>
+                        {% if user.is_superuser and admin_notification_count > 0 %}
+                            <span class="badge" style="background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -8px; right: -10px; border: 1px solid #fff;">{{ admin_notification_count }}</span>
+                        {% elif user.is_staff and staff_notification_count > 0 %}
+                            <span class="badge" style="background: #f39c12; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -8px; right: -10px; border: 1px solid #fff;">{{ staff_notification_count }}</span>
+                        {% elif customer_notification_count > 0 %}
+                            <span class="badge" style="background: #3498db; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -8px; right: -10px; border: 1px solid #fff;">{{ customer_notification_count }}</span>
+                        {% endif %}
+                    </a>
                 {% endif %}
             </div>
 
@@ -1010,31 +627,31 @@
                         <div class="nav-dropdown">
                             <a href="javascript:void(0)">QUẢN LÝ BÁN HÀNG</a>
                             <div class="dropdown-menu">
-                                <a href="{% url 'orders:danh_sach' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
-                                <a href="{% url 'categories:danh_sach' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
-                                <a href="{% url 'products:danhsachsanpham' %}">QUẢN LÝ SẢN PHẨM</a>
-                                <a href="{% url 'promotions:chi_tiet_khuyen_mai' %}">QUẢN LÝ KHUYẾN MÃI</a>
+                                <a href="{% url 'orders:order_list' %}">QUẢN LÝ ĐƠN ĐẶT HÀNG</a>
+                                <a href="{% url 'categories:category_list' %}">QUẢN LÝ DANH MỤC SẢN PHẨM</a>
+                                <a href="{% url 'products:product_list' %}">QUẢN LÝ SẢN PHẨM</a>
+                                <a href="{% url 'promotions:promotion_list' %}">QUẢN LÝ KHUYẾN MÃI</a>
                             </div>
                         </div>
                     {% else %}
-                        <a href="{% url 'tasks:danh_sach' %}">QUẢN LÝ NHIỆM VỤ</a>
+                        <a href="{% url 'tasks:task_list' %}">QUẢN LÝ NHIỆM VỤ</a>
                     {% endif %}
                     <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
                     <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
                 {% else %}
                     <div class="nav-dropdown">
-                        <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
+                        <a href="{% url 'core:product_catalog' %}">MÁY LỌC NƯỚC</a>
                         <div class="dropdown-menu">
-                            <a href="{% url 'core:xem_san_pham' %}">MÁY LỌC NƯỚC</a>
-                            <a href="{% url 'core:xem_san_pham' %}?cat=ion-kiem-hydrogen">MÁY LỌC NƯỚC ION KIỀM
+                            <a href="{% url 'core:product_catalog' %}">MÁY LỌC NƯỚC</a>
+                            <a href="{% url 'core:product_catalog' %}?cat=ion-kiem-hydrogen">MÁY LỌC NƯỚC ION KIỀM
                                 HYDROGEN</a>
-                            <a href="{% url 'core:xem_san_pham' %}?cat=probiotics">MÁY LỌC NƯỚC PROBIOTICS</a>
-                            <a href="{% url 'core:xem_san_pham' %}?cat=dien-giai">MÁY LỌC NƯỚC ĐIỆN GIẢI</a>
-                            <a href="{% url 'core:xem_san_pham' %}?cat=de-gam">MÁY LỌC NƯỚC ĐỂ GẦM</a>
+                            <a href="{% url 'core:product_catalog' %}?cat=probiotics">MÁY LỌC NƯỚC PROBIOTICS</a>
+                            <a href="{% url 'core:product_catalog' %}?cat=dien-giai">MÁY LỌC NƯỚC ĐIỆN GIẢI</a>
+                            <a href="{% url 'core:product_catalog' %}?cat=de-gam">MÁY LỌC NƯỚC ĐỂ GẦM</a>
                         </div>
                     </div>
-                    <a href="{% url 'core:xem_san_pham' %}?cat=linh-kien">LINH KIỆN</a>
-                    <a href="{% url 'core:xem_san_pham' %}?cat=dich-vu">DỊCH VỤ</a>
+                    <a href="{% url 'core:product_catalog' %}?cat=linh-kien">LINH KIỆN</a>
+                    <a href="{% url 'core:product_catalog' %}?cat=dich-vu">DỊCH VỤ</a>
                     <a href="#" data-feature-popup-trigger="guide-install">HƯỚNG DẪN LẮP ĐẶT</a>
                     <a href="{% url 'warranty:index' %}">ĐIỂM BÁN - BẢO HÀNH</a>
                 {% endif %}
@@ -1056,51 +673,8 @@
 
 <div class="feature-popup" id="featurePopup" aria-hidden="true">
     <div class="feature-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="featurePopupTitle">
-        <button type="button" class="feature-popup__close" id="featurePopupClose" aria-label="Đóng popup">x</button>
-        <h2 class="feature-popup__title" id="featurePopupTitle">Đang cập nhật chức năng</h2>
-        <p class="feature-popup__subtitle">Tính năng Hướng dẫn lắp đặt đang được hoàn thiện. Popup sẽ tự đóng sau 1
-            phút.</p>
-        <div class="feature-popup__art" aria-hidden="true">
-            <span class="feature-popup__ghost-line feature-popup__ghost-line--1"></span>
-            <span class="feature-popup__ghost-line feature-popup__ghost-line--2"></span>
-            <span class="feature-popup__ghost-line feature-popup__ghost-line--3"></span>
-            <span class="feature-popup__ghost-button"></span>
-            <span class="feature-popup__panel"></span>
-            <span class="feature-popup__progress"></span>
-            <i class="fa fa-wrench feature-popup__tool feature-popup__tool--1"></i>
-            <i class="fa fa-wrench feature-popup__tool feature-popup__tool--2"></i>
-            <div class="feature-popup__center">
-                <div class="feature-popup__board">
-                    <span class="feature-popup__board-rail"></span>
-                </div>
-                <div class="feature-popup__barrier">
-                    <span class="feature-popup__barrier-leg feature-popup__barrier-leg--left"></span>
-                    <span class="feature-popup__barrier-leg feature-popup__barrier-leg--right"></span>
-                </div>
-                <div class="feature-popup__robot">
-                    <span class="feature-popup__helmet"></span>
-                    <span class="feature-popup__ear feature-popup__ear--left"></span>
-                    <span class="feature-popup__ear feature-popup__ear--right"></span>
-                    <div class="feature-popup__head">
-                        <div class="feature-popup__face">
-                            <span class="feature-popup__eye feature-popup__eye--left"></span>
-                            <span class="feature-popup__eye feature-popup__eye--right"></span>
-                            <span class="feature-popup__smile"></span>
-                        </div>
-                    </div>
-                    <span class="feature-popup__body"></span>
-                    <span class="feature-popup__limb feature-popup__limb--arm-left"></span>
-                    <span class="feature-popup__limb feature-popup__limb--arm-right"></span>
-                    <span class="feature-popup__limb feature-popup__limb--leg-left"></span>
-                    <span class="feature-popup__limb feature-popup__limb--leg-right"></span>
-                    <span class="feature-popup__hand feature-popup__hand--left"></span>
-                    <span class="feature-popup__hand feature-popup__hand--right"></span>
-                    <span class="feature-popup__foot feature-popup__foot--left"></span>
-                    <span class="feature-popup__foot feature-popup__foot--right"></span>
-                    <span class="feature-popup__gear"></span>
-                </div>
-            </div>
-        </div>
+        <button type="button" class="feature-popup__close" id="featurePopupClose" aria-label="Đóng">&times;</button>
+        <img src="{% static 'img/update_notice.png' %}" alt="Đang cập nhật chức năng" class="feature-popup__img-content">
     </div>
 </div>
 
@@ -1154,7 +728,7 @@
     </div>
     <div class="site-footer-bottom">
         <div class="site-footer-bottom-inner">
-            <img src="{% static 'img/LOGO.png' %}" alt="Dahuka">
+            <img src="{% static 'img/LOGO-footer.png' %}" alt="Dahuka">
             <div>Nâng tầm sống khỏe chuẩn Nhật</div>
         </div>
     </div>
@@ -1211,7 +785,7 @@
             if (featurePopupTimer) {
                 clearTimeout(featurePopupTimer);
             }
-            featurePopupTimer = setTimeout(closeFeaturePopup, 60000);
+            featurePopupTimer = setTimeout(closeFeaturePopup, 10000);
         }
 
         featurePopupTriggers.forEach(function (trigger) {
@@ -1243,3 +817,5 @@
 {% block extra_js %}{% endblock %}
 </body>
 </html>
+
+

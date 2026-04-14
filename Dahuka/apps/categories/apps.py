@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class QuanlydanhmucConfig(AppConfig):
+class CategoriesConfig(AppConfig):
     name = 'apps.categories'

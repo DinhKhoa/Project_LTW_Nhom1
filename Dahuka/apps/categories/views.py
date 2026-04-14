@@ -1,74 +1,74 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
-from .models import DanhMuc
-from .services import DanhMucService
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib import messages
+from .models import Category
+from .services import CategoryService
 
 
-def danh_sach_danh_muc(request):
+def is_staff(user):
+    return user.is_staff
+
+@user_passes_test(is_staff)
+def category_list(request):
     query = request.GET.get('q', '')
     page_number = request.GET.get('page', 1)
     
-    page_obj = DanhMucService.get_danh_mucs(query, page_number)
+    page_obj = CategoryService.get_categories(query, page_number)
 
     context = {
         'page_obj': page_obj,
         'query': query,
     }
-    return render(request, 'categories/danh_sach.html', context)
+    return render(request, 'categories/categories_list.html', context)
 
 
-def them_danh_muc(request):
+@user_passes_test(is_staff)
+def category_add(request):
     if request.method == 'POST':
-        ma_danh_muc = request.POST.get('ma_danh_muc', '').strip()
-        ten_danh_muc = request.POST.get('ten_danh_muc', '').strip()
+        name = request.POST.get('name', '').strip()
+        success, _, errors = CategoryService.validate_and_create(name)
 
-        success, _, errors = DanhMucService.validate_and_create(ma_danh_muc, ten_danh_muc)
+        if success:
+            messages.success(request, f'Đã thêm danh mục "{name}" thành công.')
+        else:
+            for error in errors.values():
+                messages.error(request, error)
 
-        if not success:
-            return render(request, 'categories/them_danh_muc.html', {
-                'errors': errors,
-                'ma_danh_muc': ma_danh_muc,
-                'ten_danh_muc': ten_danh_muc,
-            })
-
-        return redirect('categories:danh_sach')
-
-    return render(request, 'categories/them_danh_muc.html')
+    return redirect('categories:category_list')
 
 
-def sua_danh_muc(request, pk):
-    danh_muc = get_object_or_404(DanhMuc, pk=pk)
-
+@user_passes_test(is_staff)
+def category_edit(request, pk):
     if request.method == 'POST':
-        ten_danh_muc = request.POST.get('ten_danh_muc', '').strip()
-        ma_danh_muc = request.POST.get('ma_danh_muc', '').strip()
+        name = request.POST.get('name', '').strip()
+        success, _, errors = CategoryService.validate_and_update(pk, name)
 
-        success, _, errors = DanhMucService.validate_and_update(pk, ma_danh_muc, ten_danh_muc)
+        if success:
+            messages.success(request, 'Cập nhật danh mục thành công.')
+        else:
+            for error in errors.values():
+                messages.error(request, error)
 
-        if not success:
-            return render(request, 'categories/sua_danh_muc.html', {
-                'danh_muc': danh_muc,
-                'errors': errors,
-            })
-
-        return redirect('categories:danh_sach')
-
-    return render(request, 'categories/sua_danh_muc.html', {'danh_muc': danh_muc})
+    return redirect('categories:category_list')
 
 
-def xoa_danh_muc(request, pk):
-    danh_muc = get_object_or_404(DanhMuc, pk=pk)
+@user_passes_test(is_staff)
+def category_delete(request, pk):
     if request.method == 'POST':
-        danh_muc.delete()
-        return redirect('categories:danh_sach')
-    return render(request, 'categories/xoa_danh_muc.html', {'danh_muc': danh_muc})
+        category = get_object_or_404(Category, pk=pk)
+        ten = category.name
+        category.delete()
+        messages.success(request, f'Đã xóa danh mục "{ten}" thành công.')
+    
+    return redirect('categories:category_list')
 
 
-def chi_tiet_san_pham_theo_danh_muc(request, pk):
-    """API endpoint trả về danh sách sản phẩm theo danh mục (cho dropdown)"""
-    danh_muc = get_object_or_404(DanhMuc, pk=pk)
+def products_by_category(request, pk):
+    """API endpoint returns list of products by category (for dropdown)"""
+    category = get_object_or_404(Category, pk=pk)
     query_ma = request.GET.get('ma', '')
 
-    products = DanhMucService.format_products_for_dropdown(danh_muc, query_ma)
+    products = CategoryService.format_products_for_dropdown(category, query_ma)
 
-    return JsonResponse({'products': products, 'danh_muc': danh_muc.ten_danh_muc})
+    return JsonResponse({'products': products, 'category': category.name})

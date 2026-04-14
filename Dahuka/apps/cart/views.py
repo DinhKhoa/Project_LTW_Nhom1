@@ -1,98 +1,178 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-
+from django.contrib import messages
+from django.contrib.auth.models import User
+from apps.products.models import Product
+from apps.account.models import Customer, Address
+from .models import Cart, CartItem
+from .forms import CustomerInfoForm
 
 # Helper function for formatting money
 def format_money(value):
+    if value is None:
+        return "0"
     return "{:,.0f}".format(value).replace(",", ".")
 
 
+def get_or_create_cart(request):
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        cart, created = Cart.objects.get_or_create(session_key=session_key)
+    return cart
+
 def cart(request):
+    cart_obj = get_or_create_cart(request)
+    
+    # Reset session if it contains old hardcoded sample data
+    if 'checkout_state' in request.session:
+        old_state = request.session['checkout_state']
+        if old_state.get('customer', {}).get('name') == 'Nguyễn Văn An':
+            del request.session['checkout_state']
+            request.session.modified = True
+            
     # Initialize session state if not present
     if 'checkout_state' not in request.session:
+        # Initial defaults
+        customer_data = {
+            'name': '',
+            'phone': '',
+            'email': '',
+            'city': 'Đà Nẵng',
+            'district': '',
+            'ward': '',
+            'street': ''
+        }
+        
+        # Try to pull from DB if user is authenticated
+        if request.user.is_authenticated:
+            try:
+                profile = request.user.customer
+                customer_data['name'] = request.user.get_full_name() or request.user.username
+                customer_data['phone'] = profile.phone
+                customer_data['email'] = request.user.email
+                
+                # Try to get default address
+                default_addr = profile.addresses.filter(is_default=True).first() or profile.addresses.first()
+                if default_addr:
+                    customer_data['name'] = default_addr.full_name
+                    customer_data['phone'] = default_addr.phone
+                    customer_data['email'] = default_addr.email
+                    customer_data['city'] = default_addr.province
+                    customer_data['district'] = default_addr.district
+                    customer_data['ward'] = default_addr.ward
+                    customer_data['street'] = default_addr.address_detail
+            except Exception:
+                pass
+
         request.session['checkout_state'] = {
-            'current_screen': 'cart',  # 'cart', 'order', 'bank_payment', 'success'
-            'cart_payment_type': 'full',  # 'full' or 'deposit'
-            'order_method': 'bank',  # 'bank' or 'cod'
+            'current_screen': 'cart',
+            'cart_payment_type': 'full',
+            'order_method': 'bank',
             'deposit_percent': 10,
             'coupon_code': '',
-            'customer': {
-                'name': 'Nguyễn Văn An',
-                'phone': '0999666777',
-                'email': 'VanAn123456@gmail.com',
-                'city': 'Đà Nẵng',
-                'district': 'Quận Ngũ Hành Sơn',
-                'ward': 'Phường Hoà Quý',
-                'street': '68 Đường Khuê'
-            }
+            'customer': customer_data
         }
 
     state = request.session['checkout_state']
 
-    # --- Product details management ---
-    # Default product if nothing is explicitly added to cart
-    default_product = {
-        'name': "Máy lọc nước điện giải ion kiềm Hydrogen MP-T888",
-        'variant': "Loại: Tiêu chuẩn",
-        'price': 5990000,
-        'shipping_fee': 0
+    # Handle screen navigation and Title/Breadcrumb sync
+    current_screen = state.get('current_screen', 'cart')
+    
+    # Synchronization logic for Title and Breadcrumbs
+    page_titles = {
+        'cart': 'Giỏ hàng',
+        'order': 'Xác nhận đơn hàng',
+        'bank_payment': 'Thanh toán chuyển khoản',
+        'success': 'Đặt hàng thành công'
     }
+    
+    display_title = page_titles.get(current_screen, 'Giỏ hàng')
+    
+    # Initial breadcrumbs
+    breadcrumbs = [
+        {'name': 'Trang chủ', 'url': '/'},
+        {'name': display_title, 'url': None}
+    ]
 
-    # Use product from session, or default if not set
-    current_product = request.session.get('current_cart_product', default_product)
+    # Only reset to cart screen when navigating from outside (no referer from same cart)
+    if request.method == 'GET':
+        referer = request.META.get('HTTP_REFERER', '')
+        cart_url = request.build_absolute_uri(reverse('cart:cart'))
+        if not referer or not referer.startswith(cart_url.split('?')[0]):
+            state['current_screen'] = 'cart'
+            request.session.modified = True
+            current_screen = 'cart'
+            display_title = 'Giỏ hàng'
 
-    product_name = current_product['name']
-    product_variant = current_product['variant']
-    base_price = current_product['price']
-    shipping_fee = current_product['shipping_fee']
-    # --- End product details management ---
+    # Prepare context data
+    cart_items = cart_obj.items.all().select_related('product')
+    total_price = cart_obj.total_price
+    shipping_fee = 0 # Could be calculated
+    deposit_amount = round(float(total_price) * state['deposit_percent'] / 100)
 
-    # Calculate deposit amount
-    deposit_amount = round(base_price * state['deposit_percent'] / 100)
+    # Initialize Form with session data
+    customer_form = CustomerInfoForm(initial={
+        'customer_name': state['customer'].get('name'),
+        'customer_phone': state['customer'].get('phone'),
+        'customer_email': state['customer'].get('email'),
+        'customer_city': state['customer'].get('city'),
+        'customer_district': state['customer'].get('district'),
+        'customer_ward': state['customer'].get('ward'),
+        'customer_street': state['customer'].get('street'),
+    })
 
     def checkout_payload():
-        current_deposit = round(base_price * state['deposit_percent'] / 100)
+        current_deposit = round(float(total_price) * state['deposit_percent'] / 100)
         return {
             'cart_payment_type': state['cart_payment_type'],
             'order_method': state['order_method'],
             'deposit_percent': state['deposit_percent'],
             'formatted_deposit_amount': format_money(current_deposit),
-            'formatted_total_price': format_money(base_price + shipping_fee),
+            'formatted_total_price': format_money(float(total_price) + shipping_fee),
             'coupon_code': state.get('coupon_code', ''),
         }
 
-    # Handle POST requests
     if request.method == 'POST':
         action = request.POST.get('action')
         is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
         if action == 'update_customer':
-            state['customer']['name'] = request.POST.get('customer_name', state['customer']['name']).strip()
-            state['customer']['phone'] = request.POST.get('customer_phone', state['customer']['phone']).strip()
-            state['customer']['email'] = request.POST.get('customer_email', state['customer']['email']).strip()
-            state['customer']['city'] = request.POST.get('customer_city', state['customer']['city'])
-            state['customer']['district'] = request.POST.get('customer_district', state['customer']['district'])
-            state['customer']['ward'] = request.POST.get('customer_ward', state['customer']['ward'])
-            state['customer']['street'] = request.POST.get('customer_street', state['customer']['street']).strip()
-            request.session.modified = True
-            request.session['message'] = 'Cập nhật địa chỉ thành công'
-            return redirect(reverse('cart'))
+            form = CustomerInfoForm(request.POST)
+            if form.is_valid():
+                state['customer']['name'] = form.cleaned_data['customer_name']
+                state['customer']['phone'] = form.cleaned_data['customer_phone']
+                state['customer']['email'] = form.cleaned_data['customer_email']
+                state['customer']['city'] = form.cleaned_data['customer_city']
+                state['customer']['district'] = form.cleaned_data['customer_district']
+                state['customer']['ward'] = form.cleaned_data['customer_ward']
+                state['customer']['street'] = form.cleaned_data['customer_street']
+                request.session.modified = True
+                messages.success(request, 'Cập nhật tin nhận hàng thành công')
+                return redirect(reverse('cart:cart'))
+            else:
+                customer_form = form
 
         elif action == 'update_deposit':
             try:
-                delta = int(request.POST.get('deposit_delta', 0))
-                if delta != 0:
-                    new_deposit_percent = state['deposit_percent'] + delta
+                new_val = request.POST.get('deposit_percent_input')
+                if new_val is not None:
+                    new_deposit_percent = int(new_val)
                 else:
-                    new_deposit_percent = int(request.POST.get('deposit_percent_input', state['deposit_percent']))
-                state['deposit_percent'] = max(10, min(100, new_deposit_percent))
-            except ValueError:
+                    delta = int(request.POST.get('deposit_delta', 0))
+                    new_deposit_percent = state['deposit_percent'] + delta
+                state['deposit_percent'] = max(10, min(50, new_deposit_percent))
+            except (ValueError, TypeError):
                 pass
             request.session.modified = True
             if is_ajax:
                 return JsonResponse({'ok': True, **checkout_payload()})
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'update_payment_type':
             new_payment_type = request.POST.get('cart_payment_type')
@@ -103,95 +183,117 @@ def cart(request):
             request.session.modified = True
             if is_ajax:
                 return JsonResponse({'ok': True, **checkout_payload()})
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'go_to_order':
+            if not state['customer']['name'] or not state['customer']['phone']:
+                messages.warning(request, "Vui lòng nhập thông tin nhận hàng")
+                return redirect(reverse('cart:cart'))
             state['current_screen'] = 'order'
             request.session.modified = True
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'update_order_method':
             new_order_method = request.POST.get('order_method')
             if new_order_method in ['bank', 'cod']:
                 if new_order_method == 'cod' and state['cart_payment_type'] == 'full':
-                    request.session['message'] = 'Thanh toán toàn bộ thì không được chọn COD.'
+                    messages.error(request, 'Thanh toán toàn bộ thì không được chọn COD.')
                     state['order_method'] = 'bank'
                 else:
                     state['order_method'] = new_order_method
             request.session.modified = True
             if is_ajax:
                 return JsonResponse({'ok': True, **checkout_payload()})
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'apply_coupon':
             state['coupon_code'] = request.POST.get('coupon_code', '').strip().upper()
             request.session.modified = True
             if is_ajax:
                 return JsonResponse({'ok': True, **checkout_payload()})
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'submit_order':
-            if state['order_method'] == 'bank':
+            if state['order_method'] == 'bank' or state['cart_payment_type'] == 'deposit':
                 state['current_screen'] = 'bank_payment'
             else:
                 state['current_screen'] = 'success'
             request.session.modified = True
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
         elif action == 'confirm_bank_payment':
             state['current_screen'] = 'success'
             request.session.modified = True
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
-        elif action == 'go_home_again' or action == 'shop_again':
+        elif action in ('go_home_again', 'shop_again'):
             state['current_screen'] = 'cart'
             request.session.modified = True
-            return redirect(reverse('cart'))
+            return redirect(reverse('cart:cart'))
 
-    # Prepare context for rendering
+    # Build address string for display
+    customer = state['customer']
+    addr_parts = [
+        customer.get('street', ''),
+        customer.get('ward', ''),
+        customer.get('district', ''),
+        customer.get('city', '')
+    ]
+    customer_full_address = ", ".join([p for p in addr_parts if p])
+    
+    from datetime import datetime, timedelta
+    delivery_date = (datetime.now() + timedelta(days=3)).strftime("%d/%m")
+    
     context = {
-        'product_name': product_name,
-        'product_variant': product_variant,
-        'product_price': base_price,  # Pass raw price for JS calculations if any
-        'shipping_fee': shipping_fee,  # Pass raw shipping fee
-        'formatted_base_price': format_money(base_price),
-        'formatted_shipping_fee': format_money(shipping_fee),
-        'formatted_total_price': format_money(base_price + shipping_fee),
+        'cart': cart_obj,
+        'cart_items': cart_items,
+        'total_price': total_price,
+        'shipping_fee': shipping_fee,
+        'formatted_total_price': format_money(float(total_price) + shipping_fee),
         'deposit_amount': deposit_amount,
         'formatted_deposit_amount': format_money(deposit_amount),
+        'formatted_remaining_amount': format_money((float(total_price) + shipping_fee) - deposit_amount),
         'state': state,
-        'current_screen': state['current_screen'],
+        'current_screen': current_screen,
+        'display_title': display_title,
+        'breadcrumbs': breadcrumbs,
         'coupon_code': state.get('coupon_code', ''),
-        'customer_full_address': f"{state['customer']['street']}, {state['customer']['ward']}, {state['customer']['district']}, Thành phố {state['customer']['city']}",
-        'customer_formatted_phone': f"(+84) {state['customer']['phone']}",
+        'customer_full_address': customer_full_address,
+        'customer_formatted_phone': f"(+84) {customer['phone']}" if customer['phone'] else "",
+        'customer_form': customer_form,
+        'delivery_date': delivery_date,
     }
-
-    if 'message' in request.session:
-        context['message'] = request.session.pop('message')
 
     return render(request, 'cart/cart.html', context)
 
 
 def add_product_to_cart(request):
-    if request.method == 'GET':  # Using GET for simplicity to demonstrate, POST is generally better for data changes
-        product_name = request.GET.get('name', "Sản phẩm không xác định")
-        product_variant = request.GET.get('variant', "Loại: Mặc định")
-        # Ensure price and shipping_fee are integers
-        try:
-            product_price = int(request.GET.get('price', 0))
-        except ValueError:
-            product_price = 0
-        try:
-            product_shipping_fee = int(request.GET.get('shipping_fee', 0))
-        except ValueError:
-            product_shipping_fee = 0
+    product_id = request.GET.get('product_id')
+    variant = request.GET.get('variant', "Mặc định")
+    quantity = int(request.GET.get('quantity', 1))
+    
+    if product_id:
+        product = get_object_or_404(Product, id=product_id)
+        cart = get_or_create_cart(request)
+        
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart, 
+            product=product,
+            variant=variant,
+            defaults={'price': product.price, 'quantity': quantity}
+        )
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+            
+        messages.success(request, f"Đã thêm {product.name} vào giỏ hàng")
+        
+    return redirect(reverse('cart:cart'))
 
-        new_product = {
-            'name': product_name,
-            'variant': product_variant,
-            'price': product_price,
-            'shipping_fee': product_shipping_fee
-        }
-        request.session['current_cart_product'] = new_product
-        request.session.modified = True  # Mark session as modified
-    return redirect(reverse('cart'))
+
+def delete_cart_item(request, item_id):
+    cart = get_or_create_cart(request)
+    item = get_object_or_404(CartItem, id=item_id, cart=cart)
+    item.delete()
+    messages.success(request, "Đã xóa sản phẩm khỏi giỏ hàng")
+    return redirect(reverse('cart:cart'))

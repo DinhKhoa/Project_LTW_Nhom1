@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class QuanlysanphamConfig(AppConfig):
+class ProductsConfig(AppConfig):
     name = 'apps.products'

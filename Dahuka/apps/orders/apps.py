@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class QuanlydondathangConfig(AppConfig):
+class OrdersConfig(AppConfig):
     name = 'apps.orders'
