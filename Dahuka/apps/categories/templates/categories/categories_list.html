@@ -7,6 +7,28 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'categories/categories.css' %}?v=1.1">
+    <style>
+
+
+        /* Làm to + nổi bật tên danh mục */
+        .categories-table td:nth-child(2) {
+            font-size: 18px;
+            font-weight: 700;
+            align-self: center;
+        }
+
+        /* Làm icon to hơn */
+        .btn-edit-dm i,
+        .btn-delete-dm i {
+            font-size: 18px;
+        }
+
+        /* (Optional) Tăng size nút icon cho đẹp hơn */
+        .btn-edit-dm,
+        .btn-delete-dm {
+            padding: 6px 10px;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -62,7 +84,7 @@
             <tbody>
                 {% for dm in page_obj %}
                 <tr class="dm-row" data-dm-id="{{ dm.pk }}" style="cursor: pointer;">
-                    <td class="text-center">{{ dm.code|default:dm.pk }}</td>
+                    <td class="text-center">DanhMuc{{ dm.pk }}</td>
                     <td class="font-weight-bold">{{ dm.name }}</td>
                     <td class="text-center">
                         <span class="badge-count">{{ dm.products.count }}</span>

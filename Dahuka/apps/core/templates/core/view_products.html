@@ -6,6 +6,16 @@
 {% block extra_css %}
 
 <link rel="stylesheet" href="{% static 'core/view_products.css' %}">
+    <style>
+<!--        .catalog-layout {-->
+<!--          display: grid;-->
+<!--          grid-template-columns: 280px 1fr;-->
+<!--          gap: 32px;-->
+<!--        }-->
+
+
+    </style>
+
 {% endblock %}
 
 {% block content %}
@@ -27,8 +37,8 @@
 
     <div class="section-title-row catalog-title-row" style="margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 24px; flex: 1;">
-            <h2 style="font-size: 32px; font-weight: 800; color: var(--ink-strong); margin: 0;">Danh mục sản phẩm</h2>
-            <div class="line" style="flex: 1; height: 1px; background: var(--border); max-width: 400px;"></div>
+            <h2 class="page-title mb-4">Máy lọc nước</h2>
+            <div class="line" style="flex: 1; height: 1px; background: var(--border); max-width: 40"></div>
         </div>
         <div class="catalog-sort dropdown">
             <button class="account-btn-outline" type="button" style="height: 42px; gap: 10px; padding: 0 20px;">
@@ -52,7 +62,7 @@
                     <label class="filter-label"><input type="checkbox"> 12 lõi</label>
                 </div>
             </div>
-            
+
             <div class="filter-group">
                 <h3>Loại nguồn nước</h3>
                 <div class="filter-options">
@@ -61,7 +71,7 @@
                     <label class="filter-label"><input type="checkbox"> Nước cứng</label>
                 </div>
             </div>
-            
+
             <div class="filter-group">
                 <h3>Khoảng giá</h3>
                 <div class="filter-options">
@@ -76,7 +86,7 @@
         <div class="catalog-products">
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">
                 {% for sp in products %}
-                <article class="catalog-card" data-id="{{ sp.id }}" data-name="{{ sp.name }}" data-price="{{ sp.price|floatformat:'0' }}đ" 
+                <article class="catalog-card" data-id="{{ sp.id }}" data-name="{{ sp.name }}" data-price="{{ sp.price|floatformat:'0' }}đ"
                          data-img="{{ sp.main_image_url }}">
                     <div class="catalog-product-visual">
                         <img src="{{ sp.main_image_url }}" alt="{{ sp.name }}">
@@ -99,7 +109,7 @@
             </div>
 
             {% if products.has_other_pages %}
-            <div class="catalog-pagination" style="margin-top: 60px;">
+            <div class="catalog-pagination" style="margin-top: 60px; align-self: center; margin-left: 30%">
                 {% if products.has_previous %}
                     <a href="?page={{ products.previous_page_number }}" class="account-btn-outline"><i class="fa fa-angle-left"></i></a>
                 {% else %}

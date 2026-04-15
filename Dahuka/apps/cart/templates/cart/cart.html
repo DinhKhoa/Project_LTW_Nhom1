@@ -419,15 +419,6 @@
                 </section>
             {% endif %}
 
-            <div class="experience-banner"
-                 style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url({% static 'img/BANNER.png' %}); background-size: cover; background-position: center; border-radius: 12px; padding: 60px 24px; color: white; text-align: center; margin-top: 40px;">
-                <h3 style="font-style: italic; font-weight: 300; font-size: 24px; margin-bottom: 20px;">“Hãy đến và trải
-                    nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
-                <button class="btn btn-outline-light"
-                        style="border: 2px solid white; background: transparent; color: white; padding: 10px 40px;">KHÁM
-                    PHÁ NGAY
-                </button>
-            </div>
     </main>
 
     <div class="modal" id="customerModal">
@@ -519,7 +510,10 @@
         </div>
     </div>
 {% endblock %}
-
+{% footerblock
+{% block footer %}
+<!--    Cho footer biên mất-->
+{% endblock %}
 {% block extra_js %}
     <script src="{% static 'cart/cart.js' %}?v=20260414-6"></script>
 {% endblock %}
