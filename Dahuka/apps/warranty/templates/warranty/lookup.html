@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="warranty-lookup-wrap p-4" style="background: var(--bg-light); min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div class="lookup-card" style="background: #fff; padding: 40px; border-radius: 0; box-shadow: 0 20px 40px rgba(0,0,0,0.05); width: 100%; max-width: 600px; text-align: center;">
+        <div class="lookup-header mb-4">
+            <div class="icon-circle mb-3" style="width: 80px; height: 80px; background: #e8f5e9; color: #2e7d32; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto;">
+                <i class="fa fa-shield"></i>
+            </div>
+            <h1 style="font-size: 28px; font-weight: 800; color: #1a1a1a;">Tra cứu bảo hành</h1>
+            <p style="color: #666;">Nhập số Serial sản phẩm hoặc Số điện thoại để kiểm tra thông tin</p>
+        </div>
+
+        <form action="{% url 'warranty:index' %}" method="GET">
+            <div class="search-box-dahuka" style="position: relative; margin-bottom: 20px;">
+                <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Ví dụ: DHK-2024-001..." required
+                    style="width: 100%; padding: 18px 24px; padding-left: 54px; border: 2px solid #eee; border-radius: 0; font-size: 16px; transition: all 0.3s ease; outline: none;">
+                <i class="fa fa-search" style="position: absolute; left: 24px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 18px;"></i>
+            </div>
+            <button type="submit" class="btn-minimal w-100" style="padding: 16px; font-size: 16px; font-weight: 700;">
+                Kiểm tra thông tin
+            </button>
+        </form>
+
+        {% if results %}
+        <div class="results-list mt-5 text-start">
+            <h3 style="font-size: 16px; font-weight: 700; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Kết quả tìm kiếm:</h3>
+            {% for card in results %}
+            <a href="{% url 'warranty:warranty_detail' card.serial_number %}" class="result-item" style="display: flex; align-items: center; padding: 15px; border-radius: 0; border: 1px solid #f0f0f0; margin-bottom: 10px; text-decoration: none; color: inherit; transition: all 0.2s ease;">
+                <div style="width: 40px; height: 40px; background: #f5f5f5; border-radius: 0; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                    <i class="fa fa-cube" style="color: #888;"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: #111;">{{ card.serial_number }}</div>
+                    <div style="font-size: 13px; color: #666;">{{ card.product.name }}</div>
+                </div>
+                <i class="fa fa-chevron-right" style="margin-left: auto; color: #ccc;"></i>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="lookup-help mt-5" style="border-top: 1px solid #eee; padding-top: 25px; font-size: 14px; color: #888;">
+            <p>Bạn không tìm thấy số Serial? <a href="#" style="color: var(--mutosi-red); font-weight: 600;">Xem hướng dẫn tại đây</a></p>
+            <p class="mt-2"><i class="fa fa-phone"></i> Hỗ trợ kỹ thuật: <strong>1900 636 596</strong></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .search-box-dahuka input:focus {
+        border-color: #2e7d32 !important;
+        box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+    }
+    .result-item:hover {
+        background: #f9f9f9;
+        transform: translateX(5px);
+        border-color: #e0e0e0;
+    }
+</style>
+{% endblock content %}

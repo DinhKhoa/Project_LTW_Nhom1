@@ -1,10 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Đã đăng xuất - DAHUKA{% endblock %}
+
+{% block content %}
+<div class="logout-container">
+    <div class="logout-message">
+        <h1>Đăng xuất thành công</h1>
+        <p>Cảm ơn bạn đã ứng dụng mua sắm cùng DAHUKA. Hẹn gặp lại bạn!</p>
+        <div class="logout-actions">
+            <a href="{% url 'core:home' %}" class="btn-minimal">Về trang chủ</a>
+            <a href="{% url 'login' %}" class="btn-minimal">Đăng nhập lại</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .logout-container {
+        min-height: calc(100vh - 400px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        background: #fff;
+    }
+
+    .logout-message {
+        text-align: center;
+        max-width: 600px;
+    }
+
+    .logout-icon {
+        font-size: 64px;
+        color: var(--brand);
+        margin-bottom: 24px;
+        opacity: 0.8;
+    }
+
+    .logout-message h1 {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--brand);
+        margin-bottom: 16px;
+        letter-spacing: -0.5px;
+    }
+
+    .logout-message p {
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 32px;
+        line-height: 1.6;
+    }
+
+    .logout-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+    }
+</style>
+{% endblock %}

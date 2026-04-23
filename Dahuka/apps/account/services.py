@@ -26,11 +26,11 @@ class AccountService:
         return address
 
     @staticmethod
-    def change_password(user, old_password, new_password):
+    def change_password(request, user, old_password, new_password):
         if user.check_password(old_password):
             user.set_password(new_password)
             user.save()
-            update_session_auth_hash(None, user) # refresh session
+            update_session_auth_hash(request, user) # refresh session
             return True, "Đổi mật khẩu thành công"
         return False, "Mật khẩu cũ không chính xác"
 

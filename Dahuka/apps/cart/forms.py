@@ -73,6 +73,17 @@ class CustomerInfoForm(forms.Form):
             attrs={"class": "d-none"}
         ),  # We will use custom CSS in template
     )
+    customer_note = forms.CharField(
+        required=False,
+        label="Ghi chú",
+        widget=forms.Textarea(
+            attrs={
+                "class": "cform-input cform-textarea",
+                "rows": 3,
+                "placeholder": "Ghi chú thêm về đơn hàng (ví dụ: giao giờ hành chính...)",
+            }
+        ),
+    )
     is_default = forms.BooleanField(
         required=False,
         widget=forms.CheckboxInput(

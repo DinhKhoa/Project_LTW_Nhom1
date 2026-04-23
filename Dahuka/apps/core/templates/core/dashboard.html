@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard-wrapper p-4" style="background: #f8f9fa; min-height: 100vh;">
+    <div class="container-fluid">
+        <div class="header-section mb-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 style="font-size: 24px; font-weight: 800; color: #1a1a1a;">Bảng điều khiển quản trị</h1>
+                <p class="text-muted">Chào mừng quay lại, quản trị viên!</p>
+            </div>
+            <div class="date-now" style="background: #fff; padding: 10px 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); font-weight: 600;">
+                <i class="fa fa-calendar mr-2"></i> {% now "d F Y" %}
+            </div>
+        </div>
+
+        <!-- Thống kê nhanh -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card p-3" style="background: #fff; border-radius: 16px; border-left: 5px solid #2e7d32;">
+                    <small class="text-muted text-uppercase font-weight-bold">Tổng doanh thu</small>
+                    <h3 class="mt-2" style="font-weight: 800;">{{ total_rev|floatformat:0 }} đ</h3>
+                    <div class="text-success small"><i class="fa fa-arrow-up"></i> +12% so với tháng trước</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-3" style="background: #fff; border-radius: 16px; border-left: 5px solid #1976d2;">
+                    <small class="text-muted text-uppercase font-weight-bold">Tổng đơn hàng</small>
+                    <h3 class="mt-2" style="font-weight: 800;">{{ total_orders }}</h3>
+                    <div class="text-primary small">Tất cả thời gian</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-3" style="background: #fff; border-radius: 16px; border-left: 5px solid #f57c00;">
+                    <small class="text-muted text-uppercase font-weight-bold">Chờ xử lý</small>
+                    <h3 class="mt-2" style="font-weight: 800;">{{ pending_orders }}</h3>
+                    <div class="text-warning small">Cần xác nhận ngay</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-3" style="background: #fff; border-radius: 16px; border-left: 5px solid #d32f2f;">
+                    <small class="text-muted text-uppercase font-weight-bold">Tồn kho thấp</small>
+                    <h3 class="mt-2" style="font-weight: 800;">{{ low_stock.count }}</h3>
+                    <div class="text-danger small">Cần nhập thêm hàng</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Biểu đồ doanh thu -->
+            <div class="col-lg-8 mb-4">
+                <div class="chart-container p-4" style="background: #fff; border-radius: 20px; height: 100%;">
+                    <h5 class="mb-4" style="font-weight: 700;">Doanh thu 7 ngày qua</h5>
+                    <canvas id="revenueChart" style="max-height: 350px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Sản phẩm -->
+            <div class="col-lg-4 mb-4">
+                <div class="top_products p-4" style="background: #fff; border-radius: 20px; height: 100%;">
+                    <h5 class="mb-4" style="font-weight: 700;">Top 5 bán chạy</h5>
+                    {% for item in top_products %}
+                    <div class="top-item d-flex align-items-center mb-3">
+                        <div class="rank" style="width: 30px; height: 30px; background: #f0f0f0; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; margin-right: 15px;">{{ forloop.counter }}</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; font-size: 14px;">{{ item.product__name }}</div>
+                            <div class="progress mt-1" style="height: 6px; border-radius: 10px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio item.total_qty 100 100 %}%"></div>
+                            </div>
+                        </div>
+                        <div class="ml-3 font-weight-bold">{{ item.total_qty }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Đơn hàng gần đây -->
+            <div class="col-lg-7 mb-4">
+                <div class="recent-orders p-4" style="background: #fff; border-radius: 20px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 style="font-weight: 700; margin: 0;">Đơn hàng gần đây</h5>
+                        <a href="{% url 'orders:order_list' %}" class="btn btn-sm btn-light">Xem tất cả</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr style="color: #888; font-size: 12px; text-transform: uppercase;">
+                                    <th>Mã ĐH</th>
+                                    <th>Khách hàng</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td style="font-weight: 700;">#{{ order.id }}</td>
+                                    <td>{{ order.full_name }}</td>
+                                    <td style="font-weight: 600;">{{ order.total_amount|floatformat:0 }} đ</td>
+                                    <td>
+                                        <span class="badge {% if order.status == 'completed' %}badge-success{% elif order.status == 'pending' %}badge-warning{% else %}badge-primary{% endif %}" style="padding: 6px 12px; border-radius: 8px;">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cảnh báo tồn kho -->
+            <div class="col-lg-5 mb-4">
+                <div class="stock-warning p-4" style="background: #fff; border-radius: 20px;">
+                    <h5 class="mb-4" style="font-weight: 700; color: #d32f2f;">Cảnh báo hết hàng</h5>
+                    {% for p in low_stock %}
+                    <div class="p-3 mb-2 d-flex align-items-center justify-content-between" style="background: #fff5f5; border-radius: 12px; border: 1px solid #ffeded;">
+                        <span style="font-weight: 600;">{{ p.name }}</span>
+                        <span class="badge badge-danger">Còn {{ p.stock }}</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-center py-4 text-muted">Mọi thứ đều ổn, chưa có sản phẩm nào sắp hết hàng.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ days|safe }},
+            datasets: [{
+                label: 'Doanh thu (đ)',
+                data: {{ rev_data }},
+                borderColor: '#2e7d32',
+                backgroundColor: 'rgba(46, 125, 50, 0.05)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#2e7d32',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#f0f0f0' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+{% endblock %}

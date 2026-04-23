@@ -247,7 +247,7 @@
     border-radius: 32px;
     overflow: hidden;
     background: #1e293b;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: none;
     border: 1px solid rgba(0,0,0,0.08);
     display: flex;
     flex-direction: column;
@@ -255,7 +255,6 @@
 }
 
 .gallery-card:hover {
-    transform: translateY(-12px) scale(1.02);
     box-shadow: 0 30px 60px -12px rgba(11, 110, 79, 0.15);
 }
 
@@ -410,11 +409,10 @@
     box-shadow: 0 15px 35px rgba(0,0,0,0.08);
     z-index: 10;
     transform: translateY(0);
-    transition: all 0.3s ease;
+    transition: none;
 }
 
 .map-popup:hover {
-    transform: translateY(-4px);
     background: rgba(255, 255, 255, 0.95);
 }
 
@@ -505,7 +503,7 @@
     border: 5px solid #fff;
     border-radius: 50%;
     z-index: 5;
-    animation: mapPulse 2s infinite;
+    /* animation: mapPulse 2s infinite; */
     cursor: pointer;
 }
 
@@ -594,11 +592,10 @@
     padding: 18px 40px;
     border-radius: 20px;
     box-shadow: 0 10px 25px rgba(11, 110, 79, 0.2);
-    transition: all 0.3s ease;
+    transition: none;
 }
 
 .support-address-highlight:hover {
-    transform: scale(1.05);
     background: #095a41;
 }
 

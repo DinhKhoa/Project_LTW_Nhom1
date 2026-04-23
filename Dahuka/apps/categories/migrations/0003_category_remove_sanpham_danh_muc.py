@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('categories', '0002_alter_danhmuc_options_alter_danhmuc_ma_danh_muc'),
+        ('categories', '0001_initial'),
     ]
 
     operations = [

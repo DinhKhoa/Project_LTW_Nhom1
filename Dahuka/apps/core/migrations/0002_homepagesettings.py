@@ -7,7 +7,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('categories', '0002_alter_danhmuc_options_alter_danhmuc_ma_danh_muc'),
+        ('categories', '0003_category_remove_sanpham_danh_muc'),
+        ('products', '0001_initial'),
         ('core', '0001_initial'),
     ]
 
@@ -23,9 +24,9 @@ class Migration(migrations.Migration):
                 ('mutosi_pro_image', models.ImageField(blank=True, null=True, upload_to='home/brands/')),
                 ('bottom_banner_image', models.ImageField(blank=True, null=True, upload_to='home/banners/')),
                 ('bottom_cta_text', models.CharField(default='“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất...”', max_length=255)),
-                ('category_one', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='h_cat1', to='categories.danhmuc')),
-                ('category_two', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='h_cat2', to='categories.danhmuc')),
-                ('featured_products', models.ManyToManyField(blank=True, to='categories.sanpham')),
+                ('category_one', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='h_cat1', to='categories.category')),
+                ('category_two', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='h_cat2', to='categories.category')),
+                ('featured_products', models.ManyToManyField(blank=True, to='products.product')),
             ],
             options={
                 'verbose_name': 'Cài đặt Trang chủ',

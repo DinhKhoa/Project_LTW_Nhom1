@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Đăng ký tài khoản - DAHUKA{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/auth-forms.css' %}">
+
+<section class="login-page">
+    <form method="post" class="login-card" style="width: min(500px, 100%);">
+        {% csrf_token %}
+        <h1>Đăng ký tài khoản</h1>
+
+        {% if form.non_field_errors %}
+            <div class="login-message error">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+                <label for="{{ form.last_name.id_for_label }}">Họ <span style="color: #ef4444;">*</span></label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}<div class="login-message error">{{ form.last_name.errors.0 }}</div>{% endif %}
+            </div>
+            <div>
+                <label for="{{ form.first_name.id_for_label }}">Tên <span style="color: #ef4444;">*</span></label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}<div class="login-message error">{{ form.first_name.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+
+        <label for="{{ form.phone.id_for_label }}">Số điện thoại <span style="color: #ef4444;">*</span></label>
+        {{ form.phone }}
+        {% if form.phone.errors %}<div class="login-message error">{{ form.phone.errors.0 }}</div>{% endif %}
+
+        <label for="{{ form.email.id_for_label }}">Email (Không bắt buộc)</label>
+        {{ form.email }}
+        {% if form.email.errors %}<div class="login-message error">{{ form.email.errors.0 }}</div>{% endif %}
+
+        <label for="{{ form.birthday.id_for_label }}">Ngày sinh</label>
+        {{ form.birthday }}
+        {% if form.birthday.errors %}<div class="login-message error">{{ form.birthday.errors.0 }}</div>{% endif %}
+
+        <label for="{{ form.password.id_for_label }}">Mật khẩu <span style="color: #ef4444;">*</span></label>
+        {{ form.password }}
+        {% if form.password.errors %}<div class="login-message error">{{ form.password.errors.0 }}</div>{% endif %}
+
+        <label for="{{ form.confirm_password.id_for_label }}">Xác nhận mật khẩu <span style="color: #ef4444;">*</span></label>
+        {{ form.confirm_password }}
+        {% if form.confirm_password.errors %}<div class="login-message error">{{ form.confirm_password.errors.0 }}</div>{% endif %}
+
+
+        <button type="submit" class="btn-minimal" style="width: 100%; margin-top: 10px; height: 45px; font-weight: 600;">Đăng ký</button>
+
+        <div style="text-align: center; margin-top: 24px; font-size: 14px; color: #6b7280;">
+            Bạn đã có tài khoản? <a href="{% url 'login' %}" style="color: var(--brand, #0B6E4F); text-decoration: none; font-weight: 600;">Đăng nhập</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

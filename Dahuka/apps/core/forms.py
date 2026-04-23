@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from apps.account.models import Address, Customer
 
 class CustomerForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=150, required=False)
-    last_name = forms.CharField(max_length=150, required=False)
+    last_name = forms.CharField(max_length=150, required=False, label='Họ')
+    first_name = forms.CharField(max_length=150, required=False, label='Tên')
     email = forms.EmailField(required=False)
 
     class Meta:

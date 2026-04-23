@@ -13,14 +13,16 @@ urlpatterns = [
     path("orders/", views.order_list, name="order_list"),
     path("orders/<int:pk>/", views.order_detail, name="order_detail"),
     path("orders/<int:pk>/cancel/", views.cancel_order, name="cancel_order"),
-    
     # API endpoints
     path("api/profile/", api_views.api_profile, name="api_profile"),
-    path("api/change-password/", api_views.api_change_password, name="api_change_password"),
+    path(
+        "api/change-password/",
+        api_views.api_change_password,
+        name="api_change_password",
+    ),
     path("api/addresses/", api_views.api_addresses, name="api_addresses"),
     path("api/addresses/<int:pk>/", api_views.api_addresses, name="api_address_detail"),
     path("api/orders/", api_views.api_orders, name="api_orders"),
     path("api/orders/<int:pk>/", api_views.api_orders, name="api_order_detail"),
-
     path("signin/", views.signin, name="signin"),
 ]

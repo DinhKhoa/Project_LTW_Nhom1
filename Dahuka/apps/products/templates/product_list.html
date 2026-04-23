@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}Danh sách sản phẩm - DAHUKA{% endblock title %}
+
+{% block content %}
+<div class="content-wide-layout mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav class="page-breadcrumbs">
+        <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+        <b>Quản lý sản phẩm</b>
+    </nav>
+    <!-- Title -->
+    <h1 class="page-title">Quản lý sản phẩm</h1>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar d-flex justify-content-between align-items-center mt-3">
+            <div class="d-flex align-items-center" style="gap: 10px;">
+                <input type="text" class="search-input" id="searchInput"
+                       placeholder="Tìm kiếm theo tên hoặc mã sản phẩm...">
+
+                <!-- Category Filter -->
+                <div class="filter-dropdown-wrapper" id="categoryFilter">
+                    <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('categoryFilter')">
+                        <span class="filter-value">
+                            {% if category_id == 'all' %}Tất cả{% else %}
+                                {% for cat in categories %}{% if cat.id|stringformat:"i" == category_id %}
+                                    {{ cat.name }}{% endif %}{% endfor %}
+                            {% endif %}
+                        </span>
+                        <span class="arrow">▾</span>
+                    </div>
+                    <div class="filter-dropdown-menu">
+                        <div class="filter-item {% if category_id == 'all' %}selected{% endif %}" data-value="all"
+                             onclick="selectFilterItem(this, 'categoryFilter')">Tất cả<span class="check-icon">✓</span>
+                        </div>
+                        {% for cat in categories %}
+                            <div class="filter-item {% if cat.id|stringformat:"i" == category_id %}selected{% endif %}"
+                                 data-value="{{ cat.id }}"
+                                 onclick="selectFilterItem(this, 'categoryFilter')">{{ cat.name }}<span
+                                    class="check-icon">✓</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Inventory Filter -->
+                <div class="filter-dropdown-wrapper" id="inventoryFilter">
+                    <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('inventoryFilter')">
+                        <span class="filter-value">
+                            {% if inventory_filter == 'default' %}Tồn kho: Mặc định
+                            {% elif inventory_filter == 'low-to-high' %}Thấp → Cao
+                            {% elif inventory_filter == 'high-to-low' %}Cao → Thấp
+                            {% endif %}
+                        </span>
+                        <span class="arrow">▾</span>
+                    </div>
+                    <div class="filter-dropdown-menu">
+                        <div class="filter-item {% if inventory_filter == 'default' %}selected{% endif %}"
+                             data-value="default"
+                             onclick="selectFilterItem(this, 'inventoryFilter')">Mặc định<span class="check-icon">✓</span>
+                        </div>
+                        <div class="filter-item {% if inventory_filter == 'low-to-high' %}selected{% endif %}"
+                             data-value="low-to-high"
+                             onclick="selectFilterItem(this, 'inventoryFilter')">Thấp → Cao<span class="check-icon">✓</span>
+                        </div>
+                        <div class="filter-item {% if inventory_filter == 'high-to-low' %}selected{% endif %}"
+                             data-value="high-to-low"
+                             onclick="selectFilterItem(this, 'inventoryFilter')">Cao → Thấp<span class="check-icon">✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-search" onclick="applyFilters()">Tìm kiếm</button>
+            </div>
+
+            <a href="{% url 'products:product_create' %}" class="btn-dahuka-main">
+                <i class="fa fa-plus"></i> Thêm sản phẩm
+            </a>
+        </div>
+
+        <!-- Active Filters -->
+        <div class="active-filters">
+            <div class="filter-tag {% if category_id != 'all' %}show{% endif %}" id="categoryTag">
+                <span class="tag-text">Danh mục:
+                    {% for cat in categories %}{% if cat.id|stringformat:"i" == category_id %}{{ cat.name }}
+                    {% endif %}{% endfor %}</span>
+                <span class="remove-filter" onclick="removeFilter('category')">✕</span>
+            </div>
+            <div class="filter-tag {% if inventory_filter != 'default' %}show{% endif %}" id="inventoryTag">
+                <span class="tag-text">Tồn kho: {% if inventory_filter == 'low-to-high' %}Thấp → Cao{% else %}Cao →
+                    Thấp{% endif %}</span>
+                <span class="remove-filter" onclick="removeFilter('inventory')">✕</span>
+            </div>
+        </div>
+
+        <!-- Stock Legend -->
+        <div class="stock-legend">
+            <span class="stock-legend-title">Báo màu tồn kho:</span>
+            <div class="stock-legend-item">
+                <span class="stock-dot dot-daydu"></span>
+                <span>Đầy đủ (≥10)</span>
+            </div>
+            <div class="stock-legend-item">
+                <span class="stock-dot dot-thap"></span>
+                <span>Thấp (1-9)</span>
+            </div>
+            <div class="stock-legend-item">
+                <span class="stock-dot dot-hethang"></span>
+                <span>Hết hàng (0)</span>
+            </div>
+        </div>
+
+        <!-- Product Table -->
+        <div class="product-table-wrapper">
+            <table class="product-table" id="productTable">
+                <thead>
+                <tr>
+                    <th>Mã sản phẩm</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá tiền</th>
+                    <th>Tồn kho</th>
+                    <th>Trạng thái tồn kho</th>
+                    <th>Trạng thái hiển thị</th>
+                    <th>Danh mục</th>
+                </tr>
+                </thead>
+                <tbody id="productTableBody">
+                {% for sp in page_obj %}
+                    {% url "products:product_detail" sp.id as detail_url %}
+                    <tr class="{% if sp.stock == 0 %}row-hethang{% elif sp.stock < 10 %}row-thap{% else %}row-daydu{% endif %}" 
+                        data-category="{{ sp.category.id }}" data-stock="{{ sp.stock }}"
+                        onclick="handleRowClick(event, '{{ detail_url }}')">
+                        <td class="text-center">{{ sp.sku }}</td>
+                        <td class="p-name">{{ sp.name }}</td>
+                        <td class="p-price text-center">{{ sp.price|intcomma }} đ</td>
+                        <td class="p-stock text-center">{{ sp.stock }}</td>
+                        <td class="text-center">
+                            <div class="stock-badge {% if sp.stock == 0 %}badge-hethang{% elif sp.stock < 10 %}badge-thap{% else %}badge-daydu{% endif %}" style="margin: 0 auto;">
+                                <span class="dot"></span> {% if sp.stock == 0 %}Hết hàng{% elif sp.stock < 10 %}Sắp hết{% else %}Đầy đủ{% endif %}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="switch-wrapper {% if sp.is_active %}active-toggle{% endif %}" 
+                                 onclick="toggleVisibility(event, '{{ sp.id }}', this)" style="margin: 0 auto;">
+                                <div class="toggle-slider"></div>
+                                <span class="toggle-label">{% if sp.is_active %}Hiển thị{% else %}Ẩn{% endif %}</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="p-cat-badge">{{ sp.category.name }}</span>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">Không tìm thấy sản phẩm nào</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Pagination -->
+        {% include 'partials/_pagination.html' %}
+
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+    <script src="{% static 'product_admin.js' %}"></script>
+{% endblock extra_js %}
+

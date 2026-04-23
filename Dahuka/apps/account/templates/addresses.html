@@ -1,0 +1,134 @@
+{% extends 'account/../account_base.html' %}
+
+{% block title %}Sổ địa chỉ - DAHUKA{% endblock %}
+
+{% block account_body %}
+<style>
+    .address-stack {
+        display: grid;
+        gap: 18px;
+    }
+
+    .address-add-card {
+        min-height: 128px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #767f8b;
+    }
+
+    .address-add-card:hover {
+        color: #232b39;
+    }
+
+    .address-add-icon {
+        width: 44px;
+        height: 44px;
+        border: 3px solid #111;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        line-height: 1;
+        margin-bottom: 10px;
+    }
+
+    .address-item {
+        padding: 22px 18px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+    }
+
+    .address-name {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2b3340;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .address-info-grid {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 12px 18px;
+        font-size: 14px;
+    }
+
+    .address-info-grid div:nth-child(odd) {
+        color: #747d8a;
+        font-weight: 600;
+    }
+
+    .address-info-grid div:nth-child(even) {
+        color: #9aa1ac;
+    }
+
+    .address-default {
+        font-style: italic;
+    }
+
+    .address-actions {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+        justify-items: end;
+    }
+
+    .address-actions a {
+        color: #b2d9ac;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .address-actions a:hover {
+        color: #7bb26f;
+    }
+
+    @media (max-width: 900px) {
+        .address-item {
+            grid-template-columns: 1fr;
+        }
+
+        .address-actions {
+            justify-items: start;
+        }
+    }
+</style>
+
+<h1 class="account-heading">Sổ địa chỉ</h1>
+
+<div class="address-stack">
+    <a href="{% url 'add_address' %}" class="account-card address-add-card">
+        <div style="text-align: center;">
+            <div class="address-add-icon">+</div>
+            <div>Thêm địa chỉ</div>
+        </div>
+    </a>
+
+    {% for address in addresses %}
+        <section class="account-card address-item">
+            <div>
+                <div class="address-name">{{ address.full_name }}</div>
+                <div class="address-info-grid">
+                    <div></div>
+                    <div class="address-default">{% if address.is_default %}Địa chỉ mặc định hiện tại{% endif %}</div>
+                    <div>Địa chỉ</div>
+                    <div>{{ address.address_detail }}, {{ address.ward }}, {{ address.district }}, {{ address.province }}</div>
+                    <div>Số điện thoại</div>
+                    <div>{{ address.phone }}</div>
+                </div>
+            </div>
+            <div class="address-actions">
+                <a href="{% url 'edit_address' address.id %}">Chỉnh sửa</a>
+                <a href="{% url 'delete_address' address.id %}">Xóa</a>
+            </div>
+        </section>
+    {% empty %}
+        <section class="account-card" style="padding: 28px; color: #98a1ad;">Bạn chưa có địa chỉ nào.</section>
+    {% endfor %}
+</div>
+{% endblock %}
+

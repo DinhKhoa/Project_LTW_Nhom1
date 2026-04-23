@@ -18,10 +18,11 @@ def notification_counts(request):
         ).count()
 
     elif request.user.is_staff:
-        # Staff: Số lượng đơn hàng được giao cho
+        # Staff: Số lượng nhiệm vụ được giao (InstallationTask)
+        from apps.tasks.models import InstallationTask
         counts["staff_notification_count"] = (
-            Order.objects.filter(assigned_staff=request.user)
-            .exclude(status__in=["completed", "cancelled"])
+            InstallationTask.objects.filter(assigned_staff=request.user)
+            .exclude(status="completed")
             .count()
         )
 
@@ -35,5 +36,12 @@ def notification_counts(request):
             )
         except Exception:
             pass
-
     return counts
+
+
+def global_categories(request):
+    from apps.categories.models import Category
+    return {
+        'all_categories': Category.objects.all().order_by('id')
+    }
+

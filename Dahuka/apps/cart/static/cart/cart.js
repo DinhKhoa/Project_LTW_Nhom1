@@ -292,25 +292,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const deleteButtons = document.querySelectorAll('.cart-item-delete-btn');
-    let currentDeleteItem = null;
-    deleteButtons.forEach((btn) => {
-        btn.addEventListener('click', (event) => {
-            event.preventDefault();
-            currentDeleteItem = btn.closest('.cart-item');
-            const deleteUrl = btn.dataset.deleteUrl;
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            if (confirmDeleteBtn && deleteUrl) {
-                confirmDeleteBtn.onclick = () => { window.location.href = deleteUrl; };
-            }
-            const modal = document.getElementById('deleteConfirmModal');
-            if (modal) {
-                modal.classList.add('show');
-            }
+
+    // In-place update for quantity
+    document.querySelectorAll('.item-qty-stepper').forEach((stepper) => {
+        const input = stepper.querySelector('.qty-input');
+        const itemRow = stepper.closest('.cart-item');
+        const itemId = itemRow.dataset.itemId;
+        
+        stepper.querySelectorAll('.qty-btn').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                let currentVal = parseInt(input.value, 10);
+                const delta = parseInt(btn.dataset.delta, 10);
+                let newVal = currentVal + delta;
+                
+                if (newVal < 1) {
+                    // Trigger confirmation modal for deletion
+                    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+                    const deleteItemForm = document.getElementById('deleteItemForm');
+                    if (confirmDeleteBtn && deleteItemForm) {
+                        confirmDeleteBtn.onclick = () => {
+                            // Construct delete URL manually since btn is gone
+                            deleteItemForm.action = `/cart/delete/${itemId}/`;
+                            deleteItemForm.submit();
+                        };
+                        const modal = document.getElementById('deleteConfirmModal');
+                        if (modal) modal.classList.add('show');
+                    }
+                    return;
+                }
+                
+                try {
+                    btn.disabled = true; // Prevent double clicks
+                    const data = await postCheckoutAction({
+                        action: 'update_quantity', item_id: itemId, quantity: newVal
+                    });
+                    
+                    if (data.ok) {
+                        input.value = newVal;
+                        const minusBtn = stepper.querySelector('.qty-btn.minus');
+                        if (minusBtn) {
+                            minusBtn.textContent = newVal > 1 ? '-' : '🗑';
+                        }
+                        // Update totals without full reload for smoother UX
+                        syncCheckoutUI(data);
+                        updateCartSelectionSummary();
+                        // Optional: reload after a short delay if persistent state is needed
+                        // location.reload(); 
+                    }
+                } catch (error) {
+                    showToast(error.message);
+                } finally {
+                    btn.disabled = false;
+                }
+            });
         });
     });
-
-    // confirmDeleteBtn onclick is now set dynamically in deleteButtons listener
 
     const cartCheckoutForm = document.getElementById('cartCheckoutForm');
     if (cartCheckoutForm) {

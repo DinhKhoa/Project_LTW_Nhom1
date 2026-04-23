@@ -30,7 +30,7 @@ def address_list(request):
     addresses = Address.objects.filter(customer=customer).order_by('-is_default', '-updated_at')
     return render(
         request,
-        'account/addresses.html',
+        'addresses.html',
         {
             'addresses': addresses,
             'customer': customer,
@@ -53,7 +53,7 @@ def add_address(request):
 
     return render(
         request,
-        'account/address_form.html',
+        'address_form.html',
         {
             'form': form,
             'title': 'Thêm địa chỉ',
@@ -78,7 +78,7 @@ def edit_address(request, pk):
 
     return render(
         request,
-        'account/address_form.html',
+        'address_form.html',
         {
             'form': form,
             'title': 'Thông tin khách hàng',
@@ -100,7 +100,7 @@ def delete_address(request, pk):
 
     return render(
         request,
-        'account/delete_address.html',
+        'delete_address.html',
         {
             'address': address,
             'customer': customer,
@@ -130,7 +130,7 @@ def profile_view(request):
 
     return render(
         request,
-        'account/profile.html',
+        'profile.html',
         {
             'form': form,
             'customer': customer,
@@ -143,6 +143,7 @@ def change_password(request):
     form = PasswordChangeForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         success, message = AccountService.change_password(
+            request,
             request.user, 
             form.cleaned_data['old_password'], 
             form.cleaned_data['new_password']
@@ -154,7 +155,7 @@ def change_password(request):
 
     return render(
         request,
-        'account/change_password.html',
+        'change_password.html',
         {
             'form': form,
             'customer': _get_or_create_customer(request.user),
@@ -166,7 +167,8 @@ from django.core.paginator import Paginator
 @login_required
 def order_list(request):
     customer = _get_or_create_customer(request.user)
-    orders_list = Order.objects.filter(customer=request.user).order_by('-created_at')
+    # Use select_related to avoid N+1 queries when accessing order.customer
+    orders_list = Order.objects.filter(customer=request.user).select_related('customer', 'assigned_staff').order_by('-created_at')
     
     # Pagination
     paginator = Paginator(orders_list, 5) # 5 orders per page
@@ -175,7 +177,7 @@ def order_list(request):
     
     return render(
         request,
-        'account/orders.html',
+        'orders.html',
         {
             'orders': page_obj,
             'customer': customer,
@@ -185,12 +187,22 @@ def order_list(request):
 
 @login_required
 def order_detail(request, pk):
+    from django.db.models import Prefetch
+    
     customer = _get_or_create_customer(request.user)
-    order = get_object_or_404(Order, id=pk, customer=request.user)
-    items = OrderItem.objects.filter(order=order)
+    # Use prefetch_related to load items and their products in one query
+    items_qs = OrderItem.objects.select_related('product').all()
+    order = get_object_or_404(
+        Order.objects.select_related('customer', 'assigned_staff').prefetch_related(
+            Prefetch('items', queryset=items_qs)
+        ),
+        id=pk,
+        customer=request.user
+    )
+    items = order.items.all()  # Already prefetched
     return render(
         request,
-        'account/order_detail.html',
+        'order_detail.html',
         {
             'order': order,
             'items': items,
@@ -219,7 +231,7 @@ def cancel_order(request, pk):
 
     return render(
         request,
-        'account/cancel_order.html',
+        'cancel_order.html',
         {
             'form': form,
             'order': order,
@@ -236,7 +248,8 @@ def signin(request):
     form = RegistrationForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         try:
-            full_name = form.cleaned_data['full_name']
+            last_name = form.cleaned_data['last_name']
+            first_name = form.cleaned_data['first_name']
             phone = form.cleaned_data['phone']
             email = form.cleaned_data['email']
             birthday = form.cleaned_data['birthday']
@@ -246,7 +259,8 @@ def signin(request):
                 username=phone,
                 password=password,
                 email=email if email else '',
-                first_name=full_name
+                first_name=first_name,
+                last_name=last_name
             )
             
             # Customer creation is now handled by Signals! 
@@ -261,4 +275,4 @@ def signin(request):
         except Exception as e:
             messages.error(request, f'Đã xảy ra lỗi: {str(e)}')
 
-    return render(request, 'registration/signin.html', {'form': form})
+    return render(request, 'registration/signup.html', {'form': form})

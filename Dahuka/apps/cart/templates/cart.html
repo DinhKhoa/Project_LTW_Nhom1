@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cart_tags %}
+
+{% block title %}Dahuka - {{ display_title }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'cart/cart.css' %}?v=20260414-5">
+{% endblock %}
+
+{% block content %}
+    <main class="page-content">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 18px;">
+            <div class="back-nav-wrap">
+                {% if current_screen != 'cart' %}
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="go_home_again">
+                        <button type="submit" class="back-nav-btn">&larr; Quay lại</button>
+                    </form>
+                {% else %}
+                    <button type="button" class="back-nav-btn" id="backNavBtn" data-fallback-url="/">&larr; Quay lại
+                    </button>
+                {% endif %}
+            </div>
+            {% if current_screen != 'cart' and current_screen != 'success' %}
+                <div class="checkout-progress">
+                    <div class="progress-step {% if current_screen == 'order' or current_screen == 'bank_payment' %}active{% elif current_screen == 'success' %}completed{% endif %}">
+                        <span>Thủ tục</span>
+                    </div>
+                    <div class="progress-separator"></div>
+                    <div class="progress-step {% if current_screen == 'success' %}active{% endif %}">
+                        <span>Hoàn tất</span>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if current_screen == 'cart' %}
+                <section class="screen active" id="cartScreen">
+                    <div class="breadcrumb">
+                        {% for item in breadcrumbs %}
+                            {% if not forloop.last %}
+                                <a href="{{ item.url }}">{{ item.name }}</a> /
+                            {% else %}
+                                <span>{{ item.name }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="cart-grid card">
+                        <div class="cart-left">
+                            <div class="block-title">Thông Tin Nhận Hàng</div>
+                            <div class="address-box">
+                                {% if state.customer.name %}
+                                    <div>
+                                        <div class="address-name">{{ state.customer.name }}</div>
+                                        <div class="address-phone">{{ customer_formatted_phone }}</div>
+                                        <div class="address-detail">{{ customer_full_address }}</div>
+                                    </div>
+                                {% else %}
+                                    <div style="color: #888; font-style: italic;">Chưa có thông tin nhận hàng</div>
+                                {% endif %}
+                                <button class="icon-btn" type="button" onclick="openModal('customerModal')">✎</button>
+                            </div>
+
+                            {% for item in cart_items %}
+                                <div class="cart-item" data-item-id="{{ item.id }}" data-item-subtotal="{{ item.subtotal }}">
+                                    <input type="checkbox" class="item-checkbox" {% if item.is_selected %}checked{% endif %}>
+                                    <div class="product-mock">
+                                        {% if item.product.image %}
+                                            <img src="{{ item.product.image.url }}"
+                                                 style="width: 100%; height: 100%; object-fit: contain;">
+                                        {% else %}
+                                            <img src="{% static 'img/1.png' %}"
+                                                 style="width: 100%; height: 100%; object-fit: contain;">
+                                        {% endif %}
+                                        <span class="product-top"></span>
+                                        <span class="product-light"></span>
+                                    </div>
+                                    <div class="item-info">
+                                        <h3>{{ item.product.name }}</h3>
+                                        <p>Loại: {{ item.variant }}</p>
+                                        <div class="item-qty-stepper">
+                                            <button type="button" class="qty-btn minus" data-delta="-1">{% if item.quantity > 1 %}-{% else %}🗑{% endif %}</button>
+                                            <input type="number" class="qty-input" value="{{ item.quantity }}" min="1" readonly>
+                                            <button type="button" class="qty-btn plus" data-delta="1">+</button>
+                                        </div>
+                                    </div>
+                                    <div class="item-price">{{ item.price|format_money }}&nbsp;đ</div>
+                                </div>
+                            {% empty %}
+                                <div class="empty-cart-msg" style="padding: 40px; text-align: center;">
+                                    <p>Giỏ hàng của bạn đang trống</p>
+                                    <a href="{% url 'core:home' %}" class="btn btn-green">Mua sắm ngay</a>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="cart-right">
+                            <div class="block-title">Thông tin thanh toán</div>
+                            <div class="pay-info-box">
+                                <h4>Phương thức vận chuyển</h4>
+                                <p><strong>Dahuka giao hàng</strong></p>
+                                <small>Miễn phí nội thành</small>
+                            </div>
+
+                            <div class="pay-info-box">
+                                <h4>Phương thức thanh toán</h4>
+                                <form method="post" id="cartPaymentForm">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_payment_type">
+                                    <label class="radio-row">
+                                        <input type="radio" name="cart_payment_type" value="full"
+                                               {% if state.cart_payment_type == 'full' %}checked{% endif %}
+                                               class="d-none">
+                                        <span class="radio-custom"></span>
+                                        <span>Thanh toán toàn bộ</span>
+                                    </label>
+                                    <label class="radio-row">
+                                        <input type="radio" name="cart_payment_type" value="deposit"
+                                               {% if state.cart_payment_type == 'deposit' %}checked{% endif %}
+                                               class="d-none">
+                                        <span class="radio-custom"></span>
+                                        <span>Thanh toán cọc</span>
+                                    </label>
+                                </form>
+                            </div>
+
+                            <div class="deposit-box {% if state.cart_payment_type != 'deposit' %}hidden{% endif %}">
+                                <div class="deposit-head">Tiền cọc</div>
+                                <div class="deposit-info">
+                                    <div class="deposit-percent-wrap">
+                                        <span id="depositPercentText">Số tiền cọc (<span
+                                                id="depositPercentValue">{{ state.deposit_percent }}</span>%)</span>
+                                        <div class="deposit-steppers">
+                                            <button type="button" class="deposit-stepper-btn" data-delta="5">▲</button>
+                                            <button type="button" class="deposit-stepper-btn" data-delta="-5">▼</button>
+                                        </div>
+                                    </div>
+                                    <strong id="depositAmountText">{{ formatted_deposit_amount }} đ</strong>
+                                </div>
+                                <div class="deposit-note">Tối thiểu 10% — tối đa 50%</div>
+                            </div>
+
+                            <div class="pay-info-box">
+                                <h4>Mã giảm giá</h4>
+                                <form method="post" class="coupon-row" id="couponForm">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="apply_coupon">
+                                    <input type="text" id="couponCodeInput" name="coupon_code"
+                                           placeholder="Nhập mã giảm giá" value="{{ coupon_code }}">
+                                    <button type="submit">Áp dụng</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cart-bottom card"
+                         style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;padding:22px 28px;margin-top:18px;">
+                        <div class="cart-total" style="display:flex;flex-direction:column;align-items:flex-start;">
+                            <div class="total-caption">Tổng cộng {{ cart_items.count }} sản phẩm</div>
+                            <div class="total-price" id="totalPrice">{{ total_price|format_money }} đ</div>
+                        </div>
+                        <div class="bottom-actions" style="display:flex;gap:12px;align-items:center;">
+                            <a href="{% url 'core:home' %}" class="btn btn-soft">Tiếp tục mua sắm</a>
+                            <form method="post" style="display: inline;" id="cartCheckoutForm">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="go_to_order">
+                                <button type="submit" class="btn btn-green">TIẾN HÀNH THANH TOÁN</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+            {% elif current_screen == 'order' %}
+                <section class="screen active" id="orderScreen">
+                    <div class="order-card card">
+                        <div class="top-strips">
+                            <span class="strip-blue"></span>
+                            <span class="strip-red"></span>
+                        </div>
+
+                        <div class="order-address-row">
+                            <div>
+                                <div class="green-heading">Địa Chỉ Nhận Hàng</div>
+                                <div class="order-address-text">
+                                    <strong>{{ state.customer.name }}</strong>
+                                    <span>{{ customer_formatted_phone }}</span>
+                                    <span>{{ customer_full_address }}</span>
+                                </div>
+                            </div>
+                            <button class="icon-btn" type="button" onclick="openModal('customerModal')"
+                                    style="color: #2563b8; font-weight: 700; font-size: 13px;">THAY ĐỔI
+                            </button>
+                        </div>
+
+                        <div class="order-table-head">
+                            <span>Sản phẩm</span>
+                            <span>Đơn giá</span>
+                            <span>Số lượng</span>
+                            <span>Thành tiền</span>
+                        </div>
+
+                        {% for item in cart_items %}
+                            <div class="order-item-row">
+                                <div class="order-item-main">
+                                    <div class="product-mock small">
+                                        {% if item.product.image %}
+                                            <img src="{{ item.product.image.url }}"
+                                                 style="width: 100%; height: 100%; object-fit: contain;">
+                                        {% else %}
+                                            <img src="{% static 'img/1.png' %}"
+                                                 style="width: 100%; height: 100%; object-fit: contain;">
+                                        {% endif %}
+                                        <span class="product-top"></span>
+                                        <span class="product-light"></span>
+                                    </div>
+                                    <div>
+                                        <div class="order-item-name">{{ item.product.name }}</div>
+                                        <div class="order-item-variant">Loại: {{ item.variant }}</div>
+                                    </div>
+                                </div>
+                                <div>{{ item.price|format_money }} đ</div>
+                                <div>{{ item.quantity }}</div>
+                                <div>{{ item.subtotal|format_money }} đ</div>
+                            </div>
+                        {% endfor %}
+
+                        <div class="note-row">
+                            <div>
+                                <label style="font-size: 13px; color: #777;">Lời nhắn:</label>
+                                <input type="text" class="text-input" placeholder="Lưu ý cho Người bán ...">
+                            </div>
+                            <div class="shipping-info">
+                                <div class="green-heading" style="font-size: 14px; margin-bottom: 4px;">Đơn vị vận
+                                    chuyển:
+                                </div>
+                                <div style="font-weight: 600;">Vận Chuyển Nhanh</div>
+                                <small style="color: #888;">Giao hàng tiết kiệm</small>
+                            </div>
+                            <div class="shipping-day" style="color: var(--brand-green); font-weight: 700;">Giao vào ngày
+                                {{ delivery_date }}
+                            </div>
+                        </div>
+
+                        <div class="voucher-row">
+                            <div class="voucher-left">🎟 <span
+                                    style="font-weight: 600; margin-left: 8px;">Mã giảm giá</span></div>
+                            <span class="voucher-fixed" style="color: #2563b8; font-weight: 700;">{% if coupon_code %}
+                                {{ coupon_code }}{% else %}Chưa áp dụng{% endif %}</span>
+                        </div>
+
+                        <div class="payment-area">
+                            <div class="section-label" style="font-weight: 700; font-size: 15px;">Phương thức thanh
+                                toán
+                            </div>
+                            <div class="payment-method-wrap">
+                                <form method="post" id="orderMethodForm">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_order_method">
+                                    <button type="button" data-method="bank"
+                                            class="pay-btn order-method-btn {% if state.order_method == 'bank' %}active{% endif %}">
+                                        Thẻ ngân hàng (Chuyển khoản)
+                                    </button>
+                                    <button type="button" data-method="cod"
+                                            class="pay-btn order-method-btn {% if state.order_method == 'cod' %}active{% endif %} {% if state.cart_payment_type == 'full' %}disabled{% endif %}">
+                                        Thanh toán khi nhận hàng (COD)
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="summary-box">
+                            <div class="summary-line"><span>Tổng tiền hàng</span><strong>{{ total_price|format_money }}
+                                đ</strong></div>
+                            <div class="summary-line"><span>Phí vận chuyển</span><strong>{{ shipping_fee|format_money }}
+                                đ</strong></div>
+                            <div class="summary-line final">
+                                <span>{% if state.cart_payment_type == 'deposit' %}Tiền cọc cần thanh toán{% else %}Tổng
+                                    thanh toán{% endif %}</span>
+                                <strong id="summaryPayableAmount">{% if state.cart_payment_type == 'deposit' %}
+                                    {{ formatted_deposit_amount }}{% else %}{{ formatted_total_price }}{% endif %}
+                                    đ</strong>
+                            </div>
+                            <div class="warn-text {% if state.cart_payment_type != 'full' %}hidden{% endif %}"
+                                 id="codWarn" style="color: #e53935; font-size: 12px; margin-top: 4px;">* Đã chọn thanh
+                                toán toàn bộ ở giỏ hàng nên không thể chọn COD.
+                            </div>
+                            <div class="warn-text {% if state.cart_payment_type != 'deposit' %}hidden{% endif %}"
+                                 id="depositWarn" style="color: #2563b8; font-size: 12px; margin-top: 4px;">* Đơn này
+                                cần chuyển khoản trước phần tiền cọc.
+                            </div>
+                        </div>
+
+                        <div class="order-submit">
+                            <form method="post" id="orderSubmitForm">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="submit_order">
+                                <button type="submit" class="btn btn-green"
+                                        style="padding: 14px 60px; font-size: 16px;">ĐẶT HÀNG NGAY
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+            {% elif current_screen == 'bank_payment' %}
+                <section class="screen active" id="bankPaymentScreen">
+                    <div class="bank-payment-container card">
+                        <div class="bank-payment-header">
+                            <h2><i class="fa fa-university mr-2"></i> Chuyển khoản ngân hàng</h2>
+                            {% if state.cart_payment_type == 'deposit' %}
+                                <p>Đơn này thanh toán cọc — vui lòng chuyển khoản <strong>tiền cọc</strong> để xác nhận
+                                    đơn hàng</p>
+                            {% else %}
+                                <p>Vui lòng quét mã QR hoặc chuyển khoản thủ công để hoàn tất</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="bank-payment-content">
+                            <div class="vietqr-section">
+                                <div class="vietqr-header">
+                                    <span style="color: #e63946; font-weight: 800; font-size: 20px;">Viet</span>
+                                    <span style="color: #001D3D; font-weight: 800; font-size: 20px;">QR</span>
+                                </div>
+                                <div class="qr-display">
+                                    <div class="qr-display">
+                                        <div class="qr-box">
+                                            <img src="{% static 'cart/qr.png' %}"
+                                                 style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="qr-instruction text-center" style="font-size: 13px; color: #777;">Sử dụng
+                                    ứng dụng Ngân hàng quét mã để nhận đầy đủ thông tin
+                                </div>
+                            </div>
+
+                            <div class="bank-info-section">
+                                <div class="bank-info-title"
+                                     style="font-weight: 700; margin-bottom: 12px; color: #555;">Thông tin tài khoản
+                                </div>
+
+                                <div class="bank-details-card">
+                                    <div class="bank-info-row"><span
+                                            class="label">Ngân hàng:</span><strong>Vietcombank</strong></div>
+                                    <div class="bank-info-row"><span class="label">Số tài khoản:</span><strong>1726371635</strong>
+                                    </div>
+                                    {% if state.cart_payment_type == 'deposit' %}
+                                        <div class="bank-info-row"><span
+                                                class="label">Tổng đơn hàng:</span><strong>{{ formatted_total_price }}
+                                            đ</strong></div>
+                                        <div class="bank-info-row highlight">
+                                            <span class="label">Tiền cọc cần trả ({{ state.deposit_percent }}%):</span>
+                                            <strong class="amount" id="bankPaymentAmount">{{ formatted_deposit_amount }}
+                                                đ</strong>
+                                        </div>
+                                    {% else %}
+                                        <div class="bank-info-row highlight">
+                                            <span class="label">Số tiền cần trả:</span>
+                                            <strong class="amount" id="bankPaymentAmount">{{ formatted_total_price }}
+                                                đ</strong>
+                                        </div>
+                                    {% endif %}
+                                    <div class="bank-info-row"><span
+                                            class="label">Nội dung CK:</span><strong>DH{{ state.customer.phone|slice:"-4:" }}</strong>
+                                    </div>
+                                </div>
+
+                                {% if state.cart_payment_type == 'deposit' %}
+                                    <div class="deposit-remaining-note">
+                                        Số tiền còn lại <strong>{{ formatted_remaining_amount }} đ</strong> sẽ thanh
+                                        toán khi nhận hàng
+                                    </div>
+                                {% endif %}
+
+                                <div class="payment-timer">
+                                    <div class="timer-display">
+                                        <div class="timer-box"><strong id="timerMinutes">05</strong><span>PHÚT</span>
+                                        </div>
+                                        <span class="timer-separator"
+                                              style="font-size: 24px; font-weight: 700; color: #333;">:</span>
+                                        <div class="timer-box"><strong id="timerSeconds">00</strong><span>GIÂY</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <form method="post" class="mt-4">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="confirm_bank_payment">
+                                    <button type="submit" class="btn btn-green w-100">XÁC NHẬN ĐÃ CHUYỂN KHOẢN</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            {% elif current_screen == 'success' %}
+                <section class="screen active" id="successScreen">
+                    <div class="success-card card">
+                        <div class="success-icon"
+                             style="background: var(--brand-green); color: white; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                            ✓
+                        </div>
+                        <h2 style="font-weight: 800; color: var(--brand-green);">ĐẶT HÀNG THÀNH CÔNG</h2>
+                        <p style="color: #666; max-width: 400px; margin: 12px auto 24px;">Đơn hàng của bạn đã được ghi
+                            nhận. Dahuka sẽ sớm liên hệ để xác nhận và giao hàng.</p>
+                        <div class="success-status"
+                             style="display: inline-block; background: #e6f2ef; color: var(--brand-green); padding: 6px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; margin-bottom: 32px;">
+                            * ĐANG XỬ LÝ *
+                        </div>
+                        <div class="success-actions d-flex justify-content-center gap-3">
+                            <a href="{% url 'core:home' %}" class="btn btn-soft" style="margin-right:12px;">VỀ TRANG CHỦ</a>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="shop_again">
+                                <button type="submit" class="btn btn-green">TIẾP TỤC MUA SẮM</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            {% endif %}
+
+            {% static 'img/BANNER.png' as banner_url %}
+            <div class="experience-banner"
+                 style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ banner_url }}'); background-size: cover; background-position: center; border-radius: 12px; padding: 60px 24px; color: white; text-align: center; margin-top: 40px;">
+                <h3 style="font-style: italic; font-weight: 300; font-size: 24px; margin-bottom: 20px;">“Hãy đến và trải
+                    nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
+                <button class="btn btn-outline-light"
+                        style="border: 2px solid white; background: transparent; color: white; padding: 10px 40px;">KHÁM
+                    PHÁ NGAY
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal" id="customerModal">
+        <div class="modal-box modal-customer">
+            <div class="cmodal-header">
+                <span>THÔNG TIN KHÁCH HÀNG</span>
+                <button type="button" class="close-modal" data-close="customerModal">×</button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_customer">
+
+                    <div class="cform-row">
+                        <label class="cform-label">Số điện thoại (*):</label>
+                        {{ customer_form.customer_phone }}
+                    </div>
+                    <div class="cform-row">
+                        <label class="cform-label">Họ tên (*):</label>
+                        {{ customer_form.customer_name }}
+                    </div>
+                    <div class="cform-row">
+                        <label class="cform-label">Email:</label>
+                        {{ customer_form.customer_email }}
+                    </div>
+                    <div class="cform-row">
+                        <label class="cform-label">Tỉnh/Thành phố (*):</label>
+                        {{ customer_form.customer_city }}
+                    </div>
+                    <div class="cform-row">
+                        <label class="cform-label">Quận/Huyện (*):</label>
+                        {{ customer_form.customer_district }}
+                    </div>
+                    <div class="cform-row">
+                        <label class="cform-label">Phường/Xã (*):</label>
+                        {{ customer_form.customer_ward }}
+                    </div>
+                    <div class="cform-row cform-row--top">
+                        <label class="cform-label">Địa chỉ (*):</label>
+                        {{ customer_form.customer_street }}
+                    </div>
+                    <div class="cform-row cform-row--type">
+                        <label class="cform-label">Loại địa chỉ:</label>
+                        <div class="cform-radios">
+                            <label class="cradio-label">
+                                <input type="radio" name="address_type" value="home" {% if customer_form.address_type.value == 'home' %}checked{% endif %}>
+                                <span class="cradio-dot"></span>
+                                Nhà riêng/ Chung cư
+                            </label>
+                            <label class="cradio-label">
+                                <input type="radio" name="address_type" value="office" {% if customer_form.address_type.value == 'office' %}checked{% endif %}>
+                                <span class="cradio-dot"></span>
+                                Cơ quan/ Công ty
+                            </label>
+                        </div>
+                    </div>
+                    <div class="cform-row cform-row--check">
+                        <label class="cform-label"></label>
+                        <label class="ccheck-label">
+                            <input type="checkbox" name="is_default" {% if customer_form.is_default.value %}checked{% endif %}>
+                            <span class="ccheck-box"></span>
+                            Đặt địa chỉ mặc định
+                        </label>
+                    </div>
+
+                    <div class="cmodal-footer">
+                        <button type="submit" class="btn-confirm">XÁC NHẬN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="successToast">{% if message %}{{ message }}{% endif %}</div>
+
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-box delete-confirm-modal">
+            <div class="modal-header">
+                <span>Xác nhận xóa</span>
+                <button type="button" class="close-modal" data-close="deleteConfirmModal">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-soft" data-close="deleteConfirmModal">Hủy</button>
+                <button type="button" class="btn btn-green" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+    <form id="deleteItemForm" method="post" style="display: none;">
+        {% csrf_token %}
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'cart/cart.js' %}?v=20260414-6"></script>
+{% endblock %}

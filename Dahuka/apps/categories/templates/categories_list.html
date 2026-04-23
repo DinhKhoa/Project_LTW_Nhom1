@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quản lý danh mục sản phẩm - DAHUKA{% endblock %}
+
+{% block nav_qlbh_active %}font-weight-bold{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'categories/categories.css' %}?v=1.1">
+{% endblock %}
+
+{% block content %}
+<div class="content-wide-layout mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav class="page-breadcrumbs">
+        <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+        <b>Quản lý danh mục sản phẩm</b>
+    </nav>
+
+    <!-- Title -->
+    <h1 class="page-title">Quản lý danh mục sản phẩm</h1>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="messages mb-3">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="border-radius: 8px; font-weight: 600;">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Filter Bar -->
+    <div class="filter-bar d-flex justify-content-between align-items-center mb-4 mt-3">
+        <form method="GET" class="d-flex align-items-center" style="gap: 10px;">
+            <input type="text" name="q" class="search-input" id="searchInput"
+                   placeholder="Tìm kiếm theo tên hoặc mã danh mục..." value="{{ query }}">
+
+            <button type="submit" class="btn-search">Tìm kiếm</button>
+        </form>
+
+        <button type="button" class="btn-dahuka-main" onclick="openCategoryModal('add')">
+            <i class="fa fa-plus"></i> Thêm danh mục
+        </button>
+    </div>
+
+    <!-- Category Table Wrapper -->
+    <div class="categories-table-wrapper">
+        <table class="categories-table">
+            <thead>
+                <tr>
+                    <th>MÃ DANH MỤC</th>
+                    <th>TÊN DANH MỤC</th>
+                    <th>SỐ LƯỢNG SẢN PHẨM</th>
+                    <th>THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dm in page_obj %}
+                <tr class="dm-row" data-dm-id="{{ dm.pk }}" style="cursor: pointer;">
+                    <td class="text-center">{{ dm.code|default:dm.pk }}</td>
+                    <td class="font-weight-bold">{{ dm.name }}</td>
+                    <td class="text-center">
+                        <span class="badge-count">{{ dm.products.count }}</span>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn-edit-dm" title="Sửa" 
+                                onclick="event.stopPropagation(); openCategoryModal('edit', '{{ dm.pk }}', '{{ dm.code }}', '{{ dm.name }}')">
+                            <i class="fa fa-pencil-square-o"></i>
+                        </button>
+                        <button type="button" class="btn-delete-dm" title="Xóa" 
+                                onclick="event.stopPropagation(); openDeleteModal('{{ dm.pk }}', '{{ dm.name }}')">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <!-- Sub-table for products matching "Mẫu bảng.png" -->
+                <tr class="product-detail-row" id="detail-{{ dm.pk }}" style="display: none;">
+                    <td colspan="4" class="p-0 border-0">
+                        <div class="product-detail-content">
+
+                            <!-- Stock Legend (Synced from product_list) -->
+                            <div class="stock-legend mb-3 d-flex align-items-center" style="gap: 20px; font-size: 11px; font-weight: 600; padding: 8px 15px; background: #fff; border-radius: 8px; border: 1px solid #f1f5f9;">
+                                <span style="color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 5px;">Báo màu tồn kho:</span>
+                                <span class="d-flex align-items-center"><span style="width: 10px; height: 10px; border-radius: 2px; background: #10b981; margin-right: 6px;"></span> Đầy đủ (≥10)</span>
+                                <span class="d-flex align-items-center"><span style="width: 10px; height: 10px; border-radius: 2px; background: #f59e0b; margin-right: 6px;"></span> Thấp (1-9)</span>
+                                <span class="d-flex align-items-center"><span style="width: 10px; height: 10px; border-radius: 2px; background: #ef4444; margin-right: 6px;"></span> Hết hàng (0)</span>
+                            </div>
+
+                            <!-- Products Inner Table -->
+                            <table class="table product-inner-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">MÃ SẢN PHẨM</th>
+                                        <th class="text-center">TÊN SẢN PHẨM</th>
+                                        <th class="text-center">GIÁ TIỀN</th>
+                                        <th class="text-center">TỒN KHO</th>
+                                        <th class="text-center">TRẠNG THÁI TỒN KHO</th>
+                                        <th class="text-center">TRẠNG THÁI HIỂN THỊ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="product-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4">
+                                            <i class="fa fa-spinner fa-spin mr-2"></i> Đang tải danh sách sản phẩm...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">Không tìm thấy danh mục nào.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination matching design -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination custom-pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}"><i class="fa fa-chevron-left"></i></a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link"><i class="fa fa-chevron-left"></i></span></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}&q={{ query }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}"><i class="fa fa-chevron-right"></i></a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link"><i class="fa fa-chevron-right"></i></span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+</div>
+
+<!-- Add/Edit Category Modal -->
+<div class="modal-overlay" id="categoryModal">
+    <div class="modal-box">
+        <div class="modal-header-custom">
+            <h4 id="modalTitle" style="font-weight: 800; margin: 0;">THÊM DANH MỤC</h4>
+            <span style="cursor: pointer; font-size: 20px;" onclick="closeCategoryModal()">✕</span>
+        </div>
+        <form id="categoryForm" method="POST" action="{% url 'categories:category_add' %}">
+            {% csrf_token %}
+            <div class="modal-body-custom">
+                <div class="form-group mb-3" id="maDanhMucGroup" style="display: none;">
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">Mã danh mục</label>
+                    <input type="text" id="category_code" class="form-control" readonly style="background: #f1f5f9;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">Tên danh mục <span style="color: red;">*</span></label>
+                    <input type="text" name="name" id="category_name" class="form-control" required placeholder="Nhập tên danh mục">
+                </div>
+            </div>
+            <div class="modal-footer-custom">
+                <button type="button" class="btn btn-light" style="font-weight: 600;" onclick="closeCategoryModal()">Hủy</button>
+                <button type="submit" class="btn btn-dahuka-main" id="submitBtn">Lưu danh mục</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box" style="width: 400px;">
+        <div class="modal-header-custom" style="border-bottom: none;">
+            <h4 style="font-weight: 800; margin: 0; color: #ef4444;">XÁC NHẬN XÓA</h4>
+            <span style="cursor: pointer; font-size: 20px;" onclick="closeDeleteModal()">✕</span>
+        </div>
+        <form id="deleteForm" method="POST" action="">
+            {% csrf_token %}
+            <div class="modal-body-custom" style="padding-top: 0;">
+                <p>Bạn có chắc chắn muốn xóa danh mục <b id="deleteTargetName"></b>? Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer-custom">
+                <button type="button" class="btn btn-light" style="font-weight: 600;" onclick="closeDeleteModal()">Hủy</button>
+                <button type="submit" class="btn btn-danger" style="background: #ef4444; color: white;">Đồng ý xóa</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'categories/categories.js' %}"></script>
+{% endblock %}
+

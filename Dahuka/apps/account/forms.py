@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 class RegistrationForm(forms.Form):
-    full_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder': 'Nhập họ và tên'}))
+    last_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'placeholder': 'Họ'}))
+    first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'placeholder': 'Tên'}))
     phone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'placeholder': 'Ví dụ: 0987654321'}))
     email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'placeholder': 'example@gmail.com'}))
     birthday = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))

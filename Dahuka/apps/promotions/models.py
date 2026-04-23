@@ -36,3 +36,8 @@ class Promotion(models.Model):
             return "Sắp diễn ra"
         else:
             return "Đang hoạt động"
+
+    def calculate_discount(self, total_amount):
+        if self.discount_type == 'percent':
+            return (self.value / 100) * total_amount
+        return min(self.value, total_amount)
