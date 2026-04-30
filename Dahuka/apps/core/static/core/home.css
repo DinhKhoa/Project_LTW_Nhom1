@@ -11,7 +11,7 @@
 }
 
 .main-categories-section {
-    padding: 60px 0;
+    padding: 40px 0;
 }
 .category-grid {
     display: grid;
@@ -46,13 +46,13 @@
 
 .mutosi-pro-full-wrap {
     background-color: #f8f8ee;
-    padding: 100px 0;
-    margin: 40px 0;
+    padding: 50px 0 20px;
+    margin: 20px 0 0;
     position: relative;
 }
 .mutosi-pro-brand {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 30px;
 }
 .mutosi-pro-brand h2 {
     font-size: 52px;
@@ -104,25 +104,75 @@
     color: #fff;
 }
 
+.carousel-wrapper {
+    overflow: hidden;
+    width: 100%;
+}
+
 .showcase-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
-    margin-top: 40px;
+    display: flex;
+    transition: all 0.5s ease;
+    gap: 0; /* Dùng padding bên trong item thay vì gap để tính toán width chuẩn 100% */
+    margin-top: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
+
+.showcase-grid::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
 .showcase-item {
+    flex: 0 0 25%; /* Luôn hiện 4 cái trên desktop */
+    padding: 0 15px;
+    box-sizing: border-box;
     text-align: center;
+    scroll-snap-align: start;
 }
+
 .showcase-item img {
     width: 100%;
-    max-width: 200px;
-    margin-bottom: 20px;
+    max-width: 240px;
+    margin-bottom: 10px;
     transition: var(--transition);
 }
+
 .showcase-item h3 {
     font-size: 15px;
     font-weight: 600;
     color: var(--ink-strong);
+}
+
+.section-title-main {
+    margin-bottom: 5px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111;
+    text-align: center;
+}
+
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ddd;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.dot.active {
+    background: #111;
+    transform: scale(1.2);
 }
 
 .bottom-cta-banner {

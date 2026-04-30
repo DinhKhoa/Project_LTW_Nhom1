@@ -1,346 +1,236 @@
 document.addEventListener('DOMContentLoaded', () => {
     const csrfTokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
     const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
-    const cartEndpoint = window.location.pathname;
+    const cartEndpoint = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
 
-    const backNavBtn = document.getElementById('backNavBtn');
-    if (backNavBtn) {
-        const currentUrl = new URL(window.location.href);
-        const storedPrevUrl = sessionStorage.getItem('checkoutPrevUrl');
-
-        try {
-            if (document.referrer) {
-                const refUrl = new URL(document.referrer);
-                const isSameCartPage = refUrl.origin === currentUrl.origin && refUrl.pathname === currentUrl.pathname;
-                if (!isSameCartPage) {
-                    sessionStorage.setItem('checkoutPrevUrl', refUrl.href);
-                }
-            }
-        } catch (error) {
-            // Ignore malformed referrer and continue with safe fallback.
-        }
-
-        backNavBtn.addEventListener('click', () => {
-            const prevUrl = sessionStorage.getItem('checkoutPrevUrl') || storedPrevUrl;
-            if (prevUrl && prevUrl !== window.location.href) {
-                window.location.href = prevUrl;
-                return;
-            }
-
-            if (window.history.length > 2) {
-                window.history.go(-2);
-                return;
-            }
-
-            if (window.history.length > 1) {
-                window.history.back();
-                return;
-            }
-
-            window.location.href = backNavBtn.dataset.fallbackUrl || '/';
-        });
-    }
-
-    async function postCheckoutAction(payload) {
-        const response = await fetch(cartEndpoint, {
-            method: 'POST', headers: {
+    // Core AJAX helper
+    async function performAction(url, payload) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                 'X-CSRFToken': csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
-            }, body: new URLSearchParams(payload).toString()
+            },
+            body: new URLSearchParams(payload).toString()
         });
-
-        if (!response.ok) {
-            throw new Error('Không thể cập nhật dữ liệu.');
-        }
-
-        return response.json();
+        if (!response.ok) throw new Error('Không thể kết nối đến máy chủ.');
+        const data = await response.json();
+        if (data.error) throw new Error(data.error);
+        return data;
     }
 
-    function syncCheckoutUI(data) {
-        const depositBox = document.querySelector('.deposit-box');
-        const depositAmountText = document.getElementById('depositAmountText');
-        const summaryPayableAmount = document.getElementById('summaryPayableAmount');
-        const codWarn = document.getElementById('codWarn');
-        const depositWarn = document.getElementById('depositWarn');
-        const voucherFixedText = document.getElementById('voucherFixedText');
-        const couponCodeInput = document.getElementById('couponCodeInput');
-        const bankPaymentAmount = document.getElementById('bankPaymentAmount');
-
-        if (depositBox) {
-            depositBox.classList.toggle('hidden', data.cart_payment_type !== 'deposit');
+    function syncUI(data) {
+        // 1. Update totals
+        const totalPriceEl = document.getElementById('totalPrice');
+        if (totalPriceEl && data.formatted_base_total) {
+            totalPriceEl.textContent = `${data.formatted_base_total} đ`;
         }
 
+        const depositAmountText = document.getElementById('depositAmountText');
         if (depositAmountText) {
             depositAmountText.textContent = `${data.formatted_deposit_amount} đ`;
         }
 
-        const depositPercentText = document.getElementById('depositPercentValue');
-        if (depositPercentText) {
-            depositPercentText.textContent = data.deposit_percent;
+        const depositPercentValue = document.getElementById('depositPercentValue');
+        if (depositPercentValue && data.deposit_percent !== undefined) {
+            depositPercentValue.textContent = data.deposit_percent;
         }
 
-        // Sync deposit input value if present
-        const depositInput = document.getElementById('depositPercentInput');
-        if (depositInput) {
-            depositInput.value = data.deposit_percent;
-        }
-
-        const payableText = data.cart_payment_type === 'deposit' ? `${data.formatted_deposit_amount} đ` : `${data.formatted_total_price} đ`;
-
-        if (summaryPayableAmount) {
-            summaryPayableAmount.textContent = payableText;
-        }
-
-        if (bankPaymentAmount) {
-            bankPaymentAmount.textContent = data.formatted_total_price;
-        }
-
-        if (codWarn) {
-            codWarn.classList.toggle('hidden', data.cart_payment_type !== 'full');
-        }
-
-        if (depositWarn) {
-            depositWarn.classList.toggle('hidden', data.cart_payment_type !== 'deposit');
-        }
-
-        if (couponCodeInput && data.coupon_code !== undefined) {
-            couponCodeInput.value = data.coupon_code;
-        }
-
-        if (voucherFixedText) {
-            voucherFixedText.textContent = data.coupon_code ? data.coupon_code : 'Chưa áp dụng';
-        }
-
-        document.querySelectorAll('.order-method-btn').forEach((btn) => {
-            const method = btn.dataset.method;
-            btn.classList.toggle('active', method === data.order_method);
-            if (method === 'cod') {
-                btn.classList.toggle('disabled', data.cart_payment_type === 'full');
-            }
-        });
-    }
-
-    function formatMoney(value) {
-        return `${new Intl.NumberFormat('vi-VN').format(value)} đ`;
-    }
-
-    function updateCartSelectionSummary() {
-        const cartRows = Array.from(document.querySelectorAll('.cart-item[data-item-subtotal]'));
-        const totalPriceEl = document.getElementById('totalPrice');
+        // 2. Update caption
         const totalCaptionEl = document.querySelector('.cart-total .total-caption');
-        const checkoutBtn = document.querySelector('#cartCheckoutForm button[type="submit"]');
+        if (totalCaptionEl && data.selected_count !== undefined) {
+            totalCaptionEl.textContent = `Tổng cộng ${data.selected_count} sản phẩm`;
+        }
 
+        // 3. Update header badge
+        const badge = document.querySelector('.js-cart-badge');
+        if (badge && data.cart_count !== undefined) {
+            badge.textContent = data.cart_count;
+            badge.classList.toggle('badge-hidden', data.cart_count === 0);
+        }
+
+        // 4. Update checkout button
+        const checkoutBtn = document.querySelector('#cartCheckoutForm button[type="submit"]');
+        if (checkoutBtn && data.selected_count !== undefined) {
+            checkoutBtn.disabled = data.selected_count === 0;
+        }
+
+        // 5. Update deposit box visibility
+        const depositBox = document.querySelector('.deposit-box');
+        if (depositBox) {
+            depositBox.classList.toggle('hidden', data.cart_payment_type !== 'deposit');
+        }
+    }
+
+    function updateLocalSummary() {
+        const rows = document.querySelectorAll('.cart-item');
         let selectedCount = 0;
         let selectedTotal = 0;
+        const totalItemCount = rows.length;
 
-        cartRows.forEach((row) => {
-            const checkbox = row.querySelector('.item-checkbox');
-            if (!checkbox || !checkbox.checked) return;
-            selectedCount += 1;
-            const cleanValue = (row.dataset.itemSubtotal || '0').replace(/\D/g, '');
-            selectedTotal += parseInt(cleanValue || '0', 10);
+        rows.forEach(row => {
+            const cb = row.querySelector('.item-checkbox');
+            if (cb && cb.checked) {
+                selectedCount++;
+                const sub = parseInt(row.dataset.itemSubtotal || '0', 10);
+                selectedTotal += sub;
+            }
         });
 
-        if (totalCaptionEl) {
-            totalCaptionEl.textContent = `Tổng cộng ${selectedCount} sản phẩm`;
+        // Update Select All visual
+        const selectAll = document.getElementById('selectAllCheckbox');
+        if (selectAll) {
+            selectAll.checked = (totalItemCount > 0 && selectedCount === totalItemCount);
         }
 
-        if (totalPriceEl) {
-            totalPriceEl.textContent = formatMoney(selectedTotal);
+        // Update "Chọn tất cả (#)" label
+        const selectAllCountEl = document.getElementById('selectAllCount');
+        if (selectAllCountEl) {
+            selectAllCountEl.textContent = totalItemCount;
         }
 
-        if (checkoutBtn) {
-            checkoutBtn.disabled = selectedCount === 0;
-        }
-
-        return selectedCount;
+        return { selectedCount, selectedTotal };
     }
 
-    // Modal helpers
-    window.openModal = function (id) {
-        document.getElementById(id).classList.add('show');
-    };
-
-    window.closeModal = function (id) {
-        document.getElementById(id).classList.remove('show');
-    };
-
-    window.showToast = function (message) {
+    // --- Global Actions ---
+    window.showToast = function(msg, type = 'success') {
         const toast = document.getElementById('successToast');
         if (toast) {
-            toast.textContent = message;
+            toast.textContent = msg;
+            toast.className = 'toast'; // Reset classes
+            if (type === 'error') toast.classList.add('toast-error');
+            if (type === 'warning') toast.classList.add('toast-warning');
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2200);
+            setTimeout(() => toast.classList.remove('show'), 2500);
         }
     };
 
-    // Close modals when clicking on the close button
-    document.querySelectorAll('[data-close]').forEach((btn) => {
-        btn.addEventListener('click', () => closeModal(btn.dataset.close));
-    });
-
-    // Close modals when clicking outside the modal-box
-    document.querySelectorAll('.modal').forEach((modal) => {
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) modal.classList.remove('show');
-        });
-    });
-
-    // In-place update for cart payment type
-    const cartPaymentForm = document.getElementById('cartPaymentForm');
-    if (cartPaymentForm) {
-        cartPaymentForm.querySelectorAll('input[name="cart_payment_type"]').forEach((radio) => {
-            radio.addEventListener('change', async () => {
-                try {
-                    const data = await postCheckoutAction({
-                        action: 'update_payment_type', cart_payment_type: radio.value
-                    });
-                    syncCheckoutUI(data);
-                } catch (error) {
-                    showToast(error.message);
-                }
-            });
-        });
-    }
-
-    // Deposit percent: ▲▼ steppers, step 10, min 10 max 50
-    let currentDepositPercent = parseInt(document.getElementById('depositPercentValue')?.textContent || '10', 10) || 10;
-
-    async function applyDepositPercent(newVal) {
-        newVal = Math.max(10, Math.min(50, newVal));
-        currentDepositPercent = newVal;
-        const pv = document.getElementById('depositPercentValue');
-        if (pv) pv.textContent = newVal;
+    window.directDeleteItem = async function(itemId) {
         try {
-            const data = await postCheckoutAction({
-                action: 'update_deposit', deposit_delta: 0, deposit_percent_input: newVal
-            });
-            syncCheckoutUI(data);
-            currentDepositPercent = data.deposit_percent;
-        } catch (error) {
-            showToast(error.message);
-        }
-    }
-
-    document.querySelectorAll('.deposit-stepper-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            applyDepositPercent(currentDepositPercent + parseInt(btn.dataset.delta, 10));
-        });
-    });
-
-    // In-place update for order payment method
-    document.querySelectorAll('.order-method-btn').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-            if (btn.classList.contains('disabled')) return;
-            try {
-                const data = await postCheckoutAction({
-                    action: 'update_order_method', order_method: btn.dataset.method
-                });
-                syncCheckoutUI(data);
-            } catch (error) {
-                showToast(error.message);
-            }
-        });
-    });
-
-    // In-place update for coupon and voucher row
-    const couponForm = document.getElementById('couponForm');
-    if (couponForm) {
-        couponForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const codeInput = document.getElementById('couponCodeInput');
-            try {
-                const data = await postCheckoutAction({
-                    action: 'apply_coupon', coupon_code: codeInput ? codeInput.value : ''
-                });
-                syncCheckoutUI(data);
-                showToast(data.coupon_code ? 'Đã áp dụng mã giảm giá' : 'Đã xóa mã giảm giá');
-            } catch (error) {
-                showToast(error.message);
-            }
-        });
-    }
-
-    const cartItemCheckboxes = document.querySelectorAll('.cart-item .item-checkbox');
-    cartItemCheckboxes.forEach((checkbox) => {
-        checkbox.addEventListener('change', async () => {
-            const row = checkbox.closest('.cart-item');
-            const itemId = row.dataset.itemId;
-            
-            try {
-                const response = await fetch(window.location.href, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: `action=toggle_select&item_id=${itemId}&is_selected=${checkbox.checked}`
-                });
-                
-                const data = await response.json();
-                if (!data.ok) throw new Error('Cập nhật thất bại');
-                
-                syncCheckoutUI(data);
-                updateCartSelectionSummary();
-            } catch (error) {
-                checkbox.checked = !checkbox.checked; // Revert visually
-                showToast(error.message);
-                updateCartSelectionSummary();
-            }
-        });
-    });
-
-
-    // In-place update for quantity
-    document.querySelectorAll('.item-qty-stepper').forEach((stepper) => {
-        const input = stepper.querySelector('.qty-input');
-        const itemRow = stepper.closest('.cart-item');
-        const itemId = itemRow.dataset.itemId;
-        
-        stepper.querySelectorAll('.qty-btn').forEach((btn) => {
-            btn.addEventListener('click', async () => {
-                let currentVal = parseInt(input.value, 10);
-                const delta = parseInt(btn.dataset.delta, 10);
-                let newVal = currentVal + delta;
-                
-                if (newVal < 1) {
-                    // Trigger confirmation modal for deletion
-                    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-                    const deleteItemForm = document.getElementById('deleteItemForm');
-                    if (confirmDeleteBtn && deleteItemForm) {
-                        confirmDeleteBtn.onclick = () => {
-                            // Construct delete URL manually since btn is gone
-                            deleteItemForm.action = `/cart/delete/${itemId}/`;
-                            deleteItemForm.submit();
-                        };
-                        const modal = document.getElementById('deleteConfirmModal');
-                        if (modal) modal.classList.add('show');
-                    }
-                    return;
+            const data = await performAction(`/cart/delete/${itemId}/`, {});
+            if (data.ok) {
+                const row = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                if (row) {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (document.querySelectorAll('.cart-item').length === 0) {
+                            window.location.reload();
+                        } else {
+                            syncUI(data);
+                            updateLocalSummary();
+                        }
+                    }, 300);
                 }
-                
-                try {
-                    btn.disabled = true; // Prevent double clicks
-                    const data = await postCheckoutAction({
-                        action: 'update_quantity', item_id: itemId, quantity: newVal
+            }
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+    };
+
+    // --- Event Listeners ---
+    
+    // Select All
+    const selectAllCb = document.getElementById('selectAllCheckbox');
+    if (selectAllCb) {
+        selectAllCb.addEventListener('change', async () => {
+            try {
+                const data = await performAction(cartEndpoint, {
+                    action: 'toggle_select_all',
+                    is_selected: selectAllCb.checked
+                });
+                if (data.ok) {
+                    document.querySelectorAll('.cart-item .item-checkbox').forEach(cb => {
+                        cb.checked = selectAllCb.checked;
                     });
-                    
+                    syncUI(data);
+                    updateLocalSummary();
+                }
+            } catch (e) {
+                selectAllCb.checked = !selectAllCb.checked;
+                showToast(e.message, 'error');
+            }
+        });
+    }
+
+    // Bulk Delete
+    const bulkBtn = document.getElementById('bulkDeleteBtn');
+    if (bulkBtn) {
+        bulkBtn.addEventListener('click', () => {
+            const { selectedCount } = updateLocalSummary();
+            if (selectedCount === 0) {
+                showToast('Vui lòng chọn sản phẩm cần xóa', 'warning');
+                return;
+            }
+
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            const modal = document.getElementById('deleteConfirmModal');
+            if (modal && confirmBtn) {
+                modal.querySelector('.modal-body p').textContent = `Xác nhận xóa ${selectedCount} sản phẩm đã chọn khỏi giỏ hàng?`;
+                confirmBtn.onclick = async () => {
+                    try {
+                        const data = await performAction(cartEndpoint, { action: 'bulk_delete' });
+                        if (data.ok) window.location.reload();
+                    } catch (e) {
+                        showToast(e.message, 'error');
+                    }
+                };
+                modal.classList.add('show');
+            }
+        });
+    }
+
+    // Item Selection
+    document.querySelectorAll('.cart-item .item-checkbox').forEach(cb => {
+        cb.addEventListener('change', async () => {
+            const itemId = cb.closest('.cart-item').dataset.itemId;
+            try {
+                const data = await performAction(cartEndpoint, {
+                    action: 'toggle_select',
+                    item_id: itemId,
+                    is_selected: cb.checked
+                });
+                if (data.ok) {
+                    syncUI(data);
+                    updateLocalSummary();
+                }
+            } catch (e) {
+                cb.checked = !cb.checked;
+                showToast(e.message, 'error');
+            }
+        });
+    });
+
+    // Quantity Steppers
+    document.querySelectorAll('.item-qty-stepper').forEach(stepper => {
+        const input = stepper.querySelector('.qty-input');
+        const row = stepper.closest('.cart-item');
+        const itemId = row.dataset.itemId;
+
+        stepper.querySelectorAll('.qty-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const delta = parseInt(btn.dataset.delta, 10);
+                const newVal = parseInt(input.value, 10) + delta;
+                if (newVal < 1) return;
+
+                try {
+                    btn.disabled = true;
+                    const data = await performAction(cartEndpoint, {
+                        action: 'update_quantity',
+                        item_id: itemId,
+                        quantity: newVal
+                    });
                     if (data.ok) {
                         input.value = newVal;
-                        const minusBtn = stepper.querySelector('.qty-btn.minus');
-                        if (minusBtn) {
-                            minusBtn.textContent = newVal > 1 ? '-' : '🗑';
-                        }
-                        // Update totals without full reload for smoother UX
-                        syncCheckoutUI(data);
-                        updateCartSelectionSummary();
-                        // Optional: reload after a short delay if persistent state is needed
-                        // location.reload(); 
+                        const price = parseInt(row.querySelector('.item-price').textContent.replace(/\D/g, ''), 10);
+                        row.dataset.itemSubtotal = price * newVal;
+                        syncUI(data);
+                        updateLocalSummary();
                     }
-                } catch (error) {
-                    showToast(error.message);
+                } catch (e) {
+                    showToast(e.message, 'error');
                 } finally {
                     btn.disabled = false;
                 }
@@ -348,44 +238,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const cartCheckoutForm = document.getElementById('cartCheckoutForm');
-    if (cartCheckoutForm) {
-        cartCheckoutForm.addEventListener('submit', (event) => {
-            if (updateCartSelectionSummary() === 0) {
-                event.preventDefault();
-                showToast('Vui long chon it nhat 1 san pham de thanh toan.');
+    // Payment Type
+    document.querySelectorAll('input[name="cart_payment_type"]').forEach(radio => {
+        radio.addEventListener('change', async () => {
+            try {
+                const data = await performAction(cartEndpoint, {
+                    action: 'update_payment_type',
+                    cart_payment_type: radio.value
+                });
+                syncUI(data);
+            } catch (e) {
+                showToast(e.message, 'error');
             }
         });
-    }
+    });
 
-    updateCartSelectionSummary();
-
-    // Display initial toast if needed
-    const toastElement = document.getElementById('successToast');
-    if (toastElement) {
-        const toastMessage = toastElement.textContent.trim();
-        if (toastMessage) {
-            showToast(toastMessage);
-        }
-    }
-
-    // Bank payment countdown timer
-    const timerMinutes = document.getElementById('timerMinutes');
-    const timerSeconds = document.getElementById('timerSeconds');
-    if (timerMinutes && timerSeconds) {
-        let timeRemaining = 5 * 60;
-
-        function updateTimer() {
-            const mins = Math.floor(timeRemaining / 60);
-            const secs = timeRemaining % 60;
-            timerMinutes.textContent = String(mins).padStart(2, '0');
-            timerSeconds.textContent = String(secs).padStart(2, '0');
-            if (timeRemaining > 0) {
-                timeRemaining--;
-                setTimeout(updateTimer, 1000);
+    // Deposit Steppers
+    document.querySelectorAll('.deposit-stepper-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const current = parseInt(document.getElementById('depositPercentValue').textContent, 10);
+            const next = current + parseInt(btn.dataset.delta, 10);
+            if (next < 10 || next > 50) return;
+            try {
+                const data = await performAction(cartEndpoint, {
+                    action: 'update_deposit',
+                    deposit_percent_input: next
+                });
+                syncUI(data);
+            } catch (e) {
+                showToast(e.message, 'error');
             }
-        }
+        });
+    });
 
-        updateTimer();
-    }
+    // Modal close
+    document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const modal = document.getElementById(btn.dataset.close);
+            if (modal) modal.classList.remove('show');
+        });
+    });
+
+    // Initial Sync
+    updateLocalSummary();
 });

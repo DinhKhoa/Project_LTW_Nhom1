@@ -1,67 +1,43 @@
 from django import forms
 
-
 class CustomerInfoForm(forms.Form):
-    CITY_CHOICES = [
-        ("Đà Nẵng", "Đà Nẵng"),
-        ("Hà Nội", "Hà Nội"),
-        ("Hồ Chí Minh", "Hồ Chí Minh"),
-        ("Hải Phòng", "Hải Phòng"),
-        ("Cần Thơ", "Cần Thơ"),
-    ]
-
     ADDRESS_TYPE_CHOICES = [
         ("home", "Nhà riêng/ Chung cư"),
         ("office", "Cơ quan/ Công ty"),
     ]
 
-    customer_name = forms.CharField(
+    full_name = forms.CharField(
         max_length=100,
         label="Họ tên",
         widget=forms.TextInput(
-            attrs={"class": "cform-input", "placeholder": "Nhập họ tên"}
+            attrs={"class": "form-control", "placeholder": "Nhập họ tên"}
         ),
     )
-    customer_phone = forms.CharField(
+    phone = forms.CharField(
         max_length=15,
         label="Số điện thoại",
         widget=forms.TextInput(
-            attrs={"class": "cform-input", "placeholder": "Nhập số điện thoại"}
+            attrs={"class": "form-control", "placeholder": "Nhập số điện thoại"}
         ),
     )
-    customer_email = forms.EmailField(
+    province = forms.CharField(
         required=False,
-        label="Email",
-        widget=forms.EmailInput(
-            attrs={"class": "cform-input", "placeholder": "Nhập email"}
-        ),
+        widget=forms.HiddenInput()
     )
-    customer_city = forms.ChoiceField(
-        choices=CITY_CHOICES,
-        initial="Đà Nẵng",
-        label="Tỉnh/Thành phố",
-        widget=forms.Select(attrs={"class": "cform-input cform-select"}),
+    district = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
     )
-    customer_district = forms.CharField(
-        max_length=100,
-        label="Quận/Huyện",
-        widget=forms.TextInput(
-            attrs={"class": "cform-input", "placeholder": "Nhập Quận/Huyện"}
-        ),
+    ward = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
     )
-    customer_ward = forms.CharField(
-        max_length=100,
-        label="Phường/Xã",
-        widget=forms.TextInput(
-            attrs={"class": "cform-input", "placeholder": "Nhập Phường/Xã"}
-        ),
-    )
-    customer_street = forms.CharField(
+    address_detail = forms.CharField(
         label="Địa chỉ",
         widget=forms.Textarea(
             attrs={
-                "class": "cform-input cform-textarea",
-                "rows": 4,
+                "class": "form-control",
+                "rows": 3,
                 "placeholder": "Nhập địa chỉ chi tiết",
             }
         ),
@@ -69,24 +45,9 @@ class CustomerInfoForm(forms.Form):
     address_type = forms.ChoiceField(
         choices=ADDRESS_TYPE_CHOICES,
         initial="home",
-        widget=forms.RadioSelect(
-            attrs={"class": "d-none"}
-        ),  # We will use custom CSS in template
-    )
-    customer_note = forms.CharField(
-        required=False,
-        label="Ghi chú",
-        widget=forms.Textarea(
-            attrs={
-                "class": "cform-input cform-textarea",
-                "rows": 3,
-                "placeholder": "Ghi chú thêm về đơn hàng (ví dụ: giao giờ hành chính...)",
-            }
-        ),
+        widget=forms.RadioSelect(),
     )
     is_default = forms.BooleanField(
         required=False,
-        widget=forms.CheckboxInput(
-            attrs={"class": "d-none"}
-        ),  # We will use custom CSS in template
+        widget=forms.CheckboxInput(),
     )

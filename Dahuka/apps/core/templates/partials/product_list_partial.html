@@ -1,0 +1,53 @@
+<div id="productList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">
+    {% for sp in products %}
+    <article class="catalog-card" data-id="{{ sp.id }}" data-name="{{ sp.name }}" data-price="{{ sp.price|floatformat:'0' }}đ" 
+             data-img="{{ sp.main_image_url }}">
+        <div class="catalog-product-visual">
+            <img src="{{ sp.main_image_url }}" alt="{{ sp.name }}">
+        </div>
+        <h3>{{ sp.name }}</h3>
+        <p class="catalog-price">{{ sp.price|floatformat:"0" }}đ</p>
+        <div class="catalog-card-actions">
+            <a href="{% url 'core:view_product_detail' sp.slug %}" class="account-btn-dark" style="flex: 1;">Tìm hiểu thêm</a>
+            {% if not user.is_staff %}
+            <form action="{% url 'cart:add_product_to_cart' %}" method="post" style="display: inline;" class="ajax-cart-form">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ sp.id }}">
+                <button type="submit" class="account-btn-outline" style="width: 42px; padding: 0;">
+                    <i class="fa fa-shopping-cart"></i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        <button class="compare-btn" type="button" style="margin-top: 12px; height: 36px; width: 100%; gap: 8px;">
+            <i class="fa fa-plus-circle"></i> So sánh
+        </button>
+    </article>
+    {% empty %}
+    <p class="text-center w-100">Hiện đang cập nhật sản phẩm.</p>
+    {% endfor %}
+</div>
+
+{% if products.has_other_pages %}
+<div class="catalog-pagination" style="margin-top: 60px;">
+    {% if products.has_previous %}
+        <a href="javascript:void(0)" class="account-btn-outline pagination-link" data-page="{{ products.previous_page_number }}"><i class="fa fa-angle-left"></i></a>
+    {% else %}
+        <button class="account-btn-outline" disabled><i class="fa fa-angle-left"></i></button>
+    {% endif %}
+
+    {% for num in products.paginator.page_range %}
+        {% if products.number == num %}
+            <button class="account-btn-dark" style="width: 42px;">{{ num }}</button>
+        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+            <a href="javascript:void(0)" class="account-btn-outline pagination-link" data-page="{{ num }}" style="width: 42px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if products.has_next %}
+        <a href="javascript:void(0)" class="account-btn-outline pagination-link" data-page="{{ products.next_page_number }}"><i class="fa fa-angle-right"></i></a>
+    {% else %}
+        <button class="account-btn-outline" disabled><i class="fa fa-angle-right"></i></button>
+    {% endif %}
+</div>
+{% endif %}

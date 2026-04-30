@@ -1,282 +1,122 @@
-/* donhang.css */
+/* Force zero padding to match other pages */
 .content-wide-layout {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.page-title {
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 25px;
-    color: #1a1a1a;
+  padding: 0 !important;
 }
 
 .order-card {
-    background: #fff;
-    border-radius: 0;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    border: 1px solid #f0f0f0;
-    transition: transform 0.3s ease;
-    overflow: hidden;
+  background: #fff;
+  border-radius: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
+  transition: transform 0.3s ease;
+  overflow: hidden;
 }
 
 .order-card:hover {
-    transform: translateY(-5px);
+  transform: translateY(-5px);
 }
 
 .order-card-body {
-    padding: 24px;
+  padding: 24px;
 }
 
 .order-code {
-    font-weight: 800;
-    color: #111;
-    margin: 0;
-    font-size: 1.1rem;
+  font-weight: 800;
+  color: #111;
+  margin: 0;
+  font-size: 1.1rem;
 }
 
 .order-status {
-    padding: 6px 14px;
-    border-radius: 0;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-.status-pending { background: #fff3e0; color: #f57c00; }
-.status-confirmed { background: #e3f2fd; color: #1976d2; }
-.status-shipping { background: #e8f5e9; color: #2e7d32; }
-.status-completed { background: #e8f5e9; color: #2e7d32; }
-.status-cancelled { background: #ffebee; color: #d32f2f; }
+.status-pending {
+  background: #fff3e0;
+  color: #f57c00;
+}
+.status-confirmed {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+.status-shipping {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.status-completed {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.status-cancelled {
+  background: #ffebee;
+  color: #d32f2f;
+}
 
 .order-info p {
-    margin: 8px 0;
-    color: #555;
-    font-size: 14px;
-    display: flex;
-    gap: 10px;
+  margin: 8px 0;
+  color: #555;
+  font-size: 14px;
+  display: flex;
+  gap: 10px;
 }
 
 .order-info p strong {
-    color: #999;
-    min-width: 120px;
-    font-weight: 500;
+  color: #999;
+  min-width: 120px;
+  font-weight: 500;
 }
 
 .btn-xem-chitiet {
-    background: #111;
-    color: #fff !important;
-    padding: 10px 24px;
-    border-radius: 0;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s;
-    text-decoration: none;
+  background: #111;
+  color: #fff !important;
+  padding: 10px 24px;
+  border-radius: 0;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+  text-decoration: none;
 }
 
 .btn-xem-chitiet:hover {
-    background: #333;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background: #333;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .total-label {
-    color: #888;
-    font-weight: 600;
-    margin-right: 8px;
+  color: #888;
+  font-weight: 600;
+  margin-right: 8px;
 }
 
 .total-amount {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: #d32f2f;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #d32f2f;
 }
 
-.search-input {
-    border: 1px solid #ddd;
-    border-radius: 0;
-    padding: 10px 16px;
-    width: 280px;
-    font-size: 14px;
-}
 
-.btn-search {
-    background: #f8f9fa;
-    border: 1px solid #ddd;
-    padding: 10px 20px;
-    border-radius: 0;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-
-.btn-search:hover {
-    background: #eee;
+.filter-bar .btn-search:hover {
+  background: #0f172a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .custom-pagination .page-link {
-    border-radius: 0;
-    margin: 0 4px;
-    color: #333;
-    border: 1px solid #eee;
+  border-radius: 0;
+  margin: 0 4px;
+  color: #333;
+  border: 1px solid #eee;
 }
 
 .custom-pagination .active .page-link {
-    background: #111;
-    border-color: #111;
-    color: #fff;
+  background: #111;
+  border-color: #111;
+  color: #fff;
 }
 
-/* Chi tiết đơn hàng */
-.detail-card {
-    border-radius: 0;
-    border: 1px solid #f0f0f0;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.02);
-    margin-bottom: 25px;
-}
 
-.detail-section-title {
-    font-weight: 800;
-    font-size: 14px;
-    letter-spacing: 1px;
-    color: #888;
-    text-transform: uppercase;
-}
-
-.product-thumb img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 0;
-}
-
-/* Progress Tracker */
-.order-progress {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 20px 0;
-}
-
-.progress-step {
-    flex: 1;
-    text-align: center;
-    position: relative;
-    z-index: 2;
-}
-
-.step-icon {
-    width: 40px;
-    height: 40px;
-    background: #f8f9fa;
-    border: 2px solid #eee;
-    border-radius: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 10px;
-    color: #bbb;
-    transition: all 0.3s;
-}
-
-.progress-step.active .step-icon {
-    background: #111;
-    border-color: #111;
-    color: #fff;
-}
-
-.step-label {
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1.4;
-    color: #bbb;
-}
-
-.progress-step.active .step-label {
-    color: #111;
-}
-
-.progress-line {
-    flex: 1;
-    height: 2px;
-    background: #eee;
-    margin-top: 20px;
-    position: relative;
-    z-index: 1;
-}
-
-.progress-line.active {
-    background: #111;
-}
-
-.btn-confirm-order {
-    background: #111;
-    color: #fff !important;
-    border: none;
-    padding: 12px;
-    border-radius: 0;
-    font-weight: 700;
-    transition: all 0.3s;
-}
-
-.btn-cancel-order {
-    background: #fff;
-    color: #d32f2f;
-    border: 1px solid #d32f2f;
-    padding: 12px 20px;
-    border-radius: 0;
-    font-weight: 700;
-}
-
-.btn-back {
-    color: #666;
-    font-weight: 600;
-    padding: 10px 20px;
-}
-
-.btn-save-changes {
-    background: #0B6E4F;
-    color: #fff !important;
-    padding: 10px 30px;
-    border-radius: 0;
-    font-weight: 700;
-    border: none;
-    transition: all 0.3s;
-}
-
-.btn-save-changes:hover {
-    background: #08543c;
-    box-shadow: 0 5px 15px rgba(11, 110, 79, 0.2);
-}
-
-.detail-section-title {
-    font-weight: 800;
-    font-size: 13px;
-    letter-spacing: 1.2px;
-    color: #111;
-    text-transform: uppercase;
-    border-left: 3px solid #111;
-    padding-left: 12px;
-    margin-bottom: 20px;
-}
-
-.order-summary .total-row {
-    border-top: 2px solid #111;
-    padding-top: 15px;
-    margin-top: 15px;
-}
-
-.order-summary .total-row span {
-    font-size: 18px;
-}
-
-.product-price {
-    font-weight: 800;
-    color: #111;
-}
-
-.order-progress {
-    background: #fcfcfc;
-    border: 1px solid #f0f0f0;
-    padding: 25px 15px;
-}
+/* Chi tiết đơn hàng - REPLACED BY SHARED COMPONENT */
+/* The styles below are for the list view only */

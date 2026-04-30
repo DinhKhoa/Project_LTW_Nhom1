@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from apps.categories.models import Category
 from apps.products.models import Product
 
@@ -29,3 +30,19 @@ class HomePageSettings(models.Model):
 
     def __str__(self):
         return "Cấu hình Trang chủ hiện tại"
+
+class Notification(models.Model):
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications', verbose_name="Người nhận")
+    title = models.CharField(max_length=255, verbose_name="Tiêu đề")
+    message = models.TextField(verbose_name="Nội dung")
+    link = models.CharField(max_length=255, blank=True, null=True, verbose_name="Đường dẫn")
+    is_read = models.BooleanField(default=False, verbose_name="Đã đọc")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
+
+    class Meta:
+        verbose_name = "Thông báo"
+        verbose_name_plural = "Các thông báo"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.recipient.username}"

@@ -15,11 +15,7 @@
             <div class="login-message error">{{ form.non_field_errors }}</div>
         {% endif %}
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="login-message {{ message.tags|default:'success' }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+
 
         <label for="id_username">Số điện thoại</label>
         <input type="text" id="id_username" name="username" required autofocus>
@@ -34,7 +30,7 @@
         </div>
 
         <div style="text-align: right; margin-top: 12px;">
-            <a href="#" style="color: var(--brand, #0B6E4F); font-size: 13px; text-decoration: none; font-weight: 500;">Đổi mật khẩu?</a>
+            <a href="{% url 'public_change_password' %}" style="color: var(--brand, #0B6E4F); font-size: 13px; text-decoration: none; font-weight: 500;">Đổi mật khẩu?</a>
         </div>
     </form>
 </section>

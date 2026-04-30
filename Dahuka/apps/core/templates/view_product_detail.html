@@ -5,169 +5,156 @@
 
 {% block extra_css %}
 
-<link rel="stylesheet" href="{% static 'core/product_detail.css' %}">
+<link rel="stylesheet" href="{% static 'view_product_details/view_product_detail.css' %}">
 {% endblock %}
 
 {% block content %}
-<main class="container-shell" style="padding: 20px 0;">
-    <nav class="page-breadcrumbs">
-        <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
-        <a href="{% url 'core:product_catalog' %}">{% if product.category %}{{ product.category.name }}{% else %}Sản phẩm{% endif %}</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
-        <b>{{ product.name }}</b>
-    </nav>
+<main class="product-detail-page">
+    <!-- Top Section with Gray Background -->
+    <div class="product-detail-header-section">
+        <div class="container-shell" style="padding-top: 20px;">
+            <nav class="page-breadcrumbs">
+                <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+                <a href="{% url 'core:product_catalog' %}{% if product.category %}?category={{ product.category.id }}{% endif %}">{% if product.category %}{{ product.category.name }}{% else %}Sản phẩm{% endif %}</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
+                <b>{{ product.name }}</b>
+            </nav>
 
-    <div class="detail-hero">
-        <div class="detail-gallery">
-            <div class="main-img-wrap">
-                <img id="mainImg" src="{{ product.main_image_url }}" alt="{{ product.name }}">
-            </div>
-            <div class="thumb-list">
-                <div class="thumb-item active" onclick="updateMainImage(this)">
-                    <img src="{{ product.main_image_url }}" alt="{{ product.name }}">
+            <h2 class="page-title">Thông tin chi tiết sản phẩm</h2>
+            
+            <div class="product-detail-main">
+                <div class="product-detail-info">
+                    <h1 class="product-display-name">{{ product.name }}</h1>
+                    <p class="product-sku-label">Mã sản phẩm: {{ product.sku }}</p>
+                    
+                    <div class="product-highlights-list">
+                        {{ product.short_description|linebreaks }}
+                    </div>
+
+                    <div class="shipping-section">
+                        <div class="shipping-row">
+                            <i class="fa fa-truck"></i>
+                            <span>Miễn phí vận chuyển và lắp đặt tại nhà</span>
+                        </div>
+                        <div class="shipping-row">
+                            <i class="fa fa-clock-o"></i>
+                            <span>Giao hàng nhanh từ 24-48 giờ</span>
+                        </div>
+                    </div>
+
+                    {% if not user.is_staff %}
+                    <div class="product-action-buttons">
+                        <form action="{% url 'cart:add_product_to_cart' %}" method="post" style="flex: 1; display: flex;">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <input type="hidden" name="action" value="buy_now">
+                            <button type="submit" class="btn-buy-now">Mua ngay</button>
+                        </form>
+                        <form action="{% url 'cart:add_product_to_cart' %}" method="post" style="flex: 1; display: flex;" class="ajax-cart-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <button type="submit" class="btn-add-cart">
+                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
                 </div>
-                {% for img in product.images.all %}
-                <div class="thumb-item" onclick="updateMainImage(this)">
-                    <img src="{{ img.image_url.url }}" alt="{{ img.caption }}">
+
+                <div class="product-detail-visuals">
+                    <div class="main-image-display">
+                        <img id="mainImg" src="{{ product.main_image_url }}" alt="{{ product.name }}">
+                    </div>
+                    <div class="thumbnail-selection-grid">
+                        <div class="thumb-box active" onclick="updateMainImage(this)">
+                            <img src="{{ product.main_image_url }}" alt="{{ product.name }}">
+                        </div>
+                        {% for img in images_by_type.gallery %}
+                        <div class="thumb-box" onclick="updateMainImage(this)">
+                            <img src="{{ img.image_url.url }}" alt="{{ img.product.name }}">
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="detail-info">
-            <h1>{{ product.name }}</h1>
-            <p style="font-size: 28px; font-weight: 700; color: var(--brand); margin: 20px 0;">{{ product.price }}đ</p>
-            {% if product.promotions.exists %}
-            <div style="background: var(--brand-light); padding: 20px; border-radius: 12px; border: 1px solid rgba(77, 139, 111, 0.2);">
-                <p style="font-weight: 700; color: var(--brand-dark); margin-bottom: 10px;"><i class="fa fa-gift"></i> Khuyến mãi đang áp dụng</p>
-                <ul style="padding-left: 20px; font-size: 14px; line-height: 1.6;">
-                    {% for promo in product.promotions.all %}
-                    <li>{{ promo.name }}: {{ promo.condition }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div style="background: var(--brand-light); padding: 20px; border-radius: 12px; border: 1px solid rgba(77, 139, 111, 0.2);">
-                <p style="font-weight: 700; color: var(--brand-dark); margin-bottom: 10px;"><i class="fa fa-info-circle"></i> Ưu đãi DAHUKA</p>
-                <ul style="padding-left: 20px; font-size: 14px; line-height: 1.6;">
-                    <li>Sát khuẩn máy lọc nước miễn phí 1 năm.</li>
-                    <li>Miễn phí vận chuyển & lắp đặt toàn quốc.</li>
-                </ul>
-            </div>
-            {% endif %}
-
-            <div class="detail-short-desc mt-3" style="font-size: 15px; color: var(--ink); line-height: 1.6;">
-                {{ product.short_description|linebreaks }}
             </div>
 
-            {% if not user.is_staff %}
-            <div style="display: flex; gap: 20px; margin-top: 40px;">
-                <button class="account-btn-dark" style="flex: 1; height: 54px; font-size: 16px;">MUA NGAY</button>
-                <button class="account-btn-outline" style="flex: 1; height: 54px; font-size: 16px;"><i class="fa fa-shopping-cart"></i> THÊM GIỎ HÀNG</button>
-            </div>
-            {% endif %}
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; font-size: 13px;">
-                <div style="display: flex; align-items: center; gap: 10px; color: var(--ink);"><i class="fa fa-shield" style="font-size: 20px; color: var(--brand);"></i> Bảo hành {{ product.spec_warranty }}</div>
-                <div style="display: flex; align-items: center; gap: 10px; color: var(--ink);"><i class="fa fa-history" style="font-size: 20px; color: var(--brand);"></i> Đổi trả dễ dàng trong 30 ngày</div>
+            <!-- Tab Header inside the gray section -->
+            <div class="tab-header-minimal">
+                <button class="tab-btn-minimal active" onclick="openTab(this, 'thong-so')">Thông số</button>
+                <button class="tab-btn-minimal" onclick="openTab(this, 'tinh-nang')">Tính năng</button>
+                <button class="tab-btn-minimal" onclick="openTab(this, 'mo-ta')">Mô tả chi tiết</button>
             </div>
         </div>
     </div>
 
-    <!-- Tabs/Additional Details -->
-    <section class="tab-container">
-        <div class="tab-header">
-            <button class="tab-btn active" onclick="openTab(this, 'thong-so')">Thông số</button>
-            <button class="tab-btn" onclick="openTab(this, 'tinh-nang')">Tính năng</button>
-            <button class="tab-btn" onclick="openTab(this, 'mo-ta')">Mô tả chi tiết</button>
-        </div>
-
-        <div id="thong-so" class="tab-content active">
-            <div class="info-block">
-                <h4>THÔNG SỐ KỸ THUẬT CHI TIẾT</h4>
-                <section style="margin: 0 0 42px; background: #1c1818; color: #ffffff; padding: 32px 40px; border-radius: 24px; box-shadow: var(--shadow-lg);">
-                    <div style="display: grid; grid-template-columns: minmax(160px, 240px) minmax(260px, 1fr); column-gap: 60px; width: 100%;">
-                        {% if product.spec_power %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Công suất lọc</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_power }}</div>
-                        {% endif %}
-
-                        {% if product.spec_type %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Loại máy</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_type }}</div>
-                        {% endif %}
-
-                        {% if product.spec_technology %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Công nghệ lọc</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.4; font-weight: 500;">{{ product.spec_technology }}</div>
-                        {% endif %}
-
-                        {% if product.spec_capacity %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Dung tích bình chứa</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.4; font-weight: 500;">{{ product.spec_capacity }}</div>
-                        {% endif %}
-
-                        {% if product.spec_hot_temp %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Nhiệt độ nước nóng</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_hot_temp }}</div>
-                        {% endif %}
-
-                        {% if product.spec_cold_temp %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Nhiệt độ nước lạnh</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_cold_temp }}</div>
-                        {% endif %}
-
-                        {% if product.spec_release_year %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Năm ra mắt</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_release_year }}</div>
-                        {% endif %}
-
-                        {% if product.spec_filters_count %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Số lõi lọc</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_filters_count }}</div>
-                        {% endif %}
-
-                        {% if product.spec_dimensions %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Kích thước</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_dimensions }}</div>
-                        {% endif %}
-
-                        {% if product.spec_weight %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Khối lượng</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_weight }}</div>
-                        {% endif %}
-
-                        {% if product.spec_origin %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Nơi sản xuất</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_origin }}</div>
-                        {% endif %}
-
-                        {% if product.spec_warranty %}
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px;">Thời gian bảo hành</div>
-                        <div style="padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.2); border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 18px; line-height: 1.35; font-weight: 500;">{{ product.spec_warranty }} chính hãng</div>
-                        {% endif %}
-                    </div>
-                </section>
+    <!-- Tab Content Section (White Background) -->
+    <div class="container-shell" style="padding: 40px 0;">
+        <div id="thong-so" class="tab-content-minimal active">
+            <div class="rich-text-content mb-5">
+                <div class="specs-grid">
+                    {% if product.spec_power %}<div class="spec-label">Công suất lọc</div><div class="spec-value">{{ product.spec_power }}</div>{% endif %}
+                    {% if product.spec_type %}<div class="spec-label">Loại máy</div><div class="spec-value">{{ product.spec_type }}</div>{% endif %}
+                    {% if product.spec_technology %}<div class="spec-label">Công nghệ lọc</div><div class="spec-value">{{ product.spec_technology }}</div>{% endif %}
+                    {% if product.spec_capacity %}<div class="spec-label">Dung tích bình chứa</div><div class="spec-value">{{ product.spec_capacity }}</div>{% endif %}
+                    {% if product.spec_hot_temp %}<div class="spec-label">Nhiệt độ nước nóng</div><div class="spec-value">{{ product.spec_hot_temp }}</div>{% endif %}
+                    {% if product.spec_cold_temp %}<div class="spec-label">Nhiệt độ nước lạnh</div><div class="spec-value">{{ product.spec_cold_temp }}</div>{% endif %}
+                    {% if product.spec_filters_count %}<div class="spec-label">Số lõi lọc</div><div class="spec-value">{{ product.spec_filters_count }}</div>{% endif %}
+                    {% if product.spec_dimensions %}<div class="spec-label">Kích thước</div><div class="spec-value">{{ product.spec_dimensions }}</div>{% endif %}
+                    {% if product.spec_weight %}<div class="spec-label">Khối lượng</div><div class="spec-value">{{ product.spec_weight }}</div>{% endif %}
+                    {% if product.spec_origin %}<div class="spec-label">Nơi sản xuất</div><div class="spec-value">{{ product.spec_origin }}</div>{% endif %}
+                    {% if product.spec_warranty %}<div class="spec-label">Bảo hành</div><div class="spec-value">{{ product.spec_warranty }}</div>{% endif %}
+                </div>
             </div>
+            {% if images_by_type.specs %}
+                <div class="product-info-images mt-4">
+                    {% for img in images_by_type.specs %}
+                        <div class="info-image-item text-center mb-4">
+                            <img src="{{ img.image_url.url }}" alt="{{ product.name }}" style="max-width: 100%; border-radius: 8px;">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if product.spec_other %}
+                <div class="rich-text-content mt-4">
+                    <h3 class="mb-3">Thông số khác</h3>
+                    {{ product.spec_other|linebreaks }}
+                </div>
+            {% endif %}
         </div>
 
-        <div id="tinh-nang" class="tab-content">
-            <h3 style="margin-bottom: 20px; color: var(--ink-strong);">Tính năng nổi bật</h3>
-            <div style="line-height: 1.8; color: var(--ink); font-size: 16px; white-space: pre-line;">
-                {{ product.spec_features|default:"Đang cập nhật tính năng..." }}
+        <div id="tinh-nang" class="tab-content-minimal">
+            <div class="rich-text-content">
+                {{ product.spec_features|default:"Đang cập nhật tính năng..."|linebreaks }}
             </div>
+            {% if images_by_type.features %}
+                <div class="product-info-images mt-4">
+                    {% for img in images_by_type.features %}
+                        <div class="info-image-item text-center mb-4">
+                            <img src="{{ img.image_url.url }}" alt="{{ product.name }}" style="max-width: 100%; border-radius: 8px;">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
 
-        <div id="mo-ta" class="tab-content">
-            <h3 style="margin-bottom: 20px; color: var(--ink-strong);">Mô tả chi tiết</h3>
-            <div style="line-height: 1.8; color: var(--ink); font-size: 16px;">
+        <div id="mo-ta" class="tab-content-minimal">
+            {% if images_by_type.description %}
+                <div class="product-info-images mb-4">
+                    {% for img in images_by_type.description %}
+                        <div class="info-image-item text-center mb-4">
+                            <img src="{{ img.image_url.url }}" alt="{{ product.name }}" style="max-width: 100%; border-radius: 8px;">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="rich-text-content">
                 {{ product.description|linebreaks }}
             </div>
         </div>
-    </section>
+    </div>
 </main>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/product_detail.js' %}"></script>
+<script src="{% static 'view_product_details/view_product_detail.js' %}"></script>
 {% endblock %}
 

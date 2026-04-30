@@ -1,0 +1,259 @@
+<form method="post" id="addressEntryForm" novalidate action="{{ request.path }}">
+    {% csrf_token %}
+    {% if is_cart_context %}
+    <input type="hidden" name="action" value="update_customer">
+    <input type="hidden" name="id" value="">
+    {% endif %}
+    <div class="address-form-grid">
+        <label>Số điện thoại (*):</label>
+        <div>{{ form.phone }}{{ form.phone.errors }}</div>
+
+        <label>Họ tên (*):</label>
+        <div>{{ form.full_name }}{{ form.full_name.errors }}</div>
+
+        <label>Tỉnh/Thành phố (*):</label>
+        <div>
+            <select id="id_province_select">
+                <option value="">Chọn Tỉnh/Thành phố</option>
+            </select>
+            <input type="hidden" name="province" id="id_province" value="{{ form.province.value|default:'' }}">
+            {{ form.province.errors }}
+        </div>
+
+        <label>Quận/Huyện (*):</label>
+        <div>
+            <select id="id_district_select" disabled>
+                <option value="">Chọn Quận/Huyện</option>
+            </select>
+            <input type="hidden" name="district" id="id_district" value="{{ form.district.value|default:'' }}">
+            {{ form.district.errors }}
+        </div>
+
+        <label>Phường/Xã (*):</label>
+        <div>
+            <select id="id_ward_select" disabled>
+                <option value="">Chọn Phường/Xã</option>
+            </select>
+            <input type="hidden" name="ward" id="id_ward" value="{{ form.ward.value|default:'' }}">
+            {{ form.ward.errors }}
+        </div>
+
+        <label>Địa chỉ (*):</label>
+        <div>{{ form.address_detail }}{{ form.address_detail.errors }}</div>
+
+        <label>Loại địa chỉ:</label>
+        <div class="address-type-row">
+            <label><input type="radio" name="address_type" value="home" {% if form.address_type.value != 'office' %}checked{% endif %}>Nhà riêng/ Chung cư</label>
+            <label><input type="radio" name="address_type" value="office" {% if form.address_type.value == 'office' %}checked{% endif %}>Cơ quan/ Công ty</label>
+        </div>
+
+        <div style="margin-top: -10px;"></div>
+        <div class="default-check" style="margin-top: -10px;">
+            <label>{{ form.is_default }} Đặt địa chỉ mặc định</label>
+        </div>
+    </div>
+
+    {% if form.non_field_errors %}
+        <ul class="errorlist">{{ form.non_field_errors }}</ul>
+    {% endif %}
+
+    <div class="modal-actions" style="padding-left: 0; display: flex; justify-content: flex-start;">
+        <button type="submit" class="account-btn-outline" style="padding: 8px 35px; border-radius: 0;">{{ submit_label|default:'Xác nhận' }}</button>
+    </div>
+
+    <style>
+        #addressEntryForm input:not([type="radio"]):not([type="checkbox"]), 
+        #addressEntryForm select, 
+        #addressEntryForm textarea {
+            border-radius: 0 !important;
+        }
+
+        /* Custom Radio Styling */
+        #addressEntryForm input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid #111;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            background: #fff;
+            transition: all 0.2s;
+            margin: 0;
+        }
+
+        #addressEntryForm input[type="radio"]:checked {
+            background: #111;
+        }
+
+        #addressEntryForm input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        /* Custom Checkbox Styling */
+        #addressEntryForm input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid #111;
+            border-radius: 0;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            background: #fff;
+            transition: all 0.2s;
+            margin: 0;
+        }
+
+        #addressEntryForm input[type="checkbox"]:checked {
+            background: #111;
+        }
+
+        #addressEntryForm input[type="checkbox"]:checked::after {
+            content: '✔';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</form>
+
+<script>
+    (function() {
+        const provinceSelect = document.getElementById('id_province_select');
+        const districtSelect = document.getElementById('id_district_select');
+        const wardSelect = document.getElementById('id_ward_select');
+        
+        const provinceHidden = document.getElementById('id_province');
+        const districtHidden = document.getElementById('id_district');
+        const wardHidden = document.getElementById('id_ward');
+
+        const initialProvince = provinceHidden.value;
+        const initialDistrict = districtHidden.value;
+        const initialWard = wardHidden.value;
+
+        async function fetchJson(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("Lỗi tải dữ liệu");
+            return await res.json();
+        }
+
+        function setOptions(selectEl, options, placeholder) {
+            selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+            options.forEach(o => {
+                const opt = document.createElement('option');
+                opt.value = o.code;
+                opt.textContent = o.name;
+                opt.dataset.name = o.name;
+                selectEl.appendChild(opt);
+            });
+        }
+
+        window.initLocationFields = async function(pName = '', dName = '', wName = '') {
+            try {
+                const provinces = await fetchJson("https://provinces.open-api.vn/api/p/");
+                setOptions(provinceSelect, provinces, "Chọn Tỉnh/Thành phố");
+                
+                const targetP = pName || provinceHidden.value;
+                if (targetP) {
+                    const opt = Array.from(provinceSelect.options).find(o => o.dataset.name === targetP);
+                    if (opt) {
+                        provinceSelect.value = opt.value;
+                        provinceHidden.value = targetP;
+                        await loadDistricts(opt.value, dName || districtHidden.value, wName || wardHidden.value);
+                    }
+                }
+            } catch (e) { console.error(e); }
+        };
+
+        async function loadDistricts(provinceCode, dName = '', wName = '') {
+            districtSelect.disabled = true;
+            wardSelect.disabled = true;
+            try {
+                const data = await fetchJson(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`);
+                setOptions(districtSelect, data.districts, "Chọn Quận/Huyện");
+                districtSelect.disabled = false;
+                
+                const targetD = dName || districtHidden.value;
+                if (targetD) {
+                    const opt = Array.from(districtSelect.options).find(o => o.dataset.name === targetD);
+                    if (opt) {
+                        districtSelect.value = opt.value;
+                        districtHidden.value = targetD;
+                        await loadWards(opt.value, wName || wardHidden.value);
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadWards(districtCode, wName = '') {
+            wardSelect.disabled = true;
+            try {
+                const data = await fetchJson(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
+                setOptions(wardSelect, data.wards, "Chọn Phường/Xã");
+                wardSelect.disabled = false;
+
+                const targetW = wName || wardHidden.value;
+                if (targetW) {
+                    const opt = Array.from(wardSelect.options).find(o => o.dataset.name === targetW);
+                    if (opt) {
+                        wardSelect.value = opt.value;
+                        wardHidden.value = targetW;
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        window.initLocationFields();
+
+        provinceSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            provinceHidden.value = selectedOption.dataset.name || '';
+            districtHidden.value = '';
+            wardHidden.value = '';
+            
+            if (this.value) {
+                loadDistricts(this.value);
+            } else {
+                districtSelect.disabled = true;
+                wardSelect.disabled = true;
+                setOptions(districtSelect, [], "Chọn Quận/Huyện");
+                setOptions(wardSelect, [], "Chọn Phường/Xã");
+            }
+        });
+
+        districtSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            districtHidden.value = selectedOption.dataset.name || '';
+            wardHidden.value = '';
+            
+            if (this.value) {
+                loadWards(this.value);
+            } else {
+                wardSelect.disabled = true;
+                setOptions(wardSelect, [], "Chọn Phường/Xã");
+            }
+        });
+
+        wardSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            wardHidden.value = selectedOption.dataset.name || '';
+        });
+
+    })();
+</script>

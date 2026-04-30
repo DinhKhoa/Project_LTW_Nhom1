@@ -4,134 +4,346 @@
 {% block title %}Quản lý nhiệm vụ - DAHUKA{% endblock %}
 
 {% block extra_css %}
-
 <link rel="stylesheet" href="{% static 'tasks/task_installation.css' %}">
+<style>
+    /* Synchronized with order_list.html */
+    .summary-container-dahuka {
+        display: flex;
+        gap: 15px;
+    }
+    .summary-box-card {
+        background: #fff;
+        border: 1px solid #1a6b3c;
+        border-radius: 12px;
+        padding: 20px 10px;
+        text-align: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+    }
+    .summary-box-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(26, 107, 60, 0.2);
+        text-decoration: none;
+    }
+    .summary-box-card--staff {
+        background: linear-gradient(135deg, #0b7a63 0%, #0f5d4d 100%);
+        color: #fff;
+        border: none;
+        text-align: left;
+        padding-left: 25px;
+    }
+    .summary-box-card .label {
+        font-size: 14px;
+        color: #475569;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+    .summary-box-card--staff .label {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    .summary-box-card .value {
+        font-size: 24px;
+        font-weight: 800;
+    }
+    .summary-box-card--staff .value {
+        color: #fff;
+        font-size: 26px;
+    }
+    .summary-box-card p {
+        margin: 0;
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+
+
+    /* Table Styles synchronized with product_list */
+    .product-table-wrapper {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+    .product-table tbody tr {
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    .product-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Order Status Badges */
+    .order-status-badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        display: inline-block;
+        min-width: 140px;
+        text-align: center;
+    }
+    .order-status-badge.confirmed {
+        background-color: #fef3c7;
+        color: #d97706;
+    }
+    .order-status-badge.processing {
+        background-color: #dbeafe;
+        color: #2563eb;
+    }
+    .order-status-badge.completed {
+        background-color: #dcfce7;
+        color: #16a34a;
+    }
+    .order-status-badge.cancelled {
+        background-color: #fee2e2;
+        color: #dc2626;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<main class="install-jobs-page container-shell mt-4">
+<div class="content-wide-layout mt-4 mb-5">
+    <!-- Breadcrumb -->
     <nav class="page-breadcrumbs">
         <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
         <b>Quản lý nhiệm vụ</b>
     </nav>
 
-    <h1 class="page-title">Quản lý nhiệm vụ</h1>
+    <!-- Title -->
+    <h1 class="page-title mb-4">Quản lý nhiệm vụ</h1>
 
-    <section class="worker-summary-grid">
-        <article class="summary-card summary-card--accent">
-            <span class="summary-label">Nhân viên phụ trách</span>
-            <strong>{{ user.get_full_name|default:user.username }}</strong>
-            <p>Khu vực: Hải Châu - Thanh Khê - Cẩm Lệ</p>
-        </article>
-        <article class="summary-card">
-            <span class="summary-label">Tổng công việc</span>
-            <strong>{{ tasks.paginator.count }} đơn</strong>
-            <p>Hôm nay {% now "d/m/Y" %}</p>
-        </article>
-        <article class="summary-card">
-            <span class="summary-label">Đã hoàn thành</span>
-            <strong>{{ completed_count }} đơn</strong>
-            <p>Cập nhật theo trạng thái lắp đặt</p>
-        </article>
-        <article class="summary-card">
-            <span class="summary-label">Đang xử lý</span>
-            <strong>{{ in_progress_count }} đơn</strong>
-            <p>Ưu tiên các đơn đến hạn hôm nay</p>
-        </article>
-    </section>
-
-    <section class="job-toolbar">
-        <div class="job-search">
-            <i class="fa fa-search"></i>
-            <input type="text" id="jobSearch" placeholder="Tìm theo mã đơn, khách hàng hoặc địa chỉ">
+    <!-- Summary Boxes -->
+    <section class="summary-container-dahuka mb-4">
+        <div class="summary-box-card summary-box-card--staff">
+            <div class="label">Nhân viên phụ trách</div>
+            <div class="value">{{ user.get_full_name|default:user.username }}</div>
+            <p>Mã NV: NV-{{ user.id|stringformat:"03d" }}</p>
         </div>
-        <div class="job-filter-group">
-            <button class="filter-chip is-active" type="button" data-filter="all">Tất cả</button>
-            <button class="filter-chip" type="button" data-filter="pending">Chưa hoàn thành</button>
-            <button class="filter-chip" type="button" data-filter="done">Đã lắp đặt</button>
+        <div class="summary-box-card" onclick="quickFilter('all')" style="cursor: pointer;">
+            <div class="label">Tổng công việc</div>
+            <div class="value color-total" style="color: #1e293b;">{{ tasks.paginator.count }}</div>
+        </div>
+        <div class="summary-box-card" onclick="quickFilter('confirmed')" style="cursor: pointer;">
+            <div class="label">Được giao nhiệm vụ</div>
+            <div class="value color-confirmed" style="color: #f59e0b;">{{ confirmed_count }}</div>
+        </div>
+        <div class="summary-box-card" onclick="quickFilter('processing')" style="cursor: pointer;">
+            <div class="label">Đang giao</div>
+            <div class="value color-processing" style="color: #2563eb;">{{ in_progress_count }}</div>
+        </div>
+        <div class="summary-box-card" onclick="quickFilter('completed')" style="cursor: pointer;">
+            <div class="label">Đã hoàn thành</div>
+            <div class="value color-completed" style="color: #059669;">{{ completed_count }}</div>
         </div>
     </section>
 
-    <section class="job-list-card">
-        <div class="job-list-head">
-            <h2>Danh sách công việc</h2>
-            <span>Hiển thị các đơn đã phân công cho nhân viên</span>
+
+
+    <!-- Filter Bar synchronized with order_list -->
+    <div class="filter-bar d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center" style="gap: 10px;">
+            <div class="position-relative">
+                <i class="fa fa-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                <input type="text" class="search-input" id="jobSearch" style="padding-left: 40px; min-width: 350px;"
+                       placeholder="Tìm theo mã đơn, khách hàng hoặc địa chỉ...">
+            </div>
+
+            <div class="filter-dropdown-wrapper" id="statusFilter">
+                <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('statusFilter')">
+                    <span class="filter-value">Tất cả</span>
+                    <span class="arrow">▾</span>
+                </div>
+
+                <div class="filter-dropdown-menu">
+                    <div class="filter-item d-flex justify-content-between align-items-center selected" data-value="all"
+                         onclick="selectJobFilter(this)">
+                        Tất cả
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <div class="filter-item d-flex justify-content-between align-items-center" data-value="confirmed"
+                         onclick="selectJobFilter(this)">
+                        Được giao nhiệm vụ
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <div class="filter-item d-flex justify-content-between align-items-center" data-value="processing"
+                         onclick="selectJobFilter(this)">
+                        Đang giao
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <div class="filter-item d-flex justify-content-between align-items-center" data-value="completed"
+                         onclick="selectJobFilter(this)">
+                        Đã hoàn thành
+                        <span class="check-icon">✓</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <button type="button" class="btn-search" onclick="applyJobFilters()">Tìm kiếm</button>
         </div>
-
-        <div class="job-table-wrap">
-            <table class="job-table">
-                <thead>
-                    <tr>
-                        <th>Mã đơn hàng</th>
-                        <th>Khách hàng</th>
-                        <th>Thời gian tạo đơn</th>
-                        <th>Thời gian hoàn thành</th>
-                        <th>Trạng thái lắp đặt</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody id="jobTableBody">
-                    {% for task in tasks %}
-                    <tr data-status="{% if task.status == 'completed' %}done{% else %}pending{% endif %}">
-                        <td><strong>#{{ task.order.id }}</strong></td>
-                        <td>
-                            <div class="customer-cell">{{ task.order.full_name }}</div>
-                            <small>{{ task.order.address }}</small>
-                        </td>
-                        <td>{{ task.created_at|date:"d/m/Y - H:i" }}</td>
-                        <td>
-                            {% if task.completed_at %}
-                            {{ task.completed_at|date:"d/m/Y - H:i" }}
-                            {% else %}
-                            <span class="empty-value">Chưa hoàn thành</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="status-badge 
-                                {% if task.status == 'pending' %}status-badge--pending
-                                {% elif task.status == 'in_progress' %}status-badge--progress
-                                {% else %}status-badge--done{% endif %}">
-                                {{ task.get_status_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <a class="dark-button small-btn" href="{% url 'tasks:task_detail' task.pk %}">Xem chi tiết</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center py-4">Không có công việc nào được phân công.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <!-- Pagination -->
-    {% if tasks.has_other_pages %}
-    <div class="pagination-wrapper" style="display: flex; justify-content: center; gap: 8px; margin-top: 30px; margin-bottom: 40px;">
-        {% if tasks.has_previous %}
-            <a href="?page={{ tasks.previous_page_number }}" class="dark-button" style="min-width: 42px; text-decoration: none; display: flex; align-items: center; justify-content: center;">«</a>
-        {% endif %}
-
-        {% for num in tasks.paginator.page_range %}
-            {% if tasks.number == num %}
-                <button class="dark-button" style="min-width: 42px; background: #171b2a; color: white;">{{ num }}</button>
-            {% elif num > tasks.number|add:'-3' and num < tasks.number|add:'3' %}
-                <a href="?page={{ num }}" class="dark-button" style="min-width: 42px; text-decoration: none; display: flex; align-items: center; justify-content: center; background: transparent; color: #171b2a; border: 1px solid #171b2a;">{{ num }}</a>
-            {% endif %}
-        {% endfor %}
-
-        {% if tasks.has_next %}
-            <a href="?page={{ tasks.next_page_number }}" class="dark-button" style="min-width: 42px; text-decoration: none; display: flex; align-items: center; justify-content: center;">»</a>
-        {% endif %}
     </div>
+
+    <!-- Data Table -->
+    <div class="product-table-wrapper">
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th class="text-center">Mã đơn hàng</th>
+                    <th>Khách hàng</th>
+                    <th class="text-center">Thời gian tạo</th>
+                    <th class="text-center">Thời gian hoàn thành</th>
+                    <th class="text-center">Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody id="jobTableBody">
+                {% for order in tasks %}
+                <tr data-status="{{ order.status }}" class="job-row clickable-row" 
+                    data-href="{% url 'tasks:task_detail' order.pk %}">
+                    <td class="text-center"><strong>{{ order.order_code }}</strong></td>
+                    <td>
+                        <div style="font-weight: 700; color: var(--ink-strong);">{{ order.full_name }}</div>
+                        <small style="color: #64748b; font-size: 11px; display: block; margin-top: 2px;">{{ order.full_address }}</small>
+                    </td>
+                    <td class="text-center" style="font-size: 13px;">{{ order.created_at|date:"d/m/Y - H:i" }}</td>
+                    <td class="text-center" style="font-size: 13px;">
+                        {% if order.status == 'completed' %}
+                        {{ order.updated_at|date:"d/m/Y - H:i" }}
+                        {% else %}
+                        <span style="color: #94a3b8; font-style: italic;">Chưa hoàn thành</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <span class="order-status-badge {{ order.status }}">
+                            {% if order.status == 'confirmed' %}
+                                Được giao nhiệm vụ
+                            {% else %}
+                                {{ order.get_status_display }}
+                            {% endif %}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5" style="color: #64748b;">Không có công việc nào được phân công.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination synchronized with order_list -->
+    {% if tasks.has_other_pages %}
+    <nav aria-label="Page navigation" class="d-flex justify-content-center mt-5 mb-4">
+        <ul class="pagination custom-pagination">
+            {% if tasks.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ tasks.previous_page_number }}">&lsaquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&lsaquo;</span>
+                </li>
+            {% endif %}
+
+            {% for num in tasks.paginator.page_range %}
+                <li class="page-item {% if tasks.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if tasks.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ tasks.next_page_number }}">&rsaquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&rsaquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
     {% endif %}
-</main>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'tasks/task_installation.js' %}"></script>
+<script>
+    function toggleFilterDropdown(id) {
+        const wrapper = document.getElementById(id);
+        wrapper.querySelector('.filter-dropdown-btn').classList.toggle('open');
+        wrapper.querySelector('.filter-dropdown-menu').classList.toggle('show');
+    }
+
+    function quickFilter(status) {
+        const item = document.querySelector(`#statusFilter .filter-item[data-value="${status}"]`);
+        if (item) {
+            selectJobFilter(item);
+        }
+    }
+
+    function selectJobFilter(item) {
+
+        const wrapper = item.closest('.filter-dropdown-wrapper');
+        const items = wrapper.querySelectorAll('.filter-item');
+        items.forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+        
+        // Only get the text content of the filter name, excluding the checkmark
+        const filterName = item.childNodes[0].textContent.trim();
+        wrapper.querySelector('.filter-value').textContent = filterName;
+        
+        toggleFilterDropdown(wrapper.id);
+        applyJobFilters();
+    }
+
+
+    function applyJobFilters() {
+        const keyword = document.getElementById('jobSearch').value.toLowerCase();
+        const status = document.querySelector('#statusFilter .filter-item.selected').dataset.value;
+        const rows = document.querySelectorAll('#jobTableBody tr');
+
+        rows.forEach(row => {
+            const rowText = row.textContent.toLowerCase();
+            const rowStatus = row.dataset.status;
+            
+            const matchesSearch = rowText.includes(keyword);
+            const matchesStatus = status === 'all' || rowStatus === status;
+
+            row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+        });
+    }
+
+    document.getElementById('jobSearch').addEventListener('input', applyJobFilters);
+    
+    // Row navigation
+    document.addEventListener('click', function(e) {
+        const row = e.target.closest('.clickable-row');
+        if (row && row.dataset.href) {
+            window.location = row.dataset.href;
+        }
+    });
+
+    // Close dropdowns on outside click
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('.filter-dropdown-wrapper')) {
+            document.querySelectorAll('.filter-dropdown-btn').forEach(btn => btn.classList.remove('open'));
+            document.querySelectorAll('.filter-dropdown-menu').forEach(menu => menu.classList.remove('show'));
+        }
+    });
+</script>
 {% endblock %}
+
+
+
 

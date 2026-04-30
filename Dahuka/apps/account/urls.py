@@ -6,13 +6,14 @@ urlpatterns = [
     path("dashboard/", views.account_dashboard, name="account_dashboard"),
     path("profile/", views.profile_view, name="profile_view"),
     path("change-password/", views.change_password, name="change_password"),
+    path("public-change-password/", views.public_change_password, name="public_change_password"),
     path("addresses/", views.address_list, name="address_list"),
     path("addresses/add/", views.add_address, name="add_address"),
     path("addresses/<int:pk>/edit/", views.edit_address, name="edit_address"),
     path("addresses/<int:pk>/delete/", views.delete_address, name="delete_address"),
-    path("orders/", views.order_list, name="order_list"),
-    path("orders/<int:pk>/", views.order_detail, name="order_detail"),
-    path("orders/<int:pk>/cancel/", views.cancel_order, name="cancel_order"),
+    path("purchases/", views.purchase_list, name="purchase_list"),
+    path("purchases/<int:pk>/", views.purchase_detail, name="purchase_detail"),
+    path("purchases/<int:pk>/cancel/", views.cancel_order, name="cancel_order"),
     # API endpoints
     path("api/profile/", api_views.api_profile, name="api_profile"),
     path(

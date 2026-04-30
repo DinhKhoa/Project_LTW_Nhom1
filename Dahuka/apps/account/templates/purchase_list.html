@@ -1,0 +1,122 @@
+{% extends 'account_base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Quản lý đơn hàng - DAHUKA{% endblock %}
+
+{% block account_body %}
+<link rel="stylesheet" href="{% static 'account/css/purchase_list.css' %}">
+
+<h1 class="account-heading">Quản lý đơn hàng</h1>
+
+<div class="filter-bar d-flex justify-content-between align-items-center mb-4">
+    <form method="GET" class="d-flex align-items-center" style="gap: 10px;">
+        <input type="text" name="q" class="search-input" placeholder="Tìm kiếm theo mã đơn..." value="{{ query }}">
+
+        <div class="filter-dropdown-wrapper" id="statusFilter">
+            <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('statusFilter')">
+                <span class="filter-value">
+                    {% if current_status %}
+                        {% for value, label in status_choices %}
+                            {% if value == current_status %}{{ label }}{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        Tất cả trạng thái
+                    {% endif %}
+                </span>
+                <span class="arrow">▾</span>
+            </div>
+            <div class="filter-dropdown-menu">
+                <div class="filter-item {% if not current_status %}selected{% endif %}" data-value="" onclick="selectFilterItem(this, 'statusFilter')">
+                    Tất cả trạng thái<span class="check-icon">✓</span>
+                </div>
+                {% for value, label in status_choices %}
+                    <div class="filter-item {% if current_status == value %}selected{% endif %}" data-value="{{ value }}" onclick="selectFilterItem(this, 'statusFilter')">
+                        {{ label }}<span class="check-icon">✓</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <select name="status" id="realStatusSelect" style="display: none;">
+            <option value="">Tất cả trạng thái</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-search">Tìm kiếm</button>
+    </form>
+</div>
+
+<div class="order-list">
+    {% for order in orders %}
+        <section class="account-card order-card">
+            <div class="order-top">
+                <div style="flex: 1;">
+                    <div class="order-code">{{ order.order_code }}</div>
+                    <div class="order-meta">
+                        <div class="order-meta-item">
+                            <span class="order-meta-label">Ngày đặt đơn:</span>
+                            <span class="order-meta-value">{{ order.created_at|date:"d-m-Y H:i" }}</span>
+                        </div>
+                        <div class="order-meta-item">
+                            <span class="order-meta-label">Họ tên:</span>
+                            <span class="order-meta-value">{{ order.full_name }}</span>
+                        </div>
+                        <div class="order-meta-item">
+                            <span class="order-meta-label">Số điện thoại:</span>
+                            <span class="order-meta-value">{{ order.phone }}</span>
+                        </div>
+                        <div class="order-meta-item">
+                            <span class="order-meta-label">Địa chỉ:</span>
+                            <span class="order-meta-value">{{ order.full_address }}</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="order-status-badge {{ order.status }}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+            <div class="order-bottom">
+                <div class="order-actions">
+                    <a href="{% url 'cart:reorder' order.id %}">Mua lại</a>
+                    <a href="{% url 'purchase_detail' order.id %}">Xem chi tiết</a>
+                </div>
+                <div class="order-total">Tổng tiền: <strong>{{ order.total_amount|intcomma }} đ</strong></div>
+            </div>
+        </section>
+    {% empty %}
+        <div style="color: #98a1ad; padding: 10px 0;">Bạn chưa có đơn hàng nào.</div>
+    {% endfor %}
+</div>
+
+{% if orders.has_other_pages %}
+<div class="pagination-lite">
+    {% if orders.has_previous %}
+        <a href="?page={{ orders.previous_page_number }}&q={{ request.GET.q }}&status={{ request.GET.status }}" style="text-decoration: none;"><span>&lt;</span></a>
+    {% else %}
+        <span style="opacity: 0.5;">&lt;</span>
+    {% endif %}
+
+    {% for num in orders.paginator.page_range %}
+        {% if orders.number == num %}
+            <span class="active">{{ num }}</span>
+        {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+            <a href="?page={{ num }}&q={{ request.GET.q }}&status={{ request.GET.status }}" style="text-decoration: none;"><span>{{ num }}</span></a>
+        {% endif %}
+    {% endfor %}
+
+    {% if orders.has_next %}
+        <a href="?page={{ orders.next_page_number }}&q={{ request.GET.q }}&status={{ request.GET.status }}" style="text-decoration: none;"><span>&gt;</span></a>
+    {% else %}
+        <span style="opacity: 0.5;">&gt;</span>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'account/js/purchase_list.js' %}"></script>
+{% endblock %}
+

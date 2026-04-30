@@ -42,7 +42,7 @@
 /* Image Card */
 .main-image-card {
     border: 1px solid var(--brand-green);
-    border-radius: 0;
+    border-radius: 12px;
     background: #f0faf4;
     overflow: hidden;
 }
@@ -75,7 +75,7 @@
 /* Accordion */
 .image-sections-accordion .acc-item {
     border: 1.5px solid var(--border-gray);
-    border-radius: 0;
+    border-radius: 10px;
     margin-bottom: 10px;
     background: var(--white);
     overflow: hidden;
@@ -124,7 +124,7 @@
     width: 50px;
     height: 50px;
     border: 1.5px solid var(--border-gray);
-    border-radius: 0;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -140,7 +140,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 0;
+    border-radius: 8px;
 }
 
 .thumb-item.add-btn {
@@ -156,7 +156,7 @@
 .form-section-card {
     background: var(--white);
     border: 1px solid var(--border-gray);
-    border-radius: 0;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
@@ -198,7 +198,7 @@
 
 .form-control-dahuka {
     border: 1.5px solid var(--border-gray);
-    border-radius: 0;
+    border-radius: 8px;
     padding: 10px 16px;
     font-size: 14px;
     color: #1e293b;
@@ -288,7 +288,7 @@ select.form-control-dahuka {
     color: var(--white) !important;
     border: none;
     padding: 10px 24px;
-    border-radius: 0;
+    border-radius: 8px;
     font-weight: 700;
     font-size: 13px;
     display: flex;
@@ -307,7 +307,7 @@ select.form-control-dahuka {
     color: var(--text-main) !important;
     border: 1.5px solid var(--border-gray);
     padding: 10px 24px;
-    border-radius: 0;
+    border-radius: 8px;
     font-weight: 700;
     font-size: 13px;
     display: flex;
@@ -327,7 +327,7 @@ select.form-control-dahuka {
     color: var(--text-main);
     border: none;
     padding: 10px 24px;
-    border-radius: 0;
+    border-radius: 8px;
     font-weight: 700;
     font-size: 13px;
 }
@@ -363,7 +363,7 @@ select.form-control-dahuka {
     top: 0; left: 0; right: 0; bottom: 0;
     background-color: #cbd5e1;
     transition: .3s;
-    border-radius: 0;
+    border-radius: 30px;
 }
 
 .slider-ios:before {
@@ -375,7 +375,7 @@ select.form-control-dahuka {
     bottom: 3px;
     background-color: white;
     transition: .3s;
-    border-radius: 0;
+    border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -402,7 +402,7 @@ input:checked + .slider-ios:before {
     background: var(--brand-green);
     color: var(--white);
     padding: 15px 30px;
-    border-radius: 0;
+    border-radius: 12px;
     box-shadow: 0 10px 30px rgba(26, 107, 60, 0.3);
     z-index: 10000;
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);

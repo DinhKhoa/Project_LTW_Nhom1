@@ -1,8 +1,15 @@
 from django import forms
+from django.utils import timezone
 from .models import Promotion
 from apps.products.models import Product
 
 class PromotionForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['products'].queryset = Product.objects.filter(is_active=True)
+        self.fields['is_active'].initial = False
+        self.fields['start_date'].initial = timezone.localtime().date()
+
     class Meta:
         model = Promotion
         fields = [
@@ -10,11 +17,11 @@ class PromotionForm(forms.ModelForm):
             'value', 'start_date', 'end_date', 'products', 'is_active'
         ]
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'input-field', 'placeholder': 'VD: Khuyến mãi Tết Nguyên Đán 2026'}),
-            'code': forms.TextInput(attrs={'class': 'input-field', 'placeholder': 'HERUCR026'}),
-            'condition': forms.Textarea(attrs={'class': 'input-field', 'rows': 3, 'placeholder': 'Điều kiện áp dụng...'}),
-            'discount_type': forms.Select(attrs={'class': 'input-field'}),
-            'value': forms.NumberInput(attrs={'class': 'input-field', 'placeholder': '10'}),
+            'name': forms.TextInput(attrs={'class': 'input-field'}),
+            'code': forms.TextInput(attrs={'class': 'input-field', 'readonly': 'readonly', 'style': 'background-color: #f1f5f9; cursor: not-allowed;'}),
+            'condition': forms.TextInput(attrs={'class': 'input-field'}),
+            'discount_type': forms.Select(attrs={'class': 'input-field', 'style': 'display: none;'}),
+            'value': forms.TextInput(attrs={'class': 'input-field'}),
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'input-field'}),
             'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'input-field'}),
             'products': forms.CheckboxSelectMultiple(),

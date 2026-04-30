@@ -35,9 +35,9 @@ class AccountService:
         return False, "Mật khẩu cũ không chính xác"
 
     @staticmethod
-    def cancel_order(order, reason):
+    def cancel_order(order, reason, user=None):
+        from apps.orders.services import OrderService
         if order.status in ['pending', 'processing']:
-            order.status = 'cancelled'
-            order.save()
+            OrderService.handle_order_action(order, 'cancel', cancel_reason=reason, user=user)
             return True, "Đã hủy đơn hàng thành công"
         return False, "Không thể hủy đơn hàng này"

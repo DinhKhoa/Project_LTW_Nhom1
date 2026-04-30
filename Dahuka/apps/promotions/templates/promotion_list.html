@@ -15,34 +15,57 @@
     <h1 class="page-title mb-4">Quản lý khuyến mãi</h1>
 
     <!-- Task 3: Summary Boxes -->
-    <div class="summary-container-dahuka d-flex gap-3 mb-4">
-        <div class="summary-box-card flex-fill">
+    <div class="summary-container-dahuka d-flex gap-3 mb-4 align-items-stretch">
+        <a href="?status=" class="summary-box-card flex-fill">
             <div class="label">Tổng khuyến mãi</div>
             <div class="value color-total">{{ total_count }}</div>
-        </div>
-        <div class="summary-box-card flex-fill">
+        </a>
+        <a href="?status=active" class="summary-box-card flex-fill">
             <div class="label">Đang hoạt động</div>
             <div class="value color-active">{{ active_count }}</div>
-        </div>
-        <div class="summary-box-card flex-fill">
+        </a>
+        <a href="?status=upcoming" class="summary-box-card flex-fill">
             <div class="label">Sắp diễn ra</div>
             <div class="value color-upcoming">{{ upcoming_count }}</div>
-        </div>
-        <div class="summary-box-card flex-fill">
+        </a>
+        <a href="?status=ended" class="summary-box-card flex-fill">
             <div class="label">Đã kết thúc</div>
             <div class="value color-ended">{{ ended_count }}</div>
-        </div>
+        </a>
     </div>
 
     <!-- Task 4 & Task 2: Filter Bar and Add Button -->
-    <div class="filter-bar d-flex justify-content-between align-items-center mb-4">
+    <div class="filter-bar d-flex justify-content-between align-items-center mb-4 mt-3">
         <div class="d-flex align-items-center" style="gap: 12px;">
-            <input type="text" class="search-input" placeholder="Tìm tên hoặc mã khuyến mãi..." style="width: 320px;">
+            <input type="text" class="search-input" placeholder="Tìm tên hoặc mã khuyến mãi..." style="width: 320px;" value="{{ request.GET.q }}">
             
             <div class="filter-dropdown-wrapper" id="statusFilter">
-                <div class="filter-dropdown-btn">
-                    <span class="filter-value">Trạng thái: Tất cả</span>
+                <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('statusFilter')">
+                    <span class="filter-value">
+                        {% if request.GET.status == 'active' %}Đang hoạt động
+                        {% elif request.GET.status == 'upcoming' %}Sắp diễn ra
+                        {% elif request.GET.status == 'ended' %}Đã kết thúc
+                        {% else %}Tất cả trạng thái{% endif %}
+                    </span>
                     <span class="arrow">▾</span>
+                </div>
+                <div class="filter-dropdown-menu">
+                    <div class="filter-item d-flex justify-content-between align-items-center {% if not request.GET.status %}selected{% endif %}" data-value="" onclick="selectFilterItem(this, 'statusFilter')">
+                        Tất cả trạng thái
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <div class="filter-item d-flex justify-content-between align-items-center {% if request.GET.status == 'active' %}selected{% endif %}" data-value="active" onclick="selectFilterItem(this, 'statusFilter')">
+                        Đang hoạt động
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <div class="filter-item d-flex justify-content-between align-items-center {% if request.GET.status == 'upcoming' %}selected{% endif %}" data-value="upcoming" onclick="selectFilterItem(this, 'statusFilter')">
+                        Sắp diễn ra
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <div class="filter-item d-flex justify-content-between align-items-center {% if request.GET.status == 'ended' %}selected{% endif %}" data-value="ended" onclick="selectFilterItem(this, 'statusFilter')">
+                        Đã kết thúc
+                        <span class="check-icon">✓</span>
+                    </div>
                 </div>
             </div>
 
@@ -50,13 +73,13 @@
         </div>
 
         <a href="{% url 'promotions:add_promotion' %}" class="btn-dahuka-main">
-            <i class="fa fa-plus mr-2"></i> Thêm khuyến mãi
+            <i class="fa fa-plus"></i> Thêm khuyến mãi
         </a>
     </div>
 
     <!-- Promotions Table -->
-    <div class="table-container shadow-sm">
-        <table class="table product-table mb-0">
+    <div class="product-table-wrapper">
+        <table class="product-table">
             <thead>
                 <tr>
                     <th class="text-center">TÊN CHƯƠNG TRÌNH</th>
@@ -101,8 +124,13 @@
                     </td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center align-items-center" style="gap: 15px;">
-                            <a href="#" style="color: #2563eb; font-size: 14px;" title="Chỉnh sửa"><i class="fa fa-pencil"></i></a>
-                            <a href="#" style="color: #dc2626; font-size: 14px;" title="Xóa"><i class="fa fa-trash"></i></a>
+                            <a href="{% url 'promotions:edit_promotion' promo.pk %}" style="color: #2563eb; font-size: 14px;" title="Chỉnh sửa"><i class="fa fa-pencil"></i></a>
+                            <form action="{% url 'promotions:delete_promotion' promo.pk %}" method="POST" style="display: inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khuyến mãi này?');">
+                                {% csrf_token %}
+                                <button type="submit" style="background: none; border: none; color: #dc2626; font-size: 14px; cursor: pointer; padding: 0;" title="Xóa">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -115,26 +143,39 @@
         </table>
     </div>
 
-    <!-- Task 2: Functional Pagination -->
+    <!-- Functional Pagination -->
     {% if page_obj.has_other_pages %}
-    <div class="pagination-wrapper mt-4">
-        {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" class="page-link-btn"><i class="fa fa-chevron-left"></i></a>
-        {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-                <span class="page-link-btn active">{{ num }}</span>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}" class="page-link-btn">{{ num }}</a>
+    <nav aria-label="Page navigation" class="d-flex justify-content-center mt-3 mb-5">
+        <ul class="pagination custom-pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&status={{ request.GET.status }}">&lsaquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&lsaquo;</span>
+                </li>
             {% endif %}
-        {% endfor %}
 
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" class="page-link-btn"><i class="fa fa-chevron-right"></i></a>
-        {% endif %}
-    </div>
+            {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}&q={{ request.GET.q }}&status={{ request.GET.status }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&status={{ request.GET.status }}">&rsaquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&rsaquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
     {% endif %}
+
 </div>
 {% endblock %}
 
@@ -153,9 +194,16 @@
         text-align: center;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         transition: transform 0.2s;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     .summary-box-card:hover {
         transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
     }
     .summary-box-card .label {
         font-size: 14px;
@@ -188,40 +236,63 @@
     }
 
     /* Filter Bar standard */
-
-    /* Pagination Logic Styles */
-    .pagination-wrapper {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 30px;
-    }
-    .page-link-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        background: #fff;
-        color: #475569;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-    .page-link-btn:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-    }
-    .page-link-btn.active {
-        background: #0f172a;
-        color: #fff;
-        border-color: #0f172a;
-    }
 </style>
 {% endblock %}
 
 {% block extra_js %}
-    <!-- Script for promotion_list is empty for now -->
-{% endblock %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        window.toggleFilterDropdown = function(id) {
+            var wrapper = document.getElementById(id);
+            var btn = wrapper.querySelector('.filter-dropdown-btn');
+            var menu = wrapper.querySelector('.filter-dropdown-menu');
+
+            document.querySelectorAll('.filter-dropdown-wrapper').forEach(function (w) {
+                if (w.id !== id) {
+                    w.querySelector('.filter-dropdown-btn').classList.remove('open');
+                    w.querySelector('.filter-dropdown-menu').classList.remove('show');
+                }
+            });
+
+            btn.classList.toggle('open');
+            menu.classList.toggle('show');
+        };
+
+        window.selectFilterItem = function(item, wrapperId) {
+            var wrapper = document.getElementById(wrapperId);
+            var value = item.getAttribute('data-value');
+            var query = document.querySelector('.search-input').value;
+            window.location.href = `?status=${value}&q=${query}`;
+        };
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.filter-dropdown-wrapper')) {
+                document.querySelectorAll('.filter-dropdown-wrapper').forEach(function(w) {
+                    const btn = w.querySelector('.filter-dropdown-btn');
+                    const menu = w.querySelector('.filter-dropdown-menu');
+                    if (btn) btn.classList.remove('open');
+                    if (menu) menu.classList.remove('show');
+                });
+            }
+        });
+        
+        const btnSearch = document.querySelector('.btn-search');
+        if (btnSearch) {
+            btnSearch.addEventListener('click', function() {
+                var query = document.querySelector('.search-input').value;
+                var currentStatus = new URLSearchParams(window.location.search).get('status') || '';
+                window.location.href = `?status=${currentStatus}&q=${query}`;
+            });
+        }
+        
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    if (btnSearch) btnSearch.click();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

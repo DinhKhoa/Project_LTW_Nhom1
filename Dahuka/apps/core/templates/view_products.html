@@ -13,7 +13,7 @@
     <img src="{% static 'img/BANNER.png' %}" alt="Máy lọc nước Dahuka">
     <div class="catalog-hero-overlay">
         <div class="catalog-hero-text">
-            <h1>Máy Lọc Nước Dahuka</h1>
+            <h1>{% if current_category %}{{ current_category.name }}{% else %}Máy Lọc Nước Dahuka{% endif %}</h1>
             <p>Giải pháp lọc nước thông minh từ Nhật Bản, mang lại nguồn nước tinh khiết đạt chuẩn uống trực tiếp tại vòi cho gia đình bạn.</p>
         </div>
     </div>
@@ -22,7 +22,7 @@
 <main class="catalog-page container-shell" style="padding: 40px 0;">
     <nav class="page-breadcrumbs">
         <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
-        <b>Máy lọc nước</b>
+        <b>{% if current_category %}{{ current_category.name }}{% else %}Máy lọc nước{% endif %}</b>
     </nav>
 
     <div class="section-title-row catalog-title-row" style="margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between;">
@@ -31,123 +31,159 @@
             <div class="line" style="flex: 1; height: 1px; background: var(--border); max-width: 400px;"></div>
         </div>
         <div class="catalog-sort dropdown">
-            <button class="account-btn-outline" type="button" style="height: 42px; gap: 10px; padding: 0 20px;">
-                <span class="label">Sắp xếp: Mới nhất</span>
+            <button class="account-btn-outline" type="button" style="height: 42px; gap: 10px; padding: 0 20px;" onclick="toggleSort()">
+                <span id="sortLabel" class="label">Sắp xếp: {% if current_sort == 'oldest' %}Cũ nhất{% else %}Mới nhất{% endif %}</span>
                 <i class="fa fa-angle-down"></i>
             </button>
+            <div id="sortOptions" class="catalog-sort-menu">
+                <a href="javascript:void(0)" onclick="updateSort('newest', 'Mới nhất')" style="display: block; padding: 10px 20px; color: var(--ink); text-decoration: none;">Mới nhất</a>
+                <a href="javascript:void(0)" onclick="updateSort('oldest', 'Cũ nhất')" style="display: block; padding: 10px 20px; color: var(--ink); text-decoration: none;">Cũ nhất</a>
+            </div>
         </div>
     </div>
 
     <section class="catalog-layout">
         <aside class="catalog-filters">
-            <div class="filter-group">
-                <h3>Hệ thống lõi lọc</h3>
-                <div class="filter-options">
-                    <label class="filter-label"><input type="checkbox"> 3 lõi</label>
-                    <label class="filter-label"><input type="checkbox"> 7 lõi</label>
-                    <label class="filter-label"><input type="checkbox"> 8 lõi</label>
-                    <label class="filter-label"><input type="checkbox"> 9 lõi</label>
-                    <label class="filter-label"><input type="checkbox"> 10 lõi</label>
-                    <label class="filter-label"><input type="checkbox"> 11 lõi</label>
-                    <label class="filter-label"><input type="checkbox"> 12 lõi</label>
+            <form id="filterForm" onchange="applyFilters()">
+                {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                {% if cat_slug %}<input type="hidden" name="cat" value="{{ cat_slug }}">{% endif %}
+                <input type="hidden" name="sort" id="sortInput" value="{{ current_sort }}">
+                
+                {% if is_water_purifier %}
+                <div class="filter-group">
+                    <h3>Hệ thống lõi lọc</h3>
+                    <div class="filter-options">
+                        <label class="filter-label"><input type="checkbox" name="core" value="3" {% if '3' in selected_cores %}checked{% endif %}> 3 lõi</label>
+                        <label class="filter-label"><input type="checkbox" name="core" value="7" {% if '7' in selected_cores %}checked{% endif %}> 7 lõi</label>
+                        <label class="filter-label"><input type="checkbox" name="core" value="8" {% if '8' in selected_cores %}checked{% endif %}> 8 lõi</label>
+                        <label class="filter-label"><input type="checkbox" name="core" value="9" {% if '9' in selected_cores %}checked{% endif %}> 9 lõi</label>
+                        <label class="filter-label"><input type="checkbox" name="core" value="10" {% if '10' in selected_cores %}checked{% endif %}> 10 lõi</label>
+                        <label class="filter-label"><input type="checkbox" name="core" value="11" {% if '11' in selected_cores %}checked{% endif %}> 11 lõi</label>
+                        <label class="filter-label"><input type="checkbox" name="core" value="12" {% if '12' in selected_cores %}checked{% endif %}> 12 lõi</label>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="filter-group">
-                <h3>Loại nguồn nước</h3>
-                <div class="filter-options">
-                    <label class="filter-label"><input type="checkbox"> Nước lợ</label>
-                    <label class="filter-label"><input type="checkbox"> Nước máy</label>
-                    <label class="filter-label"><input type="checkbox"> Nước cứng</label>
+                {% endif %}
+                
+                <div class="filter-group">
+                    <h3>Khoảng giá</h3>
+                    <div class="filter-options">
+                        <label class="filter-label"><input type="checkbox" name="price" value="4-6" {% if '4-6' in selected_prices %}checked{% endif %}> Từ 4 - 6 triệu</label>
+                        <label class="filter-label"><input type="checkbox" name="price" value="6-8" {% if '6-8' in selected_prices %}checked{% endif %}> Từ 6 - 8 triệu</label>
+                        <label class="filter-label"><input type="checkbox" name="price" value="8-10" {% if '8-10' in selected_prices %}checked{% endif %}> Từ 8 - 10 triệu</label>
+                        <label class="filter-label"><input type="checkbox" name="price" value="10+" {% if '10+' in selected_prices %}checked{% endif %}> Trên 10 triệu</label>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="filter-group">
-                <h3>Khoảng giá</h3>
-                <div class="filter-options">
-                    <label class="filter-label"><input type="checkbox"> Từ 4 - 6 triệu</label>
-                    <label class="filter-label"><input type="checkbox"> Từ 6 - 8 triệu</label>
-                    <label class="filter-label"><input type="checkbox"> Từ 8 - 10 triệu</label>
-                    <label class="filter-label"><input type="checkbox"> Trên 10 triệu</label>
-                </div>
-            </div>
+            </form>
         </aside>
 
-        <div class="catalog-products">
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">
-                {% for sp in products %}
-                <article class="catalog-card" data-id="{{ sp.id }}" data-name="{{ sp.name }}" data-price="{{ sp.price|floatformat:'0' }}đ" 
-                         data-img="{{ sp.main_image_url }}">
-                    <div class="catalog-product-visual">
-                        <img src="{{ sp.main_image_url }}" alt="{{ sp.name }}">
-                    </div>
-                    <h3>{{ sp.name }}</h3>
-                    <p class="catalog-price">{{ sp.price|floatformat:"0" }}đ</p>
-                    <div class="catalog-card-actions">
-                        <a href="{% url 'core:product_detail' sp.pk %}" class="account-btn-dark" style="flex: 1;">Tìm hiểu thêm</a>
-                        {% if not user.is_staff %}
-                        <form action="{% url 'cart:add_product_to_cart' %}" method="post" style="display: inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="product_id" value="{{ sp.id }}">
-                            <button type="submit" class="account-btn-outline" style="width: 42px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); background: transparent; cursor: pointer;">
-                                <i class="fa fa-shopping-cart"></i>
-                            </button>
-                        </form>
-                        {% endif %}
-                    </div>
-                    <button class="account-btn-outline compare-btn" type="button" style="margin-top: 12px; font-size: 13px; height: 36px; width: 100%; gap: 8px;">
-                        <i class="fa fa-plus-circle"></i> So sánh
-                    </button>
-                </article>
-                {% empty %}
-                <p class="text-center w-100">Hiện đang cập nhật sản phẩm.</p>
-                {% endfor %}
+        <div id="productListContainer" class="catalog-products">
+            <div id="loadingOverlay" class="loading-overlay">
+                <div class="spinner"></div>
             </div>
-
-            {% if products.has_other_pages %}
-            <div class="catalog-pagination" style="margin-top: 60px;">
-                {% if products.has_previous %}
-                    <a href="?page={{ products.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="account-btn-outline"><i class="fa fa-angle-left"></i></a>
-                {% else %}
-                    <button class="account-btn-outline" disabled><i class="fa fa-angle-left"></i></button>
-                {% endif %}
-
-                {% for num in products.paginator.page_range %}
-                    {% if products.number == num %}
-                        <button class="account-btn-dark" style="width: 42px;">{{ num }}</button>
-                    {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
-                        <a href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="account-btn-outline" style="width: 42px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">{{ num }}</a>
-                    {% endif %}
-                {% endfor %}
-
-                {% if products.has_next %}
-                    <a href="?page={{ products.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="account-btn-outline"><i class="fa fa-angle-right"></i></a>
-                {% else %}
-                    <button class="account-btn-outline" disabled><i class="fa fa-angle-right"></i></button>
-                {% endif %}
+            <div id="productListWrapper">
+                {% include 'partials/product_list_partial.html' %}
             </div>
-            {% endif %}
         </div>
     </section>
 </main>
 
-<!-- Comparison Sticky Bar -->
-<div class="compare-bar" id="compareBar">
-    <div class="compare-bar-inner">
-        <div class="compare-items-list" id="compareItemsList">
-            <!-- Items will be added here via JS -->
-        </div>
-        <div class="compare-actions">
-            <span class="compare-count-label" id="compareCountLabel">Đã chọn 0 sản phẩm</span>
-            <a href="{% url 'core:product_comparison' %}" class="account-btn-dark" id="btnCompareGo" style="opacity: 0.5; pointer-events: none; height: 48px; padding: 0 40px;">So sánh ngay</a>
-            <button class="btn-ghost" type="button" id="btnClearAll" style="border: none;">Xóa tất cả</button>
-        </div>
-    </div>
-</div>
+<script>
+    function toggleSort() {
+        document.getElementById('sortOptions').classList.toggle('show');
+    }
+
+    // Close dropdown when clicking outside
+    window.onclick = function(event) {
+        if (!event.target.closest('.catalog-sort')) {
+            var dropdowns = document.getElementsByClassName("catalog-sort-menu");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+
+    function updateSort(val, label) {
+        document.getElementById('sortInput').value = val;
+        document.getElementById('sortLabel').innerText = 'Sắp xếp: ' + label;
+        document.getElementById('sortOptions').classList.remove('show');
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const form = document.getElementById('filterForm');
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+        
+        loadData(params.toString());
+        
+        // Update URL without reloading
+        const newUrl = window.location.pathname + '?' + params.toString();
+        window.history.pushState({path: newUrl}, '', newUrl);
+    }
+
+    function loadPage(page) {
+        const form = document.getElementById('filterForm');
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+        params.set('page', page);
+        
+        loadData(params.toString());
+        
+        // Update URL
+        const newUrl = window.location.pathname + '?' + params.toString();
+        window.history.pushState({path: newUrl}, '', newUrl);
+        
+        // Scroll to top of product list
+        document.getElementById('productListContainer').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function loadData(queryString) {
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.classList.add('active');
+        
+        fetch(`{% url 'core:product_catalog' %}?${queryString}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('productListWrapper').innerHTML = html;
+            overlay.classList.remove('active');
+            
+            // Re-attach pagination listeners after AJAX update
+            attachPaginationListeners();
+        })
+        .catch(error => {
+            console.error('Error fetching products:', error);
+            overlay.classList.remove('active');
+        });
+    }
+
+    function attachPaginationListeners() {
+        const links = document.querySelectorAll('.pagination-link');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.getAttribute('data-page');
+                if (page) {
+                    loadPage(page);
+                }
+            });
+        });
+    }
+
+    // Initial attachment
+    document.addEventListener('DOMContentLoaded', attachPaginationListeners);
+</script>
+    </section>
+</main>
 
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/view_products.js' %}"></script>
 {% endblock %}
 

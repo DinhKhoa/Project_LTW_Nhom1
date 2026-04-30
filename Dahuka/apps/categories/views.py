@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from apps.core.decorators import staff_required
+from apps.core.decorators import admin_required
 from apps.core.utils import get_paginated_data
 from django.http import JsonResponse
 from django.contrib import messages
@@ -11,7 +11,7 @@ from apps.products.services import ProductsService
 
 
 @login_required
-@staff_required
+@admin_required
 def category_list(request):
     query = request.GET.get("q", "")
     categories_qs = Category.objects.all().order_by("id")
@@ -33,7 +33,7 @@ def category_list(request):
 
 
 @login_required
-@staff_required
+@admin_required
 def category_add(request):
     if request.method == "POST":
         form = CategoryForm(request.POST, request.FILES)
@@ -48,7 +48,7 @@ def category_add(request):
 
 
 @login_required
-@staff_required
+@admin_required
 def category_edit(request, pk):
     category = get_object_or_404(Category, pk=pk)
     if request.method == "POST":
@@ -66,7 +66,7 @@ def category_edit(request, pk):
 
 
 @login_required
-@staff_required
+@admin_required
 def category_delete(request, pk):
     if request.method == "POST":
         category = get_object_or_404(Category, pk=pk)
@@ -77,7 +77,7 @@ def category_delete(request, pk):
 
 
 @login_required
-@staff_required
+@admin_required
 def get_category_products(request, pk):
     category = get_object_or_404(Category, pk=pk)
     products = ProductsService.format_products_for_dropdown(category)

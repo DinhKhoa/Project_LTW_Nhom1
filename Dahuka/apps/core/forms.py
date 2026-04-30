@@ -3,13 +3,17 @@ from django.contrib.auth.models import User
 from apps.account.models import Address, Customer
 
 class CustomerForm(forms.ModelForm):
-    last_name = forms.CharField(max_length=150, required=False, label='Họ')
-    first_name = forms.CharField(max_length=150, required=False, label='Tên')
-    email = forms.EmailField(required=False)
+    last_name = forms.CharField(max_length=150, required=False, label='Họ', widget=forms.TextInput(attrs={'autocomplete': 'family-name', 'class': 'account-field'}))
+    first_name = forms.CharField(max_length=150, required=False, label='Tên', widget=forms.TextInput(attrs={'autocomplete': 'given-name', 'class': 'account-field'}))
+    email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'autocomplete': 'email', 'class': 'account-field'}))
 
     class Meta:
         model = Customer
         fields = ['gender', 'birthday', 'phone']
+        widgets = {
+            'phone': forms.TextInput(attrs={'autocomplete': 'tel', 'class': 'account-field'}),
+            'birthday': forms.HiddenInput(),
+        }
 
     def save(self, user=None, commit=True):
         customer = super().save(commit=False)
@@ -26,7 +30,7 @@ class CustomerForm(forms.ModelForm):
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
-        fields = ['full_name', 'phone', 'email', 'province', 'district', 'ward', 'address_detail', 'address_type', 'is_default']
+        fields = ['full_name', 'phone', 'province', 'district', 'ward', 'address_detail', 'address_type', 'is_default']
 
 
 class PasswordChangeForm(forms.Form):

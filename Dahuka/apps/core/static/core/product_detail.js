@@ -4,18 +4,18 @@ function updateMainImage(thumbElement) {
     if (img && mainImg) {
         mainImg.src = img.src;
         // Update active state
-        document.querySelectorAll('.thumb-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.thumb-box').forEach(el => el.classList.remove('active'));
         thumbElement.classList.add('active');
     }
 }
 
 function openTab(btn, tabId) {
-    // Toggle Buttons
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    // Toggle Buttons - support both legacy and minimal classes
+    document.querySelectorAll('.tab-btn, .tab-btn-minimal').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    // Toggle Contents
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    // Toggle Contents - support both legacy and minimal classes
+    document.querySelectorAll('.tab-content, .tab-content-minimal').forEach(c => c.classList.remove('active'));
     const target = document.getElementById(tabId);
     if (target) {
         target.classList.add('active');
@@ -23,5 +23,5 @@ function openTab(btn, tabId) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Any initialization logic for detail page
+    // Initialization logic if needed
 });

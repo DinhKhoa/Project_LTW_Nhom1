@@ -88,7 +88,7 @@ window.toggleVisibility = function(event, productId, element) {
 
     const isVisible = !element.classList.contains('active-toggle');
     const label = element.querySelector('.toggle-label');
-    fetch(`/products/${productId}/toggle-visibility/`, {
+    fetch(`/products/toggle-visibility/${productId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -136,22 +136,17 @@ window.openCategoryModal = function(mode, id, ma, ten) {
     var modal = document.getElementById('categoryModal');
     var form = document.getElementById('categoryForm');
     var title = document.getElementById('modalTitle');
-    var maGroup = document.getElementById('maDanhMucGroup');
-    var maInput = document.getElementById('category_code');
     var tenInput = document.getElementById('category_name');
     var submitBtn = document.getElementById('submitBtn');
 
     if (mode === 'edit') {
         title.textContent = 'CHỈNH SỬA DANH MỤC';
         form.action = '/categories/edit/' + id + '/';
-        maGroup.style.display = 'block';
-        maInput.value = ma || id;
         tenInput.value = ten;
         submitBtn.innerHTML = 'Cập nhật';
     } else {
         title.textContent = 'THÊM DANH MỤC MỚI';
         form.action = '/categories/add/';
-        maGroup.style.display = 'none';
         tenInput.value = '';
         submitBtn.innerHTML = 'Thêm mới';
     }

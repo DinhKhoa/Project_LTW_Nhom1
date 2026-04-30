@@ -78,7 +78,7 @@
                     <h2>{{ home_settings.mutosi_pro_title|linebreaksbr }}</h2>
                     <p>{{ home_settings.mutosi_pro_desc }}</p>
                     <b>{{ home_settings.mutosi_pro_highlight }}</b>
-                    <a href="{% url 'core:product_catalog' %}" class="btn-explore">Khám phá ngay</a>
+                    <a href="{% url 'products:product_list' %}" class="btn-explore">Khám phá ngay</a>
                 </div>
                 <div class="promo-image-box text-right">
                     {% if home_settings.mutosi_pro_image %}
@@ -92,33 +92,32 @@
     </div>
 
     <!-- 4. Khám phá máy lọc nước -->
-    <section class="home-section py-5 admin-edit-overlay">
+    <section class="home-section pt-4 pb-5 admin-edit-overlay">
         {% if user.is_superuser %}
         <button class="admin-edit-btn" onclick="location.href='/admin/core/homepagesettings/'"><i class="fa fa-plus"></i> Thêm từ sản phẩm</button>
         {% endif %}
         
         <div class="container-shell">
-            <h2 class="section-title-main">Khám phá máy lọc nước ion kiềm Hydrogen Mutosi</h2>
-            <div class="showcase-grid" id="productCarousel">
-                {% for sp in featured_products %}
-                <div class="showcase-item">
-                    <a href="{% url 'products:product_detail' sp.id %}" style="text-decoration: none; color: inherit;">
-                        {% if sp.image %}
-                        <img src="{{ sp.image.url }}" alt="{{ sp.name }}">
-                        {% else %}
-                        <img src="{% static 'img/no-image.png' %}" alt="No image">
-                        {% endif %}
-                        <h3>{{ sp.name }}</h3>
-                    </a>
+            <h2 class="section-title-main">Khám phá máy lọc nước</h2>
+            <div class="carousel-wrapper">
+                <div class="showcase-grid" id="productCarousel">
+                    {% for sp in featured_products %}
+                    <div class="showcase-item" data-id="{{ sp.id }}" data-img="{{ sp.main_image_url }}">
+                        <a href="{% url 'core:view_product_detail' sp.slug %}" style="text-decoration: none; color: inherit;">
+                            {% if sp.image %}
+                            <img src="{{ sp.image.url }}" alt="{{ sp.name }}">
+                            {% else %}
+                            <img src="{% static 'img/no-image.png' %}" alt="No image">
+                            {% endif %}
+                            <h3 style="margin-top: 10px; font-size: 16px; font-weight: 600;">{{ sp.name }}</h3>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p class="text-center w-100">Hiện chưa có sản phẩm nổi bật.</p>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <p class="text-center w-100">Hiện chưa có sản phẩm nổi bật.</p>
-                {% endfor %}
             </div>
-            <div class="carousel-dots" id="productDots">
-                <div class="dot active"></div>
-                <div class="dot"></div>
-            </div>
+            <div class="carousel-dots" id="productDots"></div>
         </div>
     </section>
 

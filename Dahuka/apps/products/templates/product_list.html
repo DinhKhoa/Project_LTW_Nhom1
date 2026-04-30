@@ -4,6 +4,7 @@
 {% block title %}Danh sách sản phẩm - DAHUKA{% endblock title %}
 
 {% block content %}
+{% csrf_token %}
 <div class="content-wide-layout mt-4 mb-5">
     <!-- Breadcrumb -->
     <nav class="page-breadcrumbs">
@@ -13,8 +14,8 @@
     <!-- Title -->
     <h1 class="page-title">Quản lý sản phẩm</h1>
 
-        <!-- Filter Bar -->
-        <div class="filter-bar d-flex justify-content-between align-items-center mt-3">
+    <!-- Filter Bar -->
+    <div class="filter-bar d-flex justify-content-between align-items-center mb-4 mt-3">
             <div class="d-flex align-items-center" style="gap: 10px;">
                 <input type="text" class="search-input" id="searchInput"
                        placeholder="Tìm kiếm theo tên hoặc mã sản phẩm...">
@@ -79,20 +80,6 @@
             </a>
         </div>
 
-        <!-- Active Filters -->
-        <div class="active-filters">
-            <div class="filter-tag {% if category_id != 'all' %}show{% endif %}" id="categoryTag">
-                <span class="tag-text">Danh mục:
-                    {% for cat in categories %}{% if cat.id|stringformat:"i" == category_id %}{{ cat.name }}
-                    {% endif %}{% endfor %}</span>
-                <span class="remove-filter" onclick="removeFilter('category')">✕</span>
-            </div>
-            <div class="filter-tag {% if inventory_filter != 'default' %}show{% endif %}" id="inventoryTag">
-                <span class="tag-text">Tồn kho: {% if inventory_filter == 'low-to-high' %}Thấp → Cao{% else %}Cao →
-                    Thấp{% endif %}</span>
-                <span class="remove-filter" onclick="removeFilter('inventory')">✕</span>
-            </div>
-        </div>
 
         <!-- Stock Legend -->
         <div class="stock-legend">
@@ -168,6 +155,6 @@
 {% endblock content %}
 
 {% block extra_js %}
-    <script src="{% static 'product_admin.js' %}"></script>
+    <script src="{% static 'product_admin.js' %}?v=1.2"></script>
 {% endblock extra_js %}
 

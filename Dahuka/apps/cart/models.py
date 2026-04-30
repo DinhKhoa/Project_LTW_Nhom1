@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from decimal import Decimal
 from apps.products.models import Product
 
 class Cart(models.Model):
@@ -12,18 +13,16 @@ class Cart(models.Model):
         verbose_name = "Giỏ hàng"
         verbose_name_plural = "Các giỏ hàng"
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.user:
             return f"Cart of {self.user.username}"
         return f"Cart {self.session_key}"
 
     @property
-    def total_price(self):
-        return sum(item.subtotal for item in self.items.all())
+    def total_price(self) -> Decimal:
+        """Calculates total price of all items in cart."""
+        return sum((item.subtotal for item in self.items.all()), Decimal(0))
 
-    @property
-    def selected_total_price(self):
-        return sum(item.subtotal for item in self.items.filter(is_selected=True))
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
@@ -31,7 +30,6 @@ class CartItem(models.Model):
     variant = models.CharField(max_length=100, blank=True, null=True)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=12, decimal_places=0) # Price at time of adding
-    is_selected = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -39,9 +37,10 @@ class CartItem(models.Model):
         verbose_name = "Sản phẩm trong giỏ"
         verbose_name_plural = "Sản phẩm trong giỏ hàng"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.product.name} (x{self.quantity})"
 
     @property
-    def subtotal(self):
+    def subtotal(self) -> Decimal:
+        """Calculates subtotal for this item (price * quantity)."""
         return self.price * self.quantity

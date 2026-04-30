@@ -1,0 +1,122 @@
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content-small {
+    background: #fff;
+    width: 450px;
+    max-width: 90%;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+}
+
+.modal-content-large {
+    background: #fff;
+    width: 800px;
+    max-width: 95%;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    padding: 15px 20px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: normal;
+    color: #475569;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #94a3b8;
+}
+
+.address-form-grid {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 18px 18px;
+    align-items: start;
+    text-align: left;
+}
+
+.address-form-grid label {
+    color: #7f8792;
+    font-size: 14px;
+    margin: 12px 0 0;
+}
+
+.address-form-grid input:not([type="radio"]):not([type="checkbox"]),
+.address-form-grid select,
+.address-form-grid textarea {
+    width: 100%;
+    border: 1px solid #eceff4;
+    background: #fff;
+    padding: 10px 14px;
+    color: #67707f;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.address-form-grid input:not([type="radio"]):not([type="checkbox"]),
+.address-form-grid select {
+    height: 44px;
+}
+
+.address-type-row {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    color: #5c6474;
+    font-size: 14px;
+    height: 44px;
+}
+
+.address-type-row label,
+.default-check label {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #5c6474;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.default-check {
+    display: flex;
+    align-items: center;
+    height: 44px;
+}
+
+.errorlist {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    color: #cf4f4f;
+    font-size: 12px;
+}
+
+@media (max-width: 900px) {
+    .address-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

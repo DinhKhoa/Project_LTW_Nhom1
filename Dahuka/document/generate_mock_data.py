@@ -12,7 +12,6 @@ from django.contrib.auth.models import User
 from apps.products.models import Product
 from apps.promotions.models import Promotion
 from apps.orders.models import Order, OrderItem
-from apps.tasks.models import InstallationTask
 from apps.cart.models import Cart, CartItem
 
 def generate_data():
@@ -62,9 +61,8 @@ def generate_data():
     promo2.products.set(products[5:])
     print("Created 2 Promotions.")
 
-    # 3. Orders and Tasks
+    # 3. Orders
     Order.objects.all().delete()
-    InstallationTask.objects.all().delete()
     
     statuses = ['pending', 'confirmed', 'processing', 'completed', 'cancelled']
     for i in range(5):
@@ -87,21 +85,7 @@ def generate_data():
         order.total_amount = total
         order.save()
 
-        # Create Task for order
-        task_status = 'pending'
-        if order.status == 'completed':
-            task_status = 'completed'
-        elif order.status == 'processing':
-            task_status = 'in_progress'
-
-        InstallationTask.objects.create(
-            order=order,
-            assigned_staff=tech,
-            status=task_status,
-            completed_at=timezone.now() if task_status == 'completed' else None,
-            note="Cần lắp trong buổi sáng" if i % 2 == 0 else ""
-        )
-    print("Created 5 Orders and InstallationTasks (matched).")
+    print("Created 5 Orders.")
 
     # 4. Cart
     Cart.objects.all().delete()

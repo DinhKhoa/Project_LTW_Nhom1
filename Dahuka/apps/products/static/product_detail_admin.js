@@ -49,12 +49,18 @@ function initAdminGallery() {
 
             input.addEventListener('change', function() {
                 const files = Array.from(this.files);
-                files.forEach(file => {
+                files.forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const newItem = document.createElement('div');
-                        newItem.className = 'thumb-item';
-                        newItem.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                        newItem.className = 'thumb-item newly-added';
+                        // Gắn nút xóa cho ảnh vừa thêm (chưa lưu)
+                        newItem.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="btn-delete-thumb" onclick="removeNewPreview(this)" title="Gỡ ảnh này">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        `;
                         thumbList.insertBefore(newItem, addBtn);
                     };
                     reader.readAsDataURL(file);
@@ -62,6 +68,14 @@ function initAdminGallery() {
             });
         }
     });
+}
+
+// Hàm gỡ ảnh preview chưa lưu
+function removeNewPreview(btn) {
+    const item = btn.closest('.thumb-item');
+    item.style.opacity = '0';
+    item.style.transform = 'scale(0.8)';
+    setTimeout(() => item.remove(), 200);
 }
 
 function initFeaturedToggle() {

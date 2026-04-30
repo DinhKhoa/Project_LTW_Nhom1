@@ -1,23 +1,42 @@
 {% if page_obj.has_other_pages %}
-<nav class="pagination-wrapper" aria-label="Pagination Navigation">
-    {% if page_obj.has_previous %}
-        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" class="page-btn" aria-label="Previous page">«</a>
-    {% else %}
-        <button class="page-btn disabled" disabled aria-label="Previous page (disabled)">«</button>
-    {% endif %}
-
-    {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
-            <button class="page-btn active" aria-current="page" aria-label="Page {{ num }} (current)">{{ num }}</button>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" class="page-btn" aria-label="Go to page {{ num }}">{{ num }}</a>
+<nav aria-label="Page navigation" class="d-flex justify-content-center mt-3 mb-5">
+    <ul class="pagination custom-pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">&lsaquo;</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&lsaquo;</span>
+            </li>
         {% endif %}
-    {% endfor %}
 
-    {% if page_obj.has_next %}
-        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" class="page-btn" aria-label="Next page">»</a>
-    {% else %}
-        <button class="page-btn disabled" disabled aria-label="Next page (disabled)">»</button>
-    {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.paginator.num_pages <= 7 %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                </li>
+            {% else %}
+                {% if num == 1 or num == 2 or num == page_obj.paginator.num_pages or num == page_obj.paginator.num_pages|add:"-1" or num == page_obj.number or num == page_obj.number|add:"-1" or num == page_obj.number|add:"1" %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                    </li>
+                {% elif num == 3 and page_obj.number > 4 %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">&rsaquo;</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&rsaquo;</span>
+            </li>
+        {% endif %}
+    </ul>
 </nav>
 {% endif %}
+

@@ -44,7 +44,6 @@ class Address(models.Model):
     )
     full_name = models.CharField(max_length=100, verbose_name="Tên người nhận")
     phone = models.CharField(max_length=20, verbose_name="Số điện thoại")
-    email = models.EmailField(verbose_name="Email")
     province = models.CharField(max_length=100, verbose_name="Tỉnh/Thành phố")
     district = models.CharField(max_length=100, verbose_name="Quận/Huyện")
     ward = models.CharField(max_length=100, verbose_name="Phường/Xã")

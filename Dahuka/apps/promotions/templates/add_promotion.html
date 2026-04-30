@@ -5,138 +5,152 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        main {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .form-container {
-            width: 60%;
-            background: #f8fafc;
-            border-radius: 12px;
-            border: 1px solid #ccc;
-            padding: 30px;
-            margin-top: 20px;
-        }
-
-        .form-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .form-row label {
-            flex: 0 0 180px;
-            font-size: 13px;
-            font-weight: 700;
-            color: #333;
-            text-transform: uppercase;
-        }
-
-        .input-field {
-            flex: 1;
-            height: 44px;
-            padding: 0 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: flex-end;
-            margin-top: 20px;
-        }
-
-        .btn-save, .btn-back {
-            height: 44px;
-            padding: 0 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-save {
-            background-color: #2563EB;
-            color: #fff;
-            border: none;
-        }
-
-        .btn-save:hover {
-            background-color: #fff;
-            color: #2563EB;
-            border: 1px solid #2563EB;
-        }
-
-        .btn-back {
-            background-color: #000;
-            color: #fff;
-            border: none;
-        }
-
-        .btn-back:hover {
-            background-color: #fff;
-            color: #000;
-            border: 1px solid #000;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'promotions/css/promotion_form.css' %}">
 {% endblock %}
 
 {% block content %}
-    <main>
-        <div style="margin-bottom: 20px; font-size: 14px;">
-            <a href="{% url 'core:home' %}" style="text-decoration: none; color: inherit;">Trang chủ</a> /
-            Quản lý khuyến mãi / <b>Thêm khuyến mãi</b>
+    <main class="content-wide-layout mt-4 mb-5">
+        <!-- Breadcrumb -->
+        <nav class="page-breadcrumbs">
+            <a href="{% url 'core:home' %}">Trang chủ</a> 
+            <span class="sep"><i class="fa fa-chevron-right"></i></span>
+            <a href="{% url 'promotions:promotion_list' %}">Quản lý khuyến mãi</a>
+            <span class="sep"><i class="fa fa-chevron-right"></i></span>
+            <b>{% if is_edit %}Chỉnh sửa{% else %}Thêm mới{% endif %} khuyến mãi</b>
+        </nav>
+
+        <div style="margin-bottom: 30px;">
+            <h1 class="page-title">
+                {% if is_edit %}Chỉnh sửa{% else %}Thêm khuyến mãi mới{% endif %}
+            </h1>
         </div>
 
-        <div style="margin-bottom: 20px; text-align: center;">
-            <h1 style="font-size: 32px; font-weight: 800; color: #333; margin: 0;">Thêm khuyến mãi</h1>
-            <div style="width: 80px; height: 3px; background: #16A34A; margin: 10px auto 0;"></div>
-        </div>
-
-        <div class="form-container">
-            <form method="post">
+        <div class="form-container shadow-sm" style="max-width: 900px; width: 100%; background: #ffffff; border: 1px solid #f1f5f9; margin-bottom: 50px;">
+            <form method="post" enctype="multipart/form-data"
+                  data-is-edit="{% if is_edit %}true{% else %}false{% endif %}"
+                  data-code-id="{{ form.code.id_for_label }}"
+                  data-type-id="{{ form.discount_type.id_for_label }}"
+                  data-condition-id="{{ form.condition.id_for_label }}"
+                  data-value-id="{{ form.value.id_for_label }}"
+                  data-back-url="{% url 'promotions:promotion_list' %}">
                 {% csrf_token %}
-                <div class="form-row">
-                    {{ form.ten_khuyen_mai.label_tag }}
-                    {{ form.ten_khuyen_mai }}
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-row">
+                            {{ form.name.label_tag }}
+                            {{ form.name }}
+                            {% if form.name.errors %}<div class="error-msg">{{ form.name.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-row">
+                            {{ form.code.label_tag }}
+                            {{ form.code }}
+                            {% if form.code.errors %}<div class="error-msg">{{ form.code.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
                 </div>
+
                 <div class="form-row">
-                    {{ form.ma_khuyen_mai.label_tag }}
-                    {{ form.ma_khuyen_mai }}
+                    <label style="margin-bottom: 12px;">Điều kiện áp dụng:</label>
+                    <div style="display: flex; align-items: center; gap: 12px; font-size: 15px; color: #1e293b; font-weight: 500;">
+                        <span>Cho đơn hàng từ</span>
+                        <div class="value-wrapper" style="width: 160px;">
+                            {{ form.condition }}
+                            <span class="value-unit">đ</span>
+                        </div>
+                        <span>trở lên</span>
+                    </div>
+                    {% if form.condition.errors %}<div class="error-msg">{{ form.condition.errors.0 }}</div>{% endif %}
                 </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-row">
+                            {{ form.discount_type.label_tag }}
+                            <div class="filter-dropdown-wrapper" id="discountTypeFilter">
+                                <div class="filter-dropdown-btn" onclick="toggleFilterDropdown('discountTypeFilter')">
+                                    <span class="filter-value">
+                                        {% if form.discount_type.value == 'percent' %}Phần trăm
+                                        {% elif form.discount_type.value == 'fixed' %}Giá cố định
+                                        {% else %}Phần trăm{% endif %}
+                                    </span>
+                                    <span class="arrow">▾</span>
+                                </div>
+                                <div class="filter-dropdown-menu">
+                                    <div class="filter-item {% if form.discount_type.value == 'percent' or not form.discount_type.value %}selected{% endif %}" data-value="percent" onclick="selectFilterItem(this, 'discountTypeFilter')">
+                                        Phần trăm <span class="check-icon">✓</span>
+                                    </div>
+                                    <div class="filter-item {% if form.discount_type.value == 'fixed' %}selected{% endif %}" data-value="fixed" onclick="selectFilterItem(this, 'discountTypeFilter')">
+                                        Giá cố định <span class="check-icon">✓</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {{ form.discount_type }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-row">
+                            {{ form.value.label_tag }}
+                            <div class="value-wrapper">
+                                {{ form.value }}
+                                <span id="discountUnit" class="value-unit">
+                                    {% if form.discount_type.value == 'percent' or not form.discount_type.value %}%{% else %}đ{% endif %}
+                                </span>
+                            </div>
+                            {% if form.value.errors %}<div class="error-msg">{{ form.value.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-row" style="margin-top: 40px; display: flex; flex-direction: row; align-items: center; gap: 10px; line-height: 1;">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}" style="margin: 0; text-transform: none; cursor: pointer; display: flex; align-items: center;">Kích hoạt ngay</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            {{ form.start_date.label_tag }}
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}<div class="error-msg">{{ form.start_date.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            {{ form.end_date.label_tag }}
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}<div class="error-msg">{{ form.end_date.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden span for measuring text width -->
+                <span id="widthMeasure"></span>
+
                 <div class="form-row">
-                    {{ form.tong_don.label_tag }}
-                    {{ form.tong_don }}
+                    {{ form.products.label_tag }}
+                    <div class="products-grid" style="max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; background: #f8fafc;">
+                        {{ form.products }}
+                    </div>
+                    {% if form.products.errors %}<div class="error-msg">{{ form.products.errors.0 }}</div>{% endif %}
                 </div>
-                <div class="form-row">
-                    {{ form.hinh_thuc.label_tag }}
-                    {{ form.hinh_thuc }}
-                    {{ form.gia_tri }}
-                    <span id="discountUnit">%</span>
-                </div>
-                <div class="form-row">
-                    {{ form.ngay_bat_dau.label_tag }}
-                    {{ form.ngay_bat_dau }}
-                    {{ form.ngay_ket_thuc.label_tag }}
-                    {{ form.ngay_ket_thuc }}
-                </div>
-                <div class="form-row">
-                    {{ form.san_pham_ap_dung.label_tag }}
-                    {{ form.san_pham_ap_dung }}
-                </div>
-                <div class="action-buttons">
-                    <button type="submit" class="btn-save"><i class="fa fa-save"></i> Lưu khuyến mãi</button>
-                    <button type="button" class="btn-back" onclick="window.history.back()"><i
-                            class="fa fa-arrow-left"></i> Quay lại
+
+                <div class="action-buttons" style="border-top: 1px solid #e2e8f0; padding-top: 25px; margin-top: 30px;">
+                    <button type="button" class="btn-back" id="btnBack">
+                        <i class="fa fa-arrow-left"></i> Quay lại
+                    </button>
+                    <button type="submit" class="btn-save">
+                        <i class="fa fa-save"></i> {% if is_edit %}Cập nhật{% else %}Lưu khuyến mãi{% endif %}
                     </button>
                 </div>
             </form>
         </div>
     </main>
+
+{% block extra_js %}
+    <script src="{% static 'promotions/js/promotion_form.js' %}"></script>
+{% endblock %}
 {% endblock %}

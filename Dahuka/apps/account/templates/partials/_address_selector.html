@@ -1,0 +1,264 @@
+<style>
+    .address-selector-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .address-selector-item {
+        padding: 16px;
+        border: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        transition: all 0.2s;
+        background: #fff;
+        position: relative;
+    }
+    .address-selector-item:hover {
+        border-color: #2563b8;
+        background: #f8fbff;
+    }
+    .address-selector-item.active {
+        border-color: #2563b8;
+        background: #f8fbff;
+    }
+    .address-clickable-area {
+        flex: 1;
+        cursor: pointer;
+    }
+    .address-selector-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+    .address-selector-name {
+        font-weight: 700;
+        font-size: 14px;
+        color: #222;
+        text-transform: uppercase;
+    }
+    .address-selector-phone {
+        color: #777;
+        font-size: 14px;
+    }
+    .address-selector-tag {
+        font-size: 11px;
+        padding: 2px 6px;
+        border: 1px solid #2d9d5d;
+        color: #2d9d5d;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .address-selector-detail {
+        font-size: 13px;
+        color: #555;
+        line-height: 1.5;
+    }
+    .address-selector-actions {
+        display: flex;
+        gap: 12px;
+        margin-left: 15px;
+    }
+    .btn-action-small {
+        font-size: 13px;
+        color: #2563b8;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        font-weight: 600;
+    }
+    .btn-action-small.delete {
+        color: #ef4444;
+    }
+    .btn-add-new-address {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border: 1px dashed #ccc;
+        background: #fafafa;
+        color: #666;
+        text-align: center;
+        font-weight: 600;
+        margin-top: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-add-new-address:hover {
+        background: #f0f0f0;
+        border-color: #999;
+        color: #333;
+    }
+    .address-scroll-container {
+        max-height: 350px;
+        overflow-y: auto;
+        padding-right: 5px; /* space for scrollbar */
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    /* Custom scrollbar for better UI */
+    .address-scroll-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    .address-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+        border-radius: 4px;
+    }
+    .address-scroll-container::-webkit-scrollbar-thumb {
+        background: #c1c1c1; 
+        border-radius: 4px;
+    }
+    .address-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8; 
+    }
+</style>
+
+<div class="address-selector-list">
+    <div class="address-scroll-container">
+        {% for address in addresses %}
+            <div class="address-selector-item {% if address.id == state.customer.id %}active{% endif %}"
+                 data-id="{{ address.id }}"
+                 data-name="{{ address.full_name }}"
+                 data-phone="{{ address.phone }}"
+                 data-province="{{ address.province }}"
+                 data-district="{{ address.district }}"
+                 data-ward="{{ address.ward }}"
+                 data-detail="{{ address.address_detail }}"
+                 data-type="{{ address.address_type }}"
+                 data-default="{{ address.is_default|yesno:'true,false' }}">
+                
+                <div class="address-clickable-area" onclick="selectThisAddress(this)">
+                    <div class="address-selector-header">
+                        <span class="address-selector-name">{{ address.full_name }}</span>
+                        <span class="address-selector-phone">{{ address.phone }}</span>
+                        {% if address.is_default %}
+                            <span class="address-selector-tag">Mặc định</span>
+                        {% endif %}
+                    </div>
+                    <div class="address-selector-detail">
+                        {{ address.address_detail }}<br>
+                        {{ address.ward }}, {{ address.district }}, {{ address.province }}
+                    </div>
+                    <form method="post" style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="select_saved_address">
+                        <input type="hidden" name="address_id" value="{{ address.id }}">
+                    </form>
+                </div>
+
+                <div class="address-selector-actions" onclick="event.stopPropagation()">
+                    <button type="button" class="btn-action-small" onclick="editSavedAddress(this, event)">Chỉnh sửa</button>
+                    <form method="post" onsubmit="return confirm('Xóa địa chỉ này?')" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_saved_address">
+                        <input type="hidden" name="address_id" value="{{ address.id }}">
+                        <button type="submit" class="btn-action-small delete">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        {% empty %}
+            <div style="text-align: center; padding: 20px; color: #888;">
+                Bạn chưa có địa chỉ nào.
+            </div>
+        {% endfor %}
+    </div>
+
+    <button type="button" class="btn-add-new-address" onclick="showNewAddressForm()">
+        + THÊM ĐỊA CHỈ MỚI
+    </button>
+</div>
+
+<script>
+    function selectThisAddress(el) {
+        el.querySelector('form').submit();
+    }
+
+    function showNewAddressForm() {
+        const form = document.getElementById('addressEntryForm');
+        if (form) {
+            // Explicitly clear text inputs and textareas since form.reset() 
+            // only restores the initial values rendered by Django.
+            form.querySelectorAll('input[type="text"], input[type="tel"], textarea').forEach(el => el.value = '');
+            form.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+            form.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+            
+            // Default address type to home
+            const defaultType = form.querySelector('input[name="address_type"][value="home"]');
+            if (defaultType) defaultType.checked = true;
+
+            // Clear hidden fields
+            form.querySelectorAll('input[type="hidden"]').forEach(f => {
+                if (['province', 'district', 'ward', 'id'].includes(f.name)) f.value = '';
+            });
+            // Reset selects
+            form.querySelectorAll('select').forEach(s => {
+                s.value = '';
+                if (s.id !== 'id_province_select') s.disabled = true;
+            });
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'XÁC NHẬN';
+            
+            document.getElementById('customerModalTitle').textContent = 'THÊM ĐỊA CHỈ MỚI';
+        }
+        
+        document.getElementById('addressSelectorView').style.display = 'none';
+        document.getElementById('addressFormView').style.display = 'block';
+    }
+
+    async function editSavedAddress(btn, event) {
+        if (event) event.stopPropagation();
+        const item = btn.closest('.address-selector-item');
+        const form = document.getElementById('addressEntryForm');
+        if (!form) return;
+
+        // Fill basic fields
+        form.querySelector('input[name="full_name"]').value = item.dataset.name;
+        form.querySelector('input[name="phone"]').value = item.dataset.phone;
+        form.querySelector('textarea[name="address_detail"]').value = item.dataset.detail;
+        
+        // Handle radio buttons
+        const typeRadios = form.querySelectorAll('input[name="address_type"]');
+        typeRadios.forEach(r => r.checked = (r.value === item.dataset.type));
+
+        // Set is_default checkbox
+        const defaultCheck = form.querySelector('input[name="is_default"]');
+        if (defaultCheck) {
+            defaultCheck.checked = (item.dataset.default === 'true');
+        }
+
+        // Set ID for updating
+        form.querySelector('input[name="id"]').value = item.dataset.id;
+
+        // Set hidden location fields
+        form.querySelector('input[name="province"]').value = item.dataset.province;
+        form.querySelector('input[name="district"]').value = item.dataset.district;
+        form.querySelector('input[name="ward"]').value = item.dataset.ward;
+
+        // Trigger the location selectors (This is tricky since they are dynamic)
+        // We need to wait for the province list to load, then select, then wait for districts...
+        // For now, let's just show the form. The user might need to re-select locations
+        // unless we enhance the location script to handle pre-filled hidden values better.
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = 'CẬP NHẬT';
+        
+        document.getElementById('customerModalTitle').textContent = 'CHỈNH SỬA ĐỊA CHỈ';
+        document.getElementById('addressSelectorView').style.display = 'none';
+        document.getElementById('addressFormView').style.display = 'block';
+        
+        // Re-run location loading if needed
+        if (window.initLocationFields) {
+            window.initLocationFields(item.dataset.province, item.dataset.district, item.dataset.ward);
+        }
+    }
+    
+    function showAddressSelector() {
+        document.getElementById('addressSelectorView').style.display = 'block';
+        document.getElementById('addressFormView').style.display = 'none';
+        document.getElementById('customerModalTitle').textContent = 'ĐỊA CHỈ CỦA TÔI';
+    }
+</script>

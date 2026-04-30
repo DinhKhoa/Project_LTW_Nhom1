@@ -1,0 +1,198 @@
+.form-container {
+    margin: 20px auto 0;
+    background: #fff;
+    border-radius: 12px;
+    padding: 40px;
+    border: 1px solid #e2e8f0;
+}
+.form-row {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+}
+.form-row label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 0.025em;
+}
+.input-field {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.2s;
+    color: #1e293b;
+}
+.input-field:focus {
+    border-color: #0b6e4f;
+    box-shadow: 0 0 0 3px rgba(11, 110, 79, 0.1);
+    outline: none;
+}
+.error-msg {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* Global Checkbox Styling */
+input[type="checkbox"] {
+    accent-color: #0b6e4f !important;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0; /* Reset margin for alignment */
+}
+
+/* Products Grid Styling */
+.products-grid ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px 24px; /* Increased vertical and horizontal gap */
+}
+.products-grid li {
+    font-size: 14px;
+    color: #334155;
+    display: flex;
+    align-items: center; /* Strict Vertical Center */
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    line-height: 1.2;
+}
+.products-grid li:hover {
+    background: #f0faf5;
+    color: #0b6e4f;
+}
+.products-grid label {
+    margin: 0 !important;
+    padding: 0 !important;
+    text-transform: none !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    letter-spacing: normal !important;
+    display: flex;
+    align-items: center;
+    min-height: 20px;
+}
+
+.btn-save {
+    background-color: #0b6e4f;
+    color: #fff;
+    border: none;
+    height: 48px;
+    padding: 0 32px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-save:hover {
+    background-color: #095a41;
+    transform: translateY(-1px);
+}
+.btn-back {
+    background-color: #fff;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-back:hover {
+    background-color: #f8fafc;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+
+/* Value Unit Styling */
+.value-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.value-wrapper .input-field {
+    padding-right: 16px; /* Reset */
+}
+.value-unit {
+    position: absolute;
+    left: 16px; /* Will be moved by JS */
+    font-size: 15px; /* Consistent with input field */
+    font-weight: 500; /* Subtle, not bold */
+    color: #94a3b8;
+    pointer-events: none;
+    white-space: nowrap;
+}
+/* Hidden span for width measurement */
+#widthMeasure {
+    position: absolute;
+    visibility: hidden;
+    height: auto;
+    width: auto;
+    white-space: pre;
+    font-size: 15px; /* Must match input field */
+    font-family: inherit;
+}
+
+/* Premium Dropdown Styling */
+.filter-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+}
+.filter-dropdown-btn {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0 16px;
+    height: 48px;
+    font-size: 15px;
+    color: #1e293b;
+    background-color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+    user-select: none;
+}
+.filter-dropdown-btn:hover {
+    border-color: #0b6e4f;
+}
+.filter-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.filter-dropdown-menu.show { display: block; }
+.filter-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+}
+.filter-item:hover { background: #f0faf5; color: #0b6e4f; }
+.filter-item.selected { background: #f0faf5; color: #0b6e4f; font-weight: 600; }
+.check-icon { font-size: 11px; display: none; }
+.filter-item.selected .check-icon { display: block; }

@@ -1,4 +1,4 @@
-let selectedCount = 1;
+let selectedCount = 0;
 
 window.toggleItem = function(el) {
     if (el.classList.contains('selected')) {
@@ -9,7 +9,11 @@ window.toggleItem = function(el) {
             el.classList.add('selected');
             selectedCount++;
         } else {
-            alert('Chỉ được chọn tối đa 3 sản phẩm để so sánh!');
+            if (typeof showToast === 'function') {
+                showToast('Chỉ được chọn tối đa 3 sản phẩm để so sánh!', 'warning');
+            } else {
+                alert('Chỉ được chọn tối đa 3 sản phẩm để so sánh!');
+            }
         }
     }
     const countEl = document.getElementById('selection-count');
@@ -19,9 +23,20 @@ window.toggleItem = function(el) {
 };
 
 window.goToCompare = function() {
-    if (selectedCount < 2) {
-        alert('Vui lòng chọn ít nhất 2 sản phẩm để so sánh!');
+    const selectedItems = document.querySelectorAll('.frame-item.selected');
+    if (selectedItems.length < 2) {
+        if (typeof showToast === 'function') {
+            showToast('Vui lòng chọn ít nhất 2 sản phẩm để so sánh!', 'warning');
+        } else {
+            alert('Vui lòng chọn ít nhất 2 sản phẩm để so sánh!');
+        }
         return;
     }
-    window.location.href = "/comparison/";
+    
+    const params = new URLSearchParams();
+    selectedItems.forEach(item => {
+        params.append('id', item.dataset.id);
+    });
+    
+    window.location.href = "/comparison/?" + params.toString();
 };

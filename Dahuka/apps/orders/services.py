@@ -1,22 +1,41 @@
-from django.core.paginator import Paginator
-from django.db.models import Q
-from .models import Order, OrderItem
-from django.contrib.auth.models import User
-from apps.core.constants import DEFAULT_PAGE_SIZE
-
+from typing import Any, Dict, List, Optional
 from django.db import transaction
+from django.contrib.auth.models import User
+from django.urls import reverse
+from apps.core.services import CoreService
+from .models import Order, OrderItem
 
 
 class OrderService:
+    """Service class for order lifecycle management."""
+
     @staticmethod
     @transaction.atomic
-    def create_order(customer, full_name, phone, cart_items, city="", district="", ward="", house_details="", discount_amount=0, hinh_thuc_thanh_toan='chuyen_khoan', trang_thai_thanh_toan='chua_thanh_toan'):
-        total_amount = sum(
+    def create_order(
+        customer: Optional[User],
+        full_name: str,
+        phone: str,
+        cart_items: List[Dict[str, Any]],
+        city: str = "",
+        district: str = "",
+        ward: str = "",
+        house_details: str = "",
+        discount_amount: float = 0,
+        deposit_amount: float = 0,
+        payment_method: str = 'full',
+        payment_status: str = 'chua_thanh_toan',
+        note: str = ""
+    ) -> Order:
+        """
+        Handles order creation logic including stock validation and deduction.
+        """
+        total_amount = float(sum(
             item["price"] * item.get("quantity", 1) for item in cart_items
-        ) - discount_amount
+        )) - float(discount_amount)
         
-        if total_amount < 0: total_amount = 0
-
+        if total_amount < 0:
+            total_amount = 0
+ 
         order = Order.objects.create(
             customer=customer,
             full_name=full_name,
@@ -26,9 +45,11 @@ class OrderService:
             ward=ward,
             house_details=house_details,
             total_amount=total_amount,
+            deposit_amount=deposit_amount,
             status="pending",
-            hinh_thuc_thanh_toan=hinh_thuc_thanh_toan,
-            trang_thai_thanh_toan=trang_thai_thanh_toan,
+            payment_method=payment_method,
+            payment_status=payment_status,
+            note=note
         )
 
         from apps.products.models import Product
@@ -50,69 +71,126 @@ class OrderService:
                 order=order, product=product, quantity=quantity, price=item["price"]
             )
 
+        # Gửi thông báo cho Admin khi có đơn hàng mới
+        admins = User.objects.filter(is_superuser=True)
+        order_url = reverse('orders:order_detail', args=[order.id])
+        for admin in admins:
+            CoreService.create_notification(
+                recipient=admin,
+                title="Đơn đặt hàng mới",
+                message=f"Khách hàng {full_name} vừa đặt một đơn hàng mới (Mã: {order.order_code}).",
+                link=order_url
+            )
+
         return order
 
     @staticmethod
-    def get_orders(query="", status_filter="", page_number=1, per_page=None, user=None):
-        if per_page is None:
-            per_page = DEFAULT_PAGE_SIZE
-        orders = Order.objects.all()
-
-        if user and not user.is_staff:
-            orders = orders.filter(customer=user)
-
-        if query:
-            orders = orders.filter(
-                Q(id__icontains=query)
-                | Q(full_name__icontains=query)
-                | Q(phone__icontains=query)
-            )
-
-        if status_filter:
-            orders = orders.filter(status=status_filter)
-
-        orders = orders.order_by("-created_at")
-        paginator = Paginator(orders, per_page)
-        return paginator.get_page(page_number)
-
-    @staticmethod
-    def handle_order_action(order, action, staff_id=""):
-        if action == "confirm":
-            order.status = "confirmed"
+    def handle_order_action(
+        order: Order, 
+        action: str, 
+        staff_id: str = "",
+        cancel_reason: str = "",
+        proof_image=None,
+        user=None
+    ) -> Order:
+        """
+        Updates order status and manages staff assignments/tasks directly on the Order model.
+        """
+        if action == "assign_staff":
+            if staff_id:
+                try:
+                    staff = User.objects.get(id=staff_id)
+                    order.assigned_staff = staff
+                    order.status = "confirmed"
+                    
+                    # Notify Staff
+                    if staff:
+                        order_url = reverse('orders:order_detail', args=[order.id])
+                        CoreService.create_notification(
+                            recipient=staff,
+                            title="Nhiệm vụ mới: Nhận việc",
+                            message=f"Bạn vừa được giao nhận việc cho đơn hàng {order.order_code}. Vui lòng kiểm tra và bắt đầu xử lý.",
+                            link=order_url
+                        )
+                except (User.DoesNotExist, ValueError):
+                    pass
         elif action == "start_shipping":
             order.status = "processing"
         elif action == "complete":
             order.status = "completed"
+            order.payment_status = "da_thanh_toan" # Auto-set to paid on completion
+            if proof_image:
+                order.proof_image = proof_image
         elif action == "cancel":
             order.status = "cancelled"
-
-        if staff_id:
-            try:
-                staff = User.objects.get(id=staff_id)
-                order.assigned_staff = staff
-            except (User.DoesNotExist, ValueError):
-                pass
-        elif action == "luu_thay_doi":
-            # Only clear staff if action is specifically to save changes and no staff was selected
-            order.assigned_staff = None
+            if cancel_reason:
+                if user:
+                    if user.is_staff or user.is_superuser:
+                        user_info = "Dahuka"
+                    elif user == order.customer:
+                        user_info = "Khách hàng"
+                    else:
+                        user_info = user.get_full_name() or user.username
+                else:
+                    user_info = "Hệ thống"
+                order.cancel_reason = f"{user_info} đã hủy: {cancel_reason}"
 
         order.save()
+        
+        # Notify Customer on status change
+        if action in ["assign_staff", "start_shipping", "complete", "cancel"] and order.customer:
+            status_text = {
+                "assign_staff": "đã được xác nhận",
+                "start_shipping": "đang được giao/xử lý",
+                "complete": "đã hoàn thành",
+                "cancel": "đã bị hủy"
+            }.get(action, "")
+            
+            customer_url = reverse('purchase_detail', args=[order.id])
+            CoreService.create_notification(
+                recipient=order.customer,
+                title="Cập nhật đơn hàng",
+                message=f"Đơn hàng {order.order_code} của bạn {status_text}.",
+                link=customer_url
+            )
 
-        # Update or create InstallationTask only if an assignment exists
-        if order.assigned_staff:
-            from apps.tasks.models import InstallationTask
-            task, created = InstallationTask.objects.get_or_create(order=order)
-            task.assigned_staff = order.assigned_staff
-            task.save()
-        else:
-            # If no staff is assigned, we should probably delete the task or clear its staff
-            from apps.tasks.models import InstallationTask
-            InstallationTask.objects.filter(order=order).update(assigned_staff=None)
+        # Notify Admin when staff completes order
+        if action == "complete":
+            admins = User.objects.filter(is_superuser=True)
+            order_url = reverse('orders:order_detail', args=[order.id])
+            staff_name = order.assigned_staff.get_full_name() or order.assigned_staff.username if order.assigned_staff else "Nhân viên"
+            for admin in admins:
+                CoreService.create_notification(
+                    recipient=admin,
+                    title="Xác nhận hoàn thành đơn hàng",
+                    message=f"Nhân viên {staff_name} đã hoàn thành đơn hàng {order.order_code}. Vui lòng kiểm tra ảnh minh chứng và đối soát.",
+                    link=order_url
+                )
+
+        # Notify Admin and Staff if customer cancels
+        if action == "cancel" and user == order.customer:
+            admins = User.objects.filter(is_superuser=True)
+            order_url = reverse('orders:order_detail', args=[order.id])
+            for admin in admins:
+                CoreService.create_notification(
+                    recipient=admin,
+                    title="Khách hàng hủy đơn",
+                    message=f"Đơn hàng {order.order_code} đã bị khách hàng {order.full_name} hủy. Lý do: {cancel_reason}",
+                    link=order_url
+                )
+            if order.assigned_staff:
+                CoreService.create_notification(
+                    recipient=order.assigned_staff,
+                    title="Đơn hàng bị hủy",
+                    message=f"Đơn hàng {order.order_code} bạn đang phụ trách đã bị khách hàng hủy.",
+                    link=order_url
+                )
 
         return order
 
     @staticmethod
-    def calc_current_step(order):
+    def calc_current_step(order: Order) -> int:
+        """Calculates the current step index for the order progress bar."""
         status_steps = ["pending", "confirmed", "processing", "completed"]
         if order.status in status_steps:
             return status_steps.index(order.status)

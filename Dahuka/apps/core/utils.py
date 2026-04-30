@@ -1,21 +1,38 @@
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.core.constants import DEFAULT_PAGE_SIZE
+from typing import Any, Optional
+from django.http import HttpRequest
+from django.core.paginator import Page, Paginator
 
-def get_paginated_data(queryset, request, per_page=None):
+
+def format_money(value: Optional[Any]) -> str:
     """
-    Hàm tiện ích để phân trang cho bất kỳ queryset nào.
-    Trả về page_obj đã được phân trang dựa trên tham số 'page' từ request.
+    Formats a numeric value into a currency string format (VND style).
+
+    Args:
+        value: The numeric value to format.
+
+    Returns:
+        A string formatted as "1.000.000".
     """
-    if per_page is None:
-        per_page = DEFAULT_PAGE_SIZE
-    page_number = request.GET.get('page', 1)
-    paginator = Paginator(queryset, per_page)
-    
+    if value is None:
+        return "0"
     try:
-        page_obj = paginator.get_page(page_number)
-    except PageNotAnInteger:
-        page_obj = paginator.page(1)
-    except EmptyPage:
-        page_obj = paginator.page(paginator.num_pages)
-        
-    return page_obj
+        return "{:,.0f}".format(float(value)).replace(",", ".")
+    except (ValueError, TypeError):
+        return "0"
+
+
+def get_paginated_data(queryset: Any, request: HttpRequest, per_page: int) -> Page:
+    """
+    Standard pagination utility for Dahuka project.
+
+    Args:
+        queryset: The queryset or list to paginate.
+        request: The current HttpRequest.
+        per_page: Number of items per page.
+
+    Returns:
+        A Django Page object.
+    """
+    page_number = request.GET.get("page", 1)
+    paginator = Paginator(queryset, per_page)
+    return paginator.get_page(page_number)

@@ -1,34 +1,41 @@
-from django.shortcuts import render, get_object_or_404
-from .models import WarrantyCard, MaintenanceHistory
-from django.db.models import Q
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from .models import WarrantyPageSettings
+from apps.orders.models import Order
 
-def warranty_lookup(request):
-    query = request.GET.get('q')
+def warranty_view(request):
+    # Fetch or create settings
+    settings = WarrantyPageSettings.objects.first()
+    if not settings:
+        settings = WarrantyPageSettings.objects.create()
+
+    # Handle Admin Update (POST)
+    if request.method == 'POST' and request.user.is_superuser:
+        if 'image_one' in request.FILES:
+            settings.image_one = request.FILES['image_one']
+        if 'image_two' in request.FILES:
+            settings.image_two = request.FILES['image_two']
+        
+        settings.save()
+        messages.success(request, 'Đã cập nhật cấu hình trang bảo hành!')
+        return redirect('warranty:warranty_view')
+
+    # Search logic (by Order Code or Phone)
+    query = request.GET.get('q', '').strip()
     results = None
     if query:
-        # Tra cứu theo Serial hoặc Số điện thoại (thông qua Profile Customer)
-        results = WarrantyCard.objects.filter(
-            Q(serial_number__iexact=query) | 
-            Q(customer__customer__phone__icontains=query) |
-            Q(customer__username__icontains=query)
-        )
-        if not results.exists():
-            messages.warning(request, f"Không tìm thấy thông tin bảo hành cho: {query}")
-        elif results.count() == 1:
-            # Nếu chỉ có 1 kết quả, redirect thẳng vào chi tiết
-            from django.shortcuts import redirect
-            return redirect('warranty:warranty_detail', serial_number=results.first().serial_number)
-            
-    return render(request, 'warranty/lookup.html', {
-        'results': results, 
-        'query': query
-    })
+        # Search by order_code or customer phone
+        results = Order.objects.filter(
+            Q(order_code__iexact=query) | Q(phone=query)
+        ).filter(status='completed').prefetch_related('items__product')
+        
+        if not results:
+            messages.warning(request, f'Không tìm thấy thông tin bảo hành cho mã: {query}')
 
-def warranty_detail(request, serial_number):
-    card = get_object_or_404(WarrantyCard, serial_number=serial_number)
-    logs = card.maintenance_logs.all().order_by('-date')
-    return render(request, 'warranty/detail.html', {
-        'card': card, 
-        'logs': logs
+    return render(request, 'warranty.html', {
+        'settings': settings,
+        'results': results,
+        'query': query
     })

@@ -4,12 +4,145 @@
 {% block title %}Chi tiết sản phẩm - DAHUKA{% endblock title %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'product_detail.css' %}?v=1.5">
+    <link rel="stylesheet" href="{% static 'product_detail.css' %}?v=1.6">
     <style>
         /* Small overrides or specific page styles if needed */
         .container-shell {
             width: min(1200px, calc(100% - 40px));
             margin: 0 auto;
+        }
+
+        /* Nút xóa ảnh khi hover */
+        .thumb-item {
+            position: relative;
+        }
+
+        .btn-delete-thumb {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 22px;
+            height: 22px;
+            background: #ef4444;
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 0;
+        }
+
+        .thumb-item:hover .btn-delete-thumb {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .btn-delete-thumb:hover {
+            background: #dc2626;
+        }
+
+        /* Custom Modal Styles */
+        .dahuka-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .dahuka-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .dahuka-modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            width: 360px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+        }
+
+        .dahuka-modal-overlay.show .dahuka-modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header-simple {
+            margin-bottom: 16px;
+        }
+
+        .modal-header-simple i {
+            font-size: 40px;
+            color: #ef4444;
+            margin-bottom: 12px;
+        }
+
+        .modal-header-simple h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .dahuka-modal-content p {
+            color: #4b5563;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .modal-actions-simple {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-actions-simple button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            flex: 1;
+        }
+
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-confirm-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-confirm-delete:hover {
+            background: #dc2626;
         }
     </style>
 {% endblock extra_css %}
@@ -78,8 +211,11 @@
                             <div class="thumb-list" data-type="gallery">
                                 {% if images_by_type.gallery %}
                                     {% for img in images_by_type.gallery %}
-                                    <div class="thumb-item">
+                                    <div class="thumb-item" data-img-id="{{ img.id }}">
                                         <img src="{{ img.image_url.url }}" alt="">
+                                        <button type="button" class="btn-delete-thumb js-delete-saved-image" data-img-id="{{ img.id }}" title="Xóa ảnh này">
+                                            <i class="fa fa-times"></i>
+                                        </button>
                                     </div>
                                     {% endfor %}
                                 {% endif %}
@@ -96,8 +232,11 @@
                             <div class="thumb-list" data-type="specs">
                                 {% if images_by_type.specs %}
                                     {% for img in images_by_type.specs %}
-                                    <div class="thumb-item">
+                                    <div class="thumb-item" data-img-id="{{ img.id }}">
                                         <img src="{{ img.image_url.url }}" alt="">
+                                        <button type="button" class="btn-delete-thumb js-delete-saved-image" data-img-id="{{ img.id }}" title="Xóa ảnh này">
+                                            <i class="fa fa-times"></i>
+                                        </button>
                                     </div>
                                     {% endfor %}
                                 {% endif %}
@@ -113,8 +252,11 @@
                             <div class="thumb-list" data-type="features">
                                 {% if images_by_type.features %}
                                     {% for img in images_by_type.features %}
-                                    <div class="thumb-item">
+                                    <div class="thumb-item" data-img-id="{{ img.id }}">
                                         <img src="{{ img.image_url.url }}" alt="">
+                                        <button type="button" class="btn-delete-thumb js-delete-saved-image" data-img-id="{{ img.id }}" title="Xóa ảnh này">
+                                            <i class="fa fa-times"></i>
+                                        </button>
                                     </div>
                                     {% endfor %}
                                 {% endif %}
@@ -130,8 +272,11 @@
                             <div class="thumb-list" data-type="description">
                                 {% if images_by_type.description %}
                                     {% for img in images_by_type.description %}
-                                    <div class="thumb-item">
+                                    <div class="thumb-item" data-img-id="{{ img.id }}">
                                         <img src="{{ img.image_url.url }}" alt="">
+                                        <button type="button" class="btn-delete-thumb js-delete-saved-image" data-img-id="{{ img.id }}" title="Xóa ảnh này">
+                                            <i class="fa fa-times"></i>
+                                        </button>
                                     </div>
                                     {% endfor %}
                                 {% endif %}
@@ -375,8 +520,87 @@
             <span>Lưu thay đổi thành công!</span>
         </div>
     </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="customConfirmModal" class="dahuka-modal-overlay">
+        <div class="dahuka-modal-content">
+            <div class="modal-header-simple">
+                <i class="fa fa-exclamation-triangle"></i>
+                <h3>Xác nhận xóa</h3>
+            </div>
+            <p>Bạn có chắc chắn muốn xóa ảnh này không? Hành động này không thể hoàn tác.</p>
+            <div class="modal-actions-simple">
+                <button type="button" class="btn-cancel" onclick="closeConfirmModal()">Hủy</button>
+                <button type="button" class="btn-confirm-delete" id="confirmDeleteBtn">Xóa ngay</button>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block extra_js %}
 <script src="{% static 'product_detail_admin.js' %}?v=1.0.2"></script>
+<script>
+    let currentDeleteContext = { btn: null, imgId: null };
+
+    function closeConfirmModal() {
+        document.getElementById('customConfirmModal').classList.remove('show');
+    }
+
+    function deleteImage(btn, imgId) {
+        // Lưu lại context để dùng khi bấm xác nhận trong modal
+        currentDeleteContext = { btn, imgId };
+        document.getElementById('customConfirmModal').classList.add('show');
+    }
+
+    // Lắng nghe sự kiện click cho các nút xóa ảnh đã lưu (Dùng Event Delegation để tránh lỗi lặp lại)
+    document.addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('.js-delete-saved-image');
+        if (deleteBtn) {
+            const imgId = deleteBtn.getAttribute('data-img-id');
+            deleteImage(deleteBtn, imgId);
+        }
+    });
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+        const { btn, imgId } = currentDeleteContext;
+        if (!btn || !imgId) return;
+
+        closeConfirmModal();
+
+        try {
+            const response = await fetch(`/products/delete-image/${imgId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                const thumbItem = btn.closest('.thumb-item');
+                thumbItem.style.opacity = '0';
+                thumbItem.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    thumbItem.remove();
+                }, 300);
+
+                const toast = document.getElementById('saveToast');
+                toast.querySelector('span').textContent = 'Đã xóa ảnh thành công!';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            } else {
+                alert('Lỗi: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error deleting image:', error);
+            alert('Đã có lỗi xảy ra khi xóa ảnh.');
+        }
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('customConfirmModal').addEventListener('click', function(e) {
+        if (e.target === this) closeConfirmModal();
+    });
+</script>
 {% endblock extra_js %}

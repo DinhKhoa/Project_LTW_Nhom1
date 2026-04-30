@@ -35,7 +35,7 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() in ("1", "true", "yes")
 if DEBUG and os.environ.get("DJANGO_ENV") == "production":
     raise ValueError("DEBUG must be False in production. Set DJANGO_DEBUG=False")
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,.ngrok-free.dev").split(",")
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,.ngrok-free.dev,.ngrok-free.app,.ngrok.io").split(",")
 
 # SECURITY SETTINGS
 SECURE_BROWSER_XSS_FILTER = True
@@ -57,6 +57,8 @@ else:
 # CSRF configuration
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.dev",
+    "https://*.ngrok-free.app",
+    "https://*.ngrok.io",
 ]
 if os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS"):
     CSRF_TRUSTED_ORIGINS.extend(os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS").split(","))
@@ -107,6 +109,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.notification_counts",
                 "apps.core.context_processors.global_categories",
+                "apps.cart.context_processors.cart_count",
             ],
         },
     },
@@ -150,7 +153,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "vi"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Ho_Chi_Minh"
 
 USE_I18N = True
 
