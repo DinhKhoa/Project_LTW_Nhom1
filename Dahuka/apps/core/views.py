@@ -67,12 +67,8 @@ def product_catalog(request):
     # Search logic
     query = request.GET.get("q")
     if query:
-        from django.db.models import Q
-        products_list = products_list.filter(
-            Q(name__icontains=query) | 
-            Q(sku__icontains=query) | 
-            Q(category__name__icontains=query)
-        ).distinct()
+        # Chỉ tìm theo tên sản phẩm để thu hẹp phạm vi theo ý anh
+        products_list = products_list.filter(name__icontains=query).distinct()
 
     is_water_purifier = True
     
@@ -145,6 +141,7 @@ def product_catalog(request):
             "selected_prices": filter_prices,
             "current_category": current_category,
             "cat_slug": category_slug,
+            "query": query,
         },
     )
 
@@ -261,11 +258,15 @@ def admin_dashboard(request):
     cancel_rate = (orders_qs.filter(status="cancelled", created_at__gte=start_date, created_at__lt=end_date).count() / finished_orders_count * 100) if finished_orders_count > 0 else 0
 
     # New vs Returning Customers
-    current_customer_ids = current_orders.values_list('customer_id', flat=True).distinct()
+    # Guest Customers (Khách vãng lai) = orders without customer_id
+    guest_customers_count = current_orders.filter(customer__isnull=True).count()
+    
+    # Registered Customers = distinct customer_ids from orders
+    registered_customer_ids = current_orders.exclude(customer__isnull=True).values_list('customer_id', flat=True).distinct()
     new_customers_count = 0
     returning_customers_count = 0
     
-    for cid in current_customer_ids:
+    for cid in registered_customer_ids:
         has_ordered_before = orders_qs.filter(customer_id=cid, created_at__lt=start_date).exists()
         if has_ordered_before:
             returning_customers_count += 1
@@ -391,6 +392,7 @@ def admin_dashboard(request):
         "cancel_rate": cancel_rate,
         "new_customers": new_customers_count,
         "returning_customers": returning_customers_count,
+        "guest_customers": guest_customers_count,
         "rev_growth": rev_growth,
         "rev_growth_abs": rev_growth_abs,
         "chart_labels": chart_labels,

@@ -13,8 +13,11 @@
     {% block extra_css %}{% endblock %}
     <style>
 
-        body {
+        html, body {
             margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
             font-family: 'Montserrat', sans-serif;
             color: var(--ink);
             background: #fff;
@@ -473,8 +476,17 @@
             align-items: center;
         }
         .search-input-wrapper.active {
-            width: 220px;
+            width: 320px;
+            max-width: calc(100vw - 400px); /* Đảm bảo không đẩy các thành phần khác ra khỏi màn hình */
             margin-right: 12px;
+        }
+        @media (max-width: 768px) {
+            .search-input-wrapper.active {
+                width: 200px;
+            }
+            .search-suggestions {
+                width: 200px;
+            }
         }
         .header-search-field {
             width: 100%;
@@ -489,6 +501,75 @@
         .header-search-field:focus {
             border-color: var(--brand);
             background: #fff;
+        }
+
+        /* Search Suggestions Dropdown */
+        .search-suggestions {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 320px;
+            background: #fff;
+            border: 1px solid var(--brand);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 1001;
+            display: block;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .search-suggestions.active { 
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: inherit;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s;
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { 
+            background: #f8fafc;
+            padding-left: 20px;
+        }
+
+        .suggestion-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+        .suggestion-info { flex: 1; min-width: 0; }
+        .suggestion-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #111;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .suggestion-price {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--brand);
+        }
+        .suggestion-no-results {
+            padding: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
         }
 
         .hotline-wrapper {
@@ -842,9 +923,10 @@
                 <div class="search-container">
                     <div class="search-input-wrapper" id="headerSearchWrapper">
                         <form action="{% url 'core:product_catalog' %}" method="GET" style="width: 100%;">
-                            <input type="text" name="q" class="header-search-field" placeholder="Tìm sản phẩm, mã sản phẩm...">
+                            <input type="text" name="q" class="header-search-field" placeholder="Tìm kiếm sản phẩm..." autocomplete="off" id="headerSearchInput">
                         </form>
                     </div>
+                    <div class="search-suggestions" id="searchSuggestions"></div>
                     <a href="javascript:void(0)" id="headerSearchToggle" aria-label="Tìm kiếm"><i class="fa fa-search"></i></a>
                 </div>
 
@@ -1558,6 +1640,64 @@
                 }
             }
             return cookieValue;
+        }
+    });
+</script>
+<script>
+    // Search Autocomplete Logic
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById('headerSearchInput');
+        const suggestionsBox = document.getElementById('searchSuggestions');
+        let debounceTimer;
+
+        if (searchInput && suggestionsBox) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+                
+                if (query.length < 2) {
+                    suggestionsBox.classList.remove('active');
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`/api/search-suggestions/?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.results && data.results.length > 0) {
+                                let html = '';
+                                data.results.forEach(item => {
+                                    html += `
+                                        <a href="${item.url}" class="suggestion-item">
+                                            <img src="${item.image}" class="suggestion-img" alt="${item.name}">
+                                            <div class="suggestion-info">
+                                                <div class="suggestion-name">${item.name}</div>
+                                                <div class="suggestion-price">${item.price}</div>
+                                            </div>
+                                        </a>
+                                    `;
+                                });
+                                suggestionsBox.innerHTML = html;
+                                suggestionsBox.classList.add('active');
+                            } else {
+                                suggestionsBox.innerHTML = '<div class="suggestion-no-results">Không tìm thấy sản phẩm.</div>';
+                                suggestionsBox.classList.add('active');
+                            }
+                        });
+                }, 300);
+            });
+
+            // Hide on escape or outside click
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    suggestionsBox.classList.remove('active');
+                }
+            });
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    suggestionsBox.classList.remove('active');
+                }
+            });
         }
     });
 </script>

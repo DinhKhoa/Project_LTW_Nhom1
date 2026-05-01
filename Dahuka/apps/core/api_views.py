@@ -43,3 +43,32 @@ def mark_notification_read(request, notif_id):
 def mark_all_notifications_read(request):
     Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
     return JsonResponse({'status': 'success'})
+
+@require_GET
+def api_product_suggestions(request):
+    from apps.products.models import Product
+    from django.urls import reverse
+    
+    query = request.GET.get('q', '').strip()
+    if not query or len(query) < 2:
+        return JsonResponse({'status': 'success', 'results': []})
+    
+    # Chỉ tìm theo tên sản phẩm, bỏ qua SKU theo yêu cầu của anh
+    products = Product.objects.filter(
+        name__icontains=query,
+        is_active=True
+    ).order_by('-id')[:8] # Giới hạn 8 kết quả cho gọn
+    
+    results = []
+    for p in products:
+        results.append({
+            'name': p.name,
+            'price': f"{p.price:,.0f}đ".replace(',', '.'), # Định dạng tiền tệ
+            'image': p.main_image_url,
+            'url': reverse('core:view_product_detail', args=[p.slug])
+        })
+        
+    return JsonResponse({
+        'status': 'success',
+        'results': results
+    })

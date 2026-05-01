@@ -18,4 +18,5 @@ urlpatterns = [
     path('api/notifications/', api_views.fetch_notifications, name='api_fetch_notifications'),
     path('api/notifications/<int:notif_id>/read/', api_views.mark_notification_read, name='api_mark_notification_read'),
     path('api/notifications/read-all/', api_views.mark_all_notifications_read, name='api_mark_all_notifications_read'),
+    path('api/search-suggestions/', api_views.api_product_suggestions, name='api_search_suggestions'),
 ]
