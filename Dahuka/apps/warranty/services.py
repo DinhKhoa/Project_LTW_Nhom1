@@ -6,9 +6,6 @@ from .selectors import get_warranty_settings
 class WarrantyService:
     @staticmethod
     def update_settings(files: MultiValueDict) -> WarrantyPageSettings:
-        """
-        Updates the warranty page settings with new images.
-        """
         settings = get_warranty_settings()
         
         if 'image_one' in files:

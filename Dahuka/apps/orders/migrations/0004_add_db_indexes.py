@@ -10,12 +10,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Add index on Order.status for frequent filtering
         migrations.AddIndex(
             model_name='order',
             index=models.Index(fields=['status'], name='order_status_idx'),
         ),
-        # Add composite index for customer + created_at (common query pattern)
         migrations.AddIndex(
             model_name='order',
             index=models.Index(fields=['customer', 'created_at'], name='order_customer_date_idx'),

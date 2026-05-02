@@ -8,11 +8,11 @@ from decimal import Decimal
 from apps.promotions.models import Promotion
 from apps.orders.services import OrderService
 from apps.products.models import Product
+from apps.core.utils import format_money
 from .models import Cart, CartItem
 from apps.core.constants import CART_DEFAULT_DEPOSIT_PERCENT
 
 class CartService:
-    """Service class for shopping cart and checkout operations."""
 
     @staticmethod
     def get_or_create_cart(request: HttpRequest) -> Cart:
@@ -43,7 +43,6 @@ class CartService:
 
     @staticmethod
     def get_checkout_state(request: HttpRequest) -> Dict[str, Any]:
-        """Manages checkout state in session, initializing with customer data if needed."""
         if "checkout_state" not in request.session:
             customer_data = {
                 "full_name": "", "phone": "", "province": "", "district": "",
@@ -77,7 +76,6 @@ class CartService:
             }
 
         state = request.session["checkout_state"]
-        # Sync address if empty
         if request.user.is_authenticated and not state["customer"].get("full_name"):
             try:
                 profile = request.user.customer
@@ -97,7 +95,6 @@ class CartService:
 
     @staticmethod
     def handle_cart_action(request: HttpRequest, cart_obj: Cart, state: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Processes AJAX and standard POST actions from the cart screen."""
         action = request.POST.get("action")
         if not action: return None
 
@@ -157,6 +154,22 @@ class CartService:
             "discount_amount": discount_amount, "applied_promotions": applied_promotions,
             "final_total": final_total, "deposit_amount": deposit_amount,
             "remaining_amount": final_total - deposit_amount, "deposit_percent": deposit_percent,
+        }
+
+    @staticmethod
+    def get_ajax_payload(cart_obj: Cart, state: Dict[str, Any]) -> Dict[str, Any]:
+        apply_promos = state.get("current_screen") != "cart"
+        totals = CartService.get_cart_totals(cart_obj, state, apply_promos=apply_promos)
+        return {
+            "cart_payment_type": state["cart_payment_type"],
+            "deposit_percent": state["deposit_percent"],
+            "formatted_deposit_amount": format_money(totals["deposit_amount"]),
+            "formatted_total_price": format_money(totals["final_total"]),
+            "formatted_base_total": format_money(totals["total_price"]),
+            "discount_amount": format_money(totals["discount_amount"]),
+            "coupon_code": state.get("coupon_code", ""),
+            "cart_count": cart_obj.items.count(),
+            "selected_count": len(state["selected_ids"]),
         }
 
     @staticmethod

@@ -11,17 +11,13 @@ from .selectors import get_assigned_tasks_queryset, get_task_counts, get_task_de
 @login_required
 @staff_required
 def task_list(request: HttpRequest) -> HttpResponse:
-    """
-    View list of all assigned orders for current staff member.
-    """
     orders_qs = get_assigned_tasks_queryset(request.user)
     counts = get_task_counts(request.user)
     
-    # Use centralized pagination
     page_obj = get_paginated_data(orders_qs, request, 10)
 
     return render(request, "task_list.html", {
-        "tasks": page_obj,  # Template expects 'tasks' name
+        "tasks": page_obj,
         "page_obj": page_obj,
         **counts
     })
@@ -29,10 +25,6 @@ def task_list(request: HttpRequest) -> HttpResponse:
 @login_required
 @staff_required
 def task_detail(request: HttpRequest, pk: int) -> HttpResponse:
-    """
-    View details of a specific order for staff update.
-    Handles order actions (confirm, cancel, upload proof).
-    """
     order = get_task_detail(pk, request.user)
 
     if request.method == "POST":

@@ -4,14 +4,13 @@
 {% block title %}Chi tiết sản phẩm - DAHUKA{% endblock title %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'products/css/product_detail.css' %}?v=1.6">
+    <link rel="stylesheet" href="{% static 'products/css/product_detail.css' %}">
     <style>
         .container-shell {
             width: min(1200px, calc(100% - 40px));
             margin: 0 auto;
         }
 
-        /* Hover delete button functionality */
         .thumb-item {
             position: relative !important;
             overflow: visible !important;
@@ -52,7 +51,6 @@
             transform: scale(1.1);
         }
 
-        /* Single field specific styles */
         .thumb-item.empty-state {
             background: #f8fafc;
             border: 1.5px dashed #cbd5e1;
@@ -65,7 +63,6 @@
             background: #f0faf4;
         }
 
-        /* Modal Styles */
         .dahuka-modal-overlay {
             position: fixed;
             top: 0;
@@ -128,7 +125,6 @@
 
 {% block content %}
     <div class="content-wide-layout py-4">
-        <!-- Breadcrumb -->
         <nav class="page-breadcrumbs">
             <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
             <a href="{% url 'products:product_list' %}">Quản lý sản phẩm</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
@@ -137,17 +133,14 @@
 
         <form method="POST" enctype="multipart/form-data" id="productForm">
             {% csrf_token %}
-            <!-- Page Title -->
             <h1 class="page-title mb-3">{% if mode == 'create' %}Thêm sản phẩm mới{% else %}Xem chi tiết sản phẩm{% endif %}</h1>
 
-            <!-- Action Buttons -->
             <div class="action-buttons-top d-flex justify-content-end mb-4">
                 <a href="{% url 'products:product_list' %}" class="btn-dahuka-outline mr-3"><i class="fa fa-chevron-left"></i> Quay lại</a>
                 <button type="submit" class="btn-minimal"><i class="fa fa-check"></i> {% if mode == 'create' %}Tạo sản phẩm{% else %}Lưu thay đổi{% endif %}</button>
             </div>
 
             <div class="product-detail-layout">
-                <!-- Left Column: Images -->
                 <div class="product-images-sidebar">
                     <div class="main-image-card">
                         <div class="image-box" onclick="document.querySelector('input[name=\'image\']').click()" style="cursor: pointer;">
@@ -166,7 +159,6 @@
                             {{ form.image_specs }}
                             {{ form.image_features }}
                             {{ form.image_description }}
-                            <!-- Hidden clear triggers -->
                             <input type="checkbox" name="image-clear" id="id_image-clear">
                             <input type="checkbox" name="image_specs-clear" id="id_image_specs-clear">
                             <input type="checkbox" name="image_features-clear" id="id_image_features-clear">
@@ -175,7 +167,6 @@
                     </div>
 
                     <div class="image-sections-accordion mt-3">
-                        <!-- Ảnh chính -->
                         <div class="acc-item">
                             <div class="acc-header" onclick="toggleAcc(this)">
                                 <span><i class="fa fa-chevron-down mr-2 icon-chevron"></i> Ảnh chính</span>
@@ -194,7 +185,6 @@
                             </div>
                         </div>
 
-                        <!-- Ảnh chi tiết (Gallery) -->
                         <div class="acc-item">
                             <div class="acc-header" onclick="toggleAcc(this)">
                                 <span><i class="fa fa-chevron-down mr-2 icon-chevron"></i> Ảnh chi tiết</span>
@@ -214,7 +204,6 @@
                             </div>
                         </div>
 
-                        <!-- Ảnh Thông số -->
                         <div class="acc-item">
                             <div class="acc-header" onclick="toggleAcc(this)">
                                 <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh thông số</span>
@@ -233,7 +222,6 @@
                             </div>
                         </div>
 
-                        <!-- Ảnh Tính năng -->
                         <div class="acc-item">
                             <div class="acc-header" onclick="toggleAcc(this)">
                                 <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh tính năng</span>
@@ -252,7 +240,6 @@
                             </div>
                         </div>
 
-                        <!-- Ảnh Mô tả -->
                         <div class="acc-item">
                             <div class="acc-header" onclick="toggleAcc(this)">
                                 <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh mô tả chi tiết</span>
@@ -273,9 +260,7 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Form Data -->
                 <div class="product-data-main">
-                    <!-- Section 1: Thông tin cơ bản -->
                     <div class="form-section-card">
                         <div class="section-header">
                             <i class="fa fa-cog icon-green"></i> Thông tin cơ bản
@@ -338,7 +323,6 @@
                         </div>
                     </div>
 
-                    <!-- Section 2: Thông số kỹ thuật -->
                     <div class="form-section-card mt-4">
                         <div class="section-header">
                             <i class="fa fa-television icon-green"></i> Thông số kỹ thuật
@@ -378,7 +362,7 @@
                                     <div class="form-group-dahuka input-addon-right">
                                         <label>Nhiệt độ lạnh</label>
                                         <div class="input-unit-box">
-                                            {{ form.spec_cold_temp }}
+                                            {{ form.spec_hot_temp }}
                                             <span class="unit-text">°C</span>
                                         </div>
                                     </div>
@@ -444,7 +428,6 @@
                         </div>
                     </div>
 
-                    <!-- Section 3: Mô tả sản phẩm -->
                     <div class="form-section-card mt-4">
                         <div class="section-header">
                             <i class="fa fa-file-text-o icon-green"></i> Mô tả sản phẩm
@@ -461,7 +444,6 @@
                         </div>
                     </div>
 
-                    <!-- Section 4: Trạng thái -->
                     <div class="form-section-card mt-4">
                         <div class="section-header">
                             <i class="fa fa-clock-o icon-green"></i> Trạng thái
@@ -499,7 +481,6 @@
         </form>
     </div>
 
-    <!-- Custom Confirmation Modal -->
     <div id="customConfirmModal" class="dahuka-modal-overlay">
         <div class="dahuka-modal-content">
             <div class="modal-header-simple">
@@ -516,7 +497,7 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="{% static 'products/js/product_detail_admin.js' %}?v=1.0.2"></script>
+<script src="{% static 'products/js/product_detail_admin.js' %}"></script>
 <script>
     let currentDeleteContext = { type: 'gallery', btn: null, idOrName: null };
 
@@ -531,7 +512,6 @@
         document.getElementById('customConfirmModal').classList.add('show');
     }
 
-    // Event delegation for gallery images
     document.addEventListener('click', function(e) {
         const deleteBtn = e.target.closest('.js-delete-saved-image');
         if (deleteBtn) {
@@ -561,7 +541,6 @@
                 }
             } catch (err) { console.error(err); }
         } else {
-            // Mark for clearing on save
             const checkbox = document.getElementById(`id_${idOrName}-clear`);
             if (checkbox) checkbox.checked = true;
             
@@ -570,7 +549,6 @@
             thumbItem.classList.add('empty-state');
             thumbItem.innerHTML = '<i class="fa fa-plus"></i>';
             
-            // If main image, update main preview too
             if (idOrName === 'image') {
                 const mainImgBox = document.querySelector('.image-box');
                 mainImgBox.innerHTML = '<div class="empty-main-box"><i class="fa fa-picture-o fa-3x" style="color: #cbd5e1;"></i><p class="mt-2" style="color: #94a3b8; font-size: 13px;">Chưa có ảnh chính</p></div>';
@@ -580,7 +558,6 @@
         }
     });
 
-    // Close modal when clicking outside
     document.getElementById('customConfirmModal').addEventListener('click', function(e) {
         if (e.target === this) closeConfirmModal();
     });

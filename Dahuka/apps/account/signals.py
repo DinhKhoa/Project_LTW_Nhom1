@@ -3,12 +3,8 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from .models import Customer
 
-
 @receiver(post_save, sender=User)
 def create_customer_profile(sender, instance, created, **kwargs):
-    """
-    Automatically create a Customer profile when a new User is created.
-    """
     if created:
         Customer.objects.get_or_create(
             user=instance,
@@ -17,8 +13,5 @@ def create_customer_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_customer_profile(sender, instance, **kwargs):
-    """
-    Ensure Customer profile is saved when User is updated.
-    """
     if hasattr(instance, 'customer'):
         instance.customer.save()

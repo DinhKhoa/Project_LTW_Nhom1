@@ -5,12 +5,10 @@ from apps.products.models import Product
 
 
 class HomePageSettings(models.Model):
-    # Banner
     banner_image = models.ImageField(
         upload_to="home/banners/", blank=True, null=True, verbose_name="Banner chính"
     )
 
-    # Categories (Two Main)
     category_one = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
@@ -28,7 +26,6 @@ class HomePageSettings(models.Model):
         verbose_name="Danh mục nổi bật 2",
     )
 
-    # Dahuka Pro Section
     dahuka_pro_title = models.CharField(
         max_length=255, default="Dahuka Hydrogen Pro", verbose_name="Tiêu đề Dahuka Pro"
     )
@@ -45,12 +42,10 @@ class HomePageSettings(models.Model):
         upload_to="home/brands/", blank=True, null=True, verbose_name="Ảnh Dahuka Pro"
     )
 
-    # Featured Products
     featured_products = models.ManyToManyField(
         Product, blank=True, verbose_name="Sản phẩm đặc sắc"
     )
 
-    # Bottom CTA
     bottom_banner_image = models.ImageField(
         upload_to="home/banners/",
         blank=True,

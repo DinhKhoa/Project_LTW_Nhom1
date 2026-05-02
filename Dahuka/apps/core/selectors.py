@@ -1,4 +1,3 @@
-# Chứa các hàm truy vấn dữ liệu (Read-only) cho app Core
 from django.db.models import Sum, Count, F, Q
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -9,9 +8,6 @@ from apps.products.models import Product
 from apps.categories.models import Category
 
 def get_admin_dashboard_data(filter_type='day', date_str=None):
-    """
-    Tính toán và trả về toàn bộ thông số cho Admin Dashboard.
-    """
     if date_str:
         try:
             now = datetime.strptime(date_str, "%Y-%m-%d")
@@ -26,7 +22,6 @@ def get_admin_dashboard_data(filter_type='day', date_str=None):
     next_date = None
     display_label = ""
     
-    # Logic xác định khoảng thời gian lọc
     if filter_type == 'day':
         start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
         end_date = start_date + timedelta(days=1)
@@ -63,14 +58,13 @@ def get_admin_dashboard_data(filter_type='day', date_str=None):
         next_date = end_date.strftime("%Y-%m-%d")
         display_label = f"Năm {start_date.year}"
     
-    else: # Default/All
+    else:
         start_date = now - timedelta(days=30)
         end_date = now + timedelta(days=1)
         display_label = "30 ngày gần nhất"
 
     orders_qs = Order.objects.all()
     
-    # 1. Thống kê tổng quan
     current_orders = orders_qs.filter(created_at__gte=start_date, created_at__lt=end_date)
     completed_orders = orders_qs.filter(status="completed", updated_at__gte=start_date, updated_at__lt=end_date)
     total_rev = completed_orders.aggregate(rev=Sum("total_amount"))["rev"] or 0
@@ -83,7 +77,6 @@ def get_admin_dashboard_data(filter_type='day', date_str=None):
     success_rate = (completed_orders.count() / finished_count * 100) if finished_count > 0 else 0
     cancel_rate = (orders_qs.filter(status="cancelled", created_at__gte=start_date, created_at__lt=end_date).count() / finished_count * 100) if finished_count > 0 else 0
 
-    # New vs Returning
     guest_count = current_orders.filter(customer__isnull=True).count()
     reg_ids = current_orders.exclude(customer__isnull=True).values_list('customer_id', flat=True).distinct()
     new_count = 0
@@ -92,7 +85,6 @@ def get_admin_dashboard_data(filter_type='day', date_str=None):
         if orders_qs.filter(customer_id=cid, created_at__lt=start_date).exists(): ret_count += 1
         else: new_count += 1
 
-    # Growth
     if filter_type == 'month':
         start_date_prev = (start_date - timedelta(days=1)).replace(day=1)
         prev_period_label = f"tháng {start_date_prev.month}/{start_date_prev.year}"
@@ -110,7 +102,6 @@ def get_admin_dashboard_data(filter_type='day', date_str=None):
     prev_rev = orders_qs.filter(status="completed", updated_at__gte=start_date_prev, updated_at__lt=end_date_prev).aggregate(rev=Sum("total_amount"))["rev"] or 0
     rev_growth = ((total_rev - prev_rev) / prev_rev * 100) if prev_rev > 0 else (100 if total_rev > 0 else 0)
 
-    # 2. Chart Logic
     chart_labels, chart_values = [], []
     if filter_type == 'day':
         for h in [0, 4, 8, 12, 16, 20]:
@@ -134,14 +125,13 @@ def get_admin_dashboard_data(filter_type='day', date_str=None):
             chart_labels.append(f"T.{month}")
             rev = completed_orders.filter(updated_at__month=month, updated_at__year=start_date.year).aggregate(r=Sum("total_amount"))["r"] or 0
             chart_values.append(int(rev))
-    else: # 30 ngày gần nhất
+    else:
         for i in range(29, -1, -1):
             day = (timezone.localtime() - timedelta(days=i)).date()
             chart_labels.append(day.strftime("%d/%m"))
             rev = completed_orders.filter(updated_at__date=day).aggregate(r=Sum("total_amount"))["r"] or 0
             chart_values.append(int(rev))
 
-    # 3. Categories & Products
     items_qs = OrderItem.objects.filter(order__updated_at__gte=start_date, order__updated_at__lt=end_date)
     cat_revenue = items_qs.filter(order__status="completed").values("product__category__name").annotate(total=Sum(F("price") * F("quantity"))).order_by("-total")
     cat_labels = [c["product__category__name"] or "Khác" for c in cat_revenue]
@@ -175,9 +165,6 @@ def get_admin_dashboard_data(filter_type='day', date_str=None):
     }
 
 def get_catalog_products(category_id=None, category_slug=None, sort_by='newest', filter_cores=None, filter_prices=None, query=None):
-    """
-    Truy vấn và lọc danh sách sản phẩm.
-    """
     products_list = Product.objects.filter(is_active=True)
     if query:
         products_list = products_list.filter(name__icontains=query).distinct()

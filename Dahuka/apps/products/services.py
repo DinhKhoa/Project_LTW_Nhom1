@@ -1,18 +1,10 @@
-"""
-Services for products module.
-Put business logic here to keep views lean.
-"""
 from typing import Any, Dict, List, Optional
 from django.db import transaction
 from .models import Product, ProductImage
 
-
 class ProductsService:
     @staticmethod
     def format_products_for_dropdown(category: Any, query: str = '') -> List[Dict[str, Any]]:
-        """
-        Format products for a category as a dropdown list.
-        """
         products_qs = Product.objects.filter(category=category)
         if query:
             products_qs = products_qs.filter(name__icontains=query)
@@ -33,9 +25,6 @@ class ProductsService:
 
     @staticmethod
     def handle_product_images(product: Product, files: Dict[str, List[Any]]) -> None:
-        """
-        Saves multiple gallery images for a product.
-        """
         gallery_images = files.get('gallery_images', [])
         
         with transaction.atomic():
@@ -47,9 +36,6 @@ class ProductsService:
 
     @staticmethod
     def toggle_visibility(product: Product, is_visible: bool) -> bool:
-        """
-        Updates product visibility status.
-        """
         product.is_active = is_visible
         product.save()
         return product.is_active

@@ -16,7 +16,7 @@ urlpatterns = [
     path("purchases/", views.purchase_list, name="purchase_list"),
     path("purchases/<int:pk>/", views.purchase_detail, name="purchase_detail"),
     path("purchases/<int:pk>/cancel/", views.cancel_order, name="cancel_order"),
-    # API endpoints
+
     path("api/profile/", api_views.api_profile, name="api_profile"),
     path(
         "api/change-password/",

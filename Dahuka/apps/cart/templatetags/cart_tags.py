@@ -5,7 +5,4 @@ register = template.Library()
 
 @register.filter
 def format_money(value):
-    """
-    Template filter to format money using the core utility.
-    """
     return util_format_money(value)

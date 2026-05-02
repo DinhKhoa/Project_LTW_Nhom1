@@ -25,7 +25,6 @@ class Category(models.Model):
             base_slug = slugify(self.name)
             self.slug = base_slug
             counter = 1
-            # Ensure slug uniqueness by appending counter if collision detected
             while Category.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
                 self.slug = f"{base_slug}-{counter}"
                 counter += 1

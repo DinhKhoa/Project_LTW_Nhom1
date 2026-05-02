@@ -23,13 +23,11 @@ window.selectFilterItem = function(item, wrapperId) {
     wrapper.querySelectorAll('.filter-item').forEach(el => el.classList.remove('selected'));
     item.classList.add('selected');
 
-    // Update hidden select and submit
     realSelect.value = value;
     form.submit();
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Close on outside click
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.filter-dropdown-wrapper')) {
             document.querySelectorAll('.filter-dropdown-wrapper').forEach(function(w) {

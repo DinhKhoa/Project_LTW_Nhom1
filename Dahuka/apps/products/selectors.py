@@ -8,9 +8,6 @@ def get_filtered_products(
     inventory_filter: str = "default",
     is_active: Optional[bool] = None
 ) -> QuerySet[Product]:
-    """
-    Selects and filters products based on various criteria.
-    """
     products = Product.objects.select_related('category').all()
     
     if is_active is not None:
@@ -34,6 +31,5 @@ def get_filtered_products(
     return products
 
 def get_product_by_id(pk: int) -> Product:
-    """Retrieves a product by primary key with related category."""
     from django.shortcuts import get_object_or_404
     return get_object_or_404(Product.objects.select_related('category'), pk=pk)

@@ -40,7 +40,6 @@ for data in staff_data:
         user.save()
         print(f"Created staff user: {data['username']}")
     else:
-        # Update existing user to be staff if not already
         user.is_staff = True
         user.first_name = data['first_name']
         user.last_name = data['last_name']

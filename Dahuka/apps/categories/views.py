@@ -14,9 +14,6 @@ from .services import CategoryService
 @login_required
 @admin_required
 def category_list(request: HttpRequest) -> HttpResponse:
-    """
-    Displays a paginated list of categories with search functionality.
-    """
     query = request.GET.get("q", "")
     categories_qs = search_categories(query)
     page_obj = get_paginated_data(categories_qs, request, 10)
@@ -29,9 +26,6 @@ def category_list(request: HttpRequest) -> HttpResponse:
 @login_required
 @admin_required
 def category_add(request: HttpRequest) -> HttpResponse:
-    """
-    Handles the creation of a new category via POST.
-    """
     if request.method == "POST":
         success, category, errors = CategoryService.create_category(request.POST, request.FILES)
         if success:
@@ -46,9 +40,6 @@ def category_add(request: HttpRequest) -> HttpResponse:
 @login_required
 @admin_required
 def category_edit(request: HttpRequest, pk: int) -> HttpResponse:
-    """
-    Handles updating an existing category.
-    """
     category = get_category_by_id(pk)
     if request.method == "POST":
         success, category, errors = CategoryService.update_category(category, request.POST, request.FILES)
@@ -64,9 +55,6 @@ def category_edit(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 @admin_required
 def category_delete(request: HttpRequest, pk: int) -> HttpResponse:
-    """
-    Handles category deletion.
-    """
     if request.method == "POST":
         category = get_category_by_id(pk)
         success, name = CategoryService.delete_category(category)
@@ -78,9 +66,6 @@ def category_delete(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 @admin_required
 def get_category_products(request: HttpRequest, pk: int) -> JsonResponse:
-    """
-    API endpoint to get products belonging to a specific category for dropdowns.
-    """
     category = get_category_by_id(pk)
     products = ProductsService.format_products_for_dropdown(category)
     return JsonResponse({"products": products})

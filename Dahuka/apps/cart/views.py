@@ -19,25 +19,7 @@ from .services import CartService
 from . import selectors
 
 
-def _get_checkout_payload(cart_obj: Cart, state: Dict[str, Any]) -> Dict[str, Any]:
-    """Helper to construct AJAX response payload with recalculated totals"""
-    apply_promos = state.get("current_screen") != "cart"
-    totals = CartService.get_cart_totals(cart_obj, state, apply_promos=apply_promos)
-    return {
-        "cart_payment_type": state["cart_payment_type"],
-        "deposit_percent": state["deposit_percent"],
-        "formatted_deposit_amount": format_money(totals["deposit_amount"]),
-        "formatted_total_price": format_money(totals["final_total"]),
-        "formatted_base_total": format_money(totals["total_price"]),
-        "discount_amount": format_money(totals["discount_amount"]),
-        "coupon_code": state.get("coupon_code", ""),
-        "cart_count": cart_obj.items.count(),
-        "selected_count": len(state["selected_ids"]),
-    }
-
-
 def cart(request: HttpRequest) -> HttpResponse:
-    """Handles the main shopping cart screen."""
     if request.user.is_authenticated and request.user.is_staff:
         raise Http404
 
@@ -60,7 +42,6 @@ def cart(request: HttpRequest) -> HttpResponse:
         action = request.POST.get("action")
         is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
         
-        # Delegate logic to Service
         CartService.handle_cart_action(request, cart_obj, state)
         
         if action == "bulk_delete":
@@ -74,7 +55,7 @@ def cart(request: HttpRequest) -> HttpResponse:
             return redirect(reverse("cart:checkout"))
 
         if is_ajax:
-            return JsonResponse({"ok": True, **_get_checkout_payload(cart_obj, state)})
+            return JsonResponse({"ok": True, **CartService.get_ajax_payload(cart_obj, state)})
         return redirect(request.path)
 
     cart_items = selectors.get_cart_items(cart_obj)
@@ -97,7 +78,6 @@ def cart(request: HttpRequest) -> HttpResponse:
 
 
 def checkout(request: HttpRequest) -> HttpResponse:
-    """Handles the checkout flow (Order Confirmation, Payment screens)."""
     if request.user.is_authenticated and request.user.is_staff:
         raise Http404
 
@@ -199,9 +179,8 @@ def checkout(request: HttpRequest) -> HttpResponse:
                 messages.error(request, str(e))
                 return redirect(reverse("cart:checkout"))
 
-        # General handlers for AJAX updates
         CartService.handle_cart_action(request, cart_obj, state)
-        if is_ajax: return JsonResponse({"ok": True, **_get_checkout_payload(cart_obj, state)})
+        if is_ajax: return JsonResponse({"ok": True, **CartService.get_ajax_payload(cart_obj, state)})
 
     cart_items = selectors.get_cart_items(cart_obj, selected_ids=state["selected_ids"])
     totals = CartService.get_cart_totals(cart_obj, state)
@@ -265,6 +244,6 @@ def delete_cart_item(request: HttpRequest, item_id: int) -> HttpResponse:
     request.session.modified = True
     item.delete()
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        return JsonResponse({"ok": True, **_get_checkout_payload(cart_obj, state)})
+        return JsonResponse({"ok": True, **CartService.get_ajax_payload(cart_obj, state)})
     messages.success(request, "Đã xóa sản phẩm khỏi giỏ hàng")
     return redirect(reverse("cart:cart"))

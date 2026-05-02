@@ -20,7 +20,6 @@ class Cart(models.Model):
 
     @property
     def total_price(self) -> Decimal:
-        """Calculates total price of all items in cart."""
         return sum((item.subtotal for item in self.items.all()), Decimal(0))
 
 
@@ -28,7 +27,7 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=12, decimal_places=0) # Price at time of adding
+    price = models.DecimalField(max_digits=12, decimal_places=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -41,5 +40,4 @@ class CartItem(models.Model):
 
     @property
     def subtotal(self) -> Decimal:
-        """Calculates subtotal for this item (price * quantity)."""
         return self.price * self.quantity

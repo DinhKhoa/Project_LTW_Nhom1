@@ -5,71 +5,22 @@
 {% block nav_qlbh_active %}font-weight-bold{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
-    <style>
-        .summary-container-dahuka {
-            display: flex;
-            gap: 15px;
-        }
-        .summary-box-card {
-            background: #fff;
-            border: 1px solid #1a6b3c;
-            border-radius: 12px;
-            padding: 20px 10px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .summary-box-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            text-decoration: none;
-        }
-        .summary-box-card a:hover {
-            text-decoration: none;
-            opacity: 0.8;
-        }
-        .summary-box-card .label {
-            font-size: 14px;
-            color: #475569;
-            font-weight: 500;
-            margin-bottom: 12px;
-        }
-        .summary-box-card .value {
-            font-size: 24px;
-            font-weight: 800;
-        }
-        .color-total { color: #87763c; }
-        .color-pending { color: #d97706; }
-        .color-confirmed { color: #3b82f6; }
-        .color-processing { color: #8b5cf6; }
-        .color-completed { color: #059669; }
-        .color-cancelled { color: #dc2626; }
-    </style>
+    <link rel="stylesheet" href="{% static 'orders/css/order_list.css' %}">
 {% endblock %}
 
 {% block content %}
     <div class="content-wide-layout mt-4 mb-5">
-        <!-- Breadcrumb -->
         <nav class="page-breadcrumbs">
             <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
             <b>Quản lý đơn đặt hàng</b>
         </nav>
 
-        <!-- Title -->
         <h1 class="page-title mb-4">Quản lý đơn đặt hàng</h1>
 
-        <!-- Summary Boxes -->
         <div class="summary-container-dahuka d-flex gap-3 mb-4 align-items-stretch">
             <a href="?trang_thai=" class="summary-box-card flex-fill">
                 <div class="label">Tổng đơn hàng</div>
-                <div class="value color-total">{{ total_count }}</div>
+                <div class="value color-total">{{ stats.total }}</div>
             </a>
             <div class="summary-box-card" style="flex: 3; padding: 15px; min-width: 450px; display: flex; flex-direction: row; align-items: center; justify-content: space-around;">
                 <div style="text-align: left;">
@@ -77,23 +28,23 @@
                     <div class="d-flex flex-wrap gap-x-4 gap-y-2" style="max-width: 300px;">
                         <a href="?trang_thai=pending" class="text-decoration-none d-flex align-items-center mr-3" title="Lọc: Chờ xử lý" style="font-size: 13px; font-weight: 600; color: #d97706;">
                             <span style="width: 10px; height: 10px; background: #d97706; border-radius: 50%; margin-right: 8px;"></span>
-                            Chờ xử lý: {{ pending_count }}
+                            Chờ xử lý: {{ stats.pending }}
                         </a>
                         <a href="?trang_thai=confirmed" class="text-decoration-none d-flex align-items-center mr-3" title="Lọc: Đã xác nhận" style="font-size: 13px; font-weight: 600; color: #3b82f6;">
                             <span style="width: 10px; height: 10px; background: #3b82f6; border-radius: 50%; margin-right: 8px;"></span>
-                            Đã xác nhận: {{ confirmed_count }}
+                            Đã xác nhận: {{ stats.confirmed }}
                         </a>
                         <a href="?trang_thai=processing" class="text-decoration-none d-flex align-items-center mr-3" title="Lọc: Đang giao" style="font-size: 13px; font-weight: 600; color: #8b5cf6;">
                             <span style="width: 10px; height: 10px; background: #8b5cf6; border-radius: 50%; margin-right: 8px;"></span>
-                            Đang giao: {{ processing_count }}
+                            Đang giao: {{ stats.processing }}
                         </a>
                         <a href="?trang_thai=completed" class="text-decoration-none d-flex align-items-center mr-3" title="Lọc: Hoàn thành" style="font-size: 13px; font-weight: 600; color: #059669;">
                             <span style="width: 10px; height: 10px; background: #059669; border-radius: 50%; margin-right: 8px;"></span>
-                            Hoàn thành: {{ completed_count }}
+                            Hoàn thành: {{ stats.completed }}
                         </a>
                         <a href="?trang_thai=cancelled" class="text-decoration-none d-flex align-items-center" title="Lọc: Đã hủy" style="font-size: 13px; font-weight: 600; color: #dc2626;">
                             <span style="width: 10px; height: 10px; background: #dc2626; border-radius: 50%; margin-right: 8px;"></span>
-                            Đã hủy: {{ cancelled_count }}
+                            Đã hủy: {{ stats.cancelled }}
                         </a>
                     </div>
                 </div>
@@ -150,7 +101,6 @@
             </form>
         </div>
 
-        <!-- Order list -->
         {% for order in page_obj %}
             <div class="order-card mb-4">
                 <div class="order-card-body">
@@ -190,7 +140,6 @@
             </div>
         {% endfor %}
 
-        <!-- Pagination -->
         {% if page_obj.has_other_pages %}
             <nav aria-label="Page navigation" class="d-flex justify-content-center mt-3 mb-5">
                 <ul class="pagination custom-pagination">
@@ -240,101 +189,13 @@
 {% endblock %}
 
 {% block extra_js %}
-    <!-- Safe Data Transfer via JSON -->
-    {{ pending_count|default:0|json_script:"pending-data" }}
-    {{ confirmed_count|default:0|json_script:"confirmed-data" }}
-    {{ processing_count|default:0|json_script:"processing-data" }}
-    {{ completed_count|default:0|json_script:"completed-data" }}
-    {{ cancelled_count|default:0|json_script:"cancelled-data" }}
+    {{ stats.pending|default:0|json_script:"pending-data" }}
+    {{ stats.confirmed|default:0|json_script:"confirmed-data" }}
+    {{ stats.processing|default:0|json_script:"processing-data" }}
+    {{ stats.completed|default:0|json_script:"completed-data" }}
+    {{ stats.cancelled|default:0|json_script:"cancelled-data" }}
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Retrieve data safely from JSON script tags
-            const pending = JSON.parse(document.getElementById('pending-data').textContent);
-            const confirmed = JSON.parse(document.getElementById('confirmed-data').textContent);
-            const processing = JSON.parse(document.getElementById('processing-data').textContent);
-            const completed = JSON.parse(document.getElementById('completed-data').textContent);
-            const cancelled = JSON.parse(document.getElementById('cancelled-data').textContent);
-
-            const ctx = document.getElementById('orderPieChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Chờ xử lý', 'Đã xác nhận', 'Đang giao', 'Hoàn thành', 'Đã hủy'],
-                    datasets: [{
-                        data: [pending, confirmed, processing, completed, cancelled],
-                        backgroundColor: ['#d97706', '#3b82f6', '#8b5cf6', '#059669', '#dc2626'],
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: true }
-                    },
-                    cutout: '70%',
-                    onClick: (evt, activeElements, chart) => {
-                        if (activeElements.length > 0) {
-                            const index = activeElements[0].index;
-                            const label = chart.data.labels[index];
-                            const statusMap = {
-                                'Chờ xử lý': 'pending',
-                                'Đã xác nhận': 'confirmed',
-                                'Đang giao': 'processing',
-                                'Hoàn thành': 'completed',
-                                'Đã hủy': 'cancelled'
-                            };
-                            const status = statusMap[label];
-                            if (status) {
-                                window.location.href = `?trang_thai=${status}`;
-                            }
-                        }
-                    }
-                }
-            });
-
-            window.toggleFilterDropdown = function(id) {
-                var wrapper = document.getElementById(id);
-                var btn = wrapper.querySelector('.filter-dropdown-btn');
-                var menu = wrapper.querySelector('.filter-dropdown-menu');
-
-                document.querySelectorAll('.filter-dropdown-wrapper').forEach(function (w) {
-                    if (w.id !== id) {
-                        w.querySelector('.filter-dropdown-btn').classList.remove('open');
-                        w.querySelector('.filter-dropdown-menu').classList.remove('show');
-                    }
-                });
-
-                btn.classList.toggle('open');
-                menu.classList.toggle('show');
-            };
-
-            window.selectFilterItem = function(item, wrapperId) {
-                var wrapper = document.getElementById(wrapperId);
-                var value = item.getAttribute('data-value');
-                var realSelect = document.querySelector('select[name="trang_thai"]');
-                var form = realSelect.closest('form');
-
-                wrapper.querySelectorAll('.filter-item').forEach(el => el.classList.remove('selected'));
-                item.classList.add('selected');
-
-                realSelect.value = value;
-                form.submit();
-            };
-
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.filter-dropdown-wrapper')) {
-                    document.querySelectorAll('.filter-dropdown-wrapper').forEach(function(w) {
-                        w.querySelector('.filter-dropdown-btn').classList.remove('open');
-                        w.querySelector('.filter-dropdown-menu').classList.remove('show');
-                    });
-                }
-            });
-        });
-    </script>
+    <script src="{% static 'orders/js/order_list.js' %}"></script>
 {% endblock %}
 

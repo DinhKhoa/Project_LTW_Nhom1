@@ -13,7 +13,6 @@ class Product(models.Model):
     image_description = models.ImageField(upload_to='products/description/', verbose_name="Ảnh mô tả chi tiết", blank=True, null=True)
     stock = models.IntegerField(default=100, verbose_name="Tồn kho")
     
-    # Specs
     short_description = models.TextField(blank=True, verbose_name="Mô tả ngắn")
     spec_power = models.CharField(max_length=100, blank=True, verbose_name="Công suất lọc")
     spec_technology = models.CharField(max_length=100, blank=True, verbose_name="Công nghệ lọc")
@@ -43,7 +42,6 @@ class Product(models.Model):
         verbose_name_plural = "Danh sách sản phẩm"
 
     def save(self, *args, **kwargs):
-        # Auto disable featured if product is hidden
         if not self.is_active:
             self.is_featured = False
 
@@ -52,7 +50,6 @@ class Product(models.Model):
             base_slug = slugify(self.name)
             self.slug = base_slug
             counter = 1
-            # Ensure slug uniqueness by appending counter if collision detected
             while Product.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
                 self.slug = f"{base_slug}-{counter}"
                 counter += 1

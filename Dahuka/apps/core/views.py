@@ -10,9 +10,6 @@ from .services import CoreService
 
 @user_passes_test(lambda u: u.is_superuser)
 def update_home_settings(request):
-    """
-    View xử lý cập nhật cài đặt trang chủ (Sử dụng Service Layer).
-    """
     if request.method == "POST":
         CoreService.update_home_page_settings(
             banner_image=request.FILES.get("banner_image"),
@@ -46,9 +43,6 @@ def index(request):
     )
 
 def product_catalog(request):
-    """
-    View hiển thị danh mục sản phẩm (Sử dụng Selector Layer).
-    """
     category_id = request.GET.get("category")
     category_slug = request.GET.get("cat")
     sort_by = request.GET.get("sort", "newest")
@@ -56,7 +50,7 @@ def product_catalog(request):
     filter_prices = request.GET.getlist("price")
     query = request.GET.get("q")
     
-    # Gọi Selector để lấy dữ liệu đã được lọc
+    
     products_list, current_category, is_water_purifier = get_catalog_products(
         category_id=category_id,
         category_slug=category_slug,
@@ -109,16 +103,13 @@ def view_product_detail(request, slug):
 
 @user_passes_test(lambda u: u.is_staff)
 def admin_dashboard(request):
-    """
-    View Dashboard quản trị (Sử dụng Selector Layer cực kỳ tinh gọn).
-    """
     filter_type = request.GET.get('filter', 'day')
     date_str = request.GET.get('date')
     
-    # Gọi Selector để xử lý toàn bộ logic tính toán phức tạp
+    
     stats = get_admin_dashboard_data(filter_type=filter_type, date_str=date_str)
     
-    # Thêm các dữ liệu bổ trợ không thuộc logic tính toán
+    
     stats["low_stock"] = Product.objects.filter(stock__lt=10).order_by("stock")
     stats["recent_orders"] = Order.objects.order_by("-created_at")[:5]
     

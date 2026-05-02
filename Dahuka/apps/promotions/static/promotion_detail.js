@@ -4,9 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const showAppConfirm = window.showAppConfirm;
     const showAppToast = window.showAppToast;
 
-    /**
-     * Chức năng xóa sản phẩm (Xử lý cho các phần tử có sẵn và tạo mới)
-     */
     productGrid.addEventListener('click', (e) => {
         const deleteButton = e.target.closest('.btn-delete');
         if (deleteButton) {
@@ -29,23 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /**
-     * Chức năng thêm sản phẩm mẫu để test Grid 3 cột
-     */
     btnAddProduct.addEventListener('click', () => {
         const newProduct = document.createElement('div');
         newProduct.className = 'promo-product-item';
         newProduct.innerHTML = `
-            <span>Máy lọc nước Hydrogen Alkaline Mutosi mới</span>
+            <span>Máy lọc nước Hydrogen Alkaline Dahuka mới</span>
             <button class="btn-delete" type="button">✕</button>
         `;
         productGrid.appendChild(newProduct);
     });
 
-    /**
-     * Hiệu ứng khi hover vào các nút chính (Lưu, Quay lại)
-     * Đã được xử lý chủ yếu qua CSS, JS có thể dùng để log hoặc xử lý logic lưu trữ.
-     */
     const saveBtn = document.querySelector('.btn-save');
     saveBtn.addEventListener('click', () => {
         showAppToast('Lưu thành công');
@@ -59,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const discountType = document.getElementById('discountType');
     if (discountType) {
         discountType.addEventListener('change', updateUnit);
-        // Initial run
         updateUnit();
     }
 });

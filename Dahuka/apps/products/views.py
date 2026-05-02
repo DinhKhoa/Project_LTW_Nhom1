@@ -18,21 +18,16 @@ from . import selectors
 @login_required
 @admin_required
 def product_list(request: HttpRequest) -> HttpResponse:
-    """
-    View to list products with filtering and pagination for staff.
-    """
     query = request.GET.get('q', '')
     category_id = request.GET.get('category', 'all')
     inventory_filter = request.GET.get('inventory', 'default')
 
-    # Fetch filtered data via selector
     products_list = selectors.get_filtered_products(
         query=query,
         category_id=category_id,
         inventory_filter=inventory_filter
     )
 
-    # Pagination
     page_obj = get_paginated_data(products_list, request, 10)
     categories = Category.objects.all()
 
@@ -49,9 +44,6 @@ def product_list(request: HttpRequest) -> HttpResponse:
 @login_required
 @admin_required
 def product_detail(request: HttpRequest, pk: int = None) -> HttpResponse:
-    """
-    View to create or update a product.
-    """
     product = selectors.get_product_by_id(pk) if pk else None
     mode = 'update' if pk else 'create'
 
@@ -59,10 +51,7 @@ def product_detail(request: HttpRequest, pk: int = None) -> HttpResponse:
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
             saved_product = form.save()
-            
-            # Handle images via service
             ProductsService.handle_product_images(saved_product, request.FILES)
-
             messages.success(request, f'Đã {"cập nhật" if pk else "thêm mới"} sản phẩm thành công!')
             return redirect('products:product_detail', pk=saved_product.pk)
         
@@ -70,7 +59,6 @@ def product_detail(request: HttpRequest, pk: int = None) -> HttpResponse:
     else:
         form = ProductForm(instance=product)
 
-    # Prepare images by type for display
     images_by_type: Dict[str, Any] = {}
     if product:
         images_by_type['gallery'] = product.images.all()
@@ -89,16 +77,11 @@ def product_detail(request: HttpRequest, pk: int = None) -> HttpResponse:
 @admin_required
 @require_POST
 def toggle_product_visibility(request: HttpRequest, pk: int) -> JsonResponse:
-    """
-    AJAX view to toggle product active status.
-    """
     try:
         product = selectors.get_product_by_id(pk)
         data = json.loads(request.body)
         is_visible = data.get('is_visible', True)
-        
         new_status = ProductsService.toggle_visibility(product, is_visible)
-        
         return JsonResponse({'status': 'success', 'is_active': new_status})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
@@ -108,9 +91,6 @@ def toggle_product_visibility(request: HttpRequest, pk: int) -> JsonResponse:
 @admin_required
 @require_POST
 def delete_product_image(request: HttpRequest, img_id: int) -> JsonResponse:
-    """
-    AJAX view to delete a specific product image.
-    """
     try:
         image = ProductImage.objects.get(id=img_id)
         image.delete()

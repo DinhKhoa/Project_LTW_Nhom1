@@ -9,18 +9,15 @@
 
 {% block content %}
     <div class="content-wide-layout py-4">
-        <!-- Breadcrumb -->
         <nav class="page-breadcrumbs">
             <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
             <b>Điểm bán - Bảo hành</b>
         </nav>
 
-        <!-- Page Title -->
         <div>
             <h1 class="page-title mb-2">Điểm bán - Bảo hành</h1>
         </div>
 
-        <!-- Warranty Search Form -->
         <div class="warranty-search-section">
             <h2 class="mb-3">Tra cứu thông tin bảo hành</h2>
             <p class="text-muted mb-4">Nhập mã đơn hàng để kiểm tra thời hạn bảo hành sản phẩm</p>
@@ -40,7 +37,7 @@
                     {% for order in results %}
                         <div class="warranty-order-group">
                             <div class="order-group-header">
-                                <div>
+                                <div class="header-main">
                                     <span class="order-code-label">Mã đơn hàng</span>
                                     <strong class="order-code-value">{{ order.order_code }}</strong>
                                 </div>
@@ -61,7 +58,7 @@
                                                 <div class="item-meta">
                                                     <span class="item-category">{{ item.product.category.name }}</span>
                                                     <span class="item-dot"></span>
-                                                    <span class="item-status-badge">Có bảo hành</span>
+                                                    <span class="item-status-badge">Đang bảo hành</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -72,7 +69,7 @@
                                                 <span class="date-value">{{ order.created_at|date:"d/m/Y" }}</span>
                                             </div>
                                             <div class="date-col border-x">
-                                                <span class="date-label">Thời hạn bảo hành</span>
+                                                <span class="date-label">Thời hạn</span>
                                                 <span class="date-value">{{ item.product.spec_warranty|default:"12 tháng" }}</span>
                                             </div>
                                             <div class="date-col">
@@ -96,7 +93,6 @@
         </div>
 
         <div class="support-layout">
-            <!-- Left: Gallery/Info -->
             <div class="support-gallery">
                 <div class="gallery-card gallery-card--front admin-edit-overlay" {% if settings.image_one %}style="background-image: url('{{ settings.image_one.url }}');"{% endif %}>
                     {% if user.is_superuser %}
@@ -126,7 +122,6 @@
                 </div>
             </div>
 
-            <!-- Right: Map/Address Info -->
             <div class="support-sidebar">
                 <div class="info-card-static mb-4">
                     <div class="card-head center-content">
@@ -178,7 +173,6 @@
         </div>
     </div>
 
-    <!-- CMS Edit Modal (Superuser Only) -->
     {% if user.is_superuser %}
     <div class="modal warranty-edit-modal" id="editWarrantySettingsModal">
         <div class="warranty-edit-box">

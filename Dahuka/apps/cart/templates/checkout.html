@@ -5,7 +5,7 @@
 {% block title %}Dahuka - {{ display_title }}{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'cart/css/checkout.css' %}?v=20260428-1">
+    <link rel="stylesheet" href="{% static 'cart/css/checkout.css' %}">
     <link rel="stylesheet" href="{% static 'account/address_shared.css' %}">
 {% endblock %}
 
@@ -239,7 +239,7 @@
             {% static 'img/BANNER.png' as banner_url %}
             <div class="experience-banner experience-banner-box"
                  style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ banner_url }}');">
-                <h3 class="experience-banner-quote">“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
+                <h3 class="experience-banner-quote">“Hãy đến và trải nghiệm sản phẩm Dahuka mới nhất tại các cửa hàng của chúng tôi”</h3>
                 <button class="btn btn-outline-light experience-banner-btn-outline">KHÁM PHÁ NGAY</button>
             </div>
         </div>
@@ -276,5 +276,5 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'cart/js/checkout.js' %}?v=20260428-1"></script>
+    <script src="{% static 'cart/js/checkout.js' %}"></script>
 {% endblock %}

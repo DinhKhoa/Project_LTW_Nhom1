@@ -1,12 +1,8 @@
-# Chứa các hàm xử lý logic nghiệp vụ thay đổi dữ liệu (Write) cho app Core
 from .models import HomePageSettings, Notification
 
 class CoreService:
     @staticmethod
     def update_home_page_settings(banner_image=None, dahuka_pro_image=None, dahuka_pro_title=None, dahuka_pro_desc=None):
-        """
-        Cập nhật cài đặt trang chủ.
-        """
         settings = HomePageSettings.objects.first()
         if not settings:
             settings = HomePageSettings.objects.create()
@@ -25,9 +21,6 @@ class CoreService:
 
     @staticmethod
     def create_notification(recipient, title, message, link=None):
-        """
-        Tạo thông báo mới cho người dùng.
-        """
         return Notification.objects.create(
             recipient=recipient,
             title=title,

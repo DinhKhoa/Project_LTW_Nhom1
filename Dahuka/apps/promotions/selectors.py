@@ -5,9 +5,6 @@ from .models import Promotion
 class PromotionSelector:
     @staticmethod
     def get_promotion_stats():
-        """
-        Tính toán các thông số thống kê cho danh sách khuyến mãi.
-        """
         today = timezone.localtime().date()
         all_promos = Promotion.objects.all()
         total_count = all_promos.count()
@@ -24,9 +21,6 @@ class PromotionSelector:
 
     @staticmethod
     def get_filtered_promotions(query=None, status=None):
-        """
-        Lọc danh sách khuyến mãi theo từ khóa và trạng thái.
-        """
         today = timezone.localtime().date()
         queryset = Promotion.objects.all().order_by('id')
         

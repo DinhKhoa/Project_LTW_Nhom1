@@ -23,7 +23,6 @@ window.onclick = function(event) {
     }
 }
 
-// Event delegation for form submission
 document.addEventListener('submit', async function(e) {
     if (e.target && e.target.id === 'addressEntryForm') {
         e.preventDefault();

@@ -42,7 +42,6 @@
             {% endfor %}
         </div>
 
-        <!-- Staff actions moved to the left -->
         {% if view_type == 'staff' %}
             <div class="order-actions-left" style="margin-top: 24px; display: flex; gap: 12px;">
                 {% if order.status == 'confirmed' %}
@@ -171,7 +170,6 @@
             {% endif %}
         </div>
 
-        <!-- Cancellation and Reorder buttons remains on the right -->
         <div class="order-actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
             {% if order.status != 'cancelled' and order.status != 'completed' %}
                 <button type="button" onclick="openModal('cancelOrderModal')" class="cancel-btn">Hủy đơn hàng</button>
@@ -194,7 +192,6 @@
     </aside>
 </div>
 
-<!-- Modal: Bắt đầu giao hàng -->
 <div class="modal" id="startShippingModal">
     <div class="modal-box" style="max-width: 500px; border-radius: 12px; overflow: hidden;">
         <div class="modal-header">
@@ -211,7 +208,6 @@
     </div>
 </div>
 
-<!-- Cancel Modal (Shared for all roles if they can cancel) -->
 {% if order.status != 'cancelled' and order.status != 'completed' %}
 <div class="modal" id="cancelOrderModal">
     <div class="modal-box" style="max-width: 500px; border-radius: 12px; overflow: hidden;">
@@ -238,7 +234,6 @@
 </div>
 {% endif %}
 
-<!-- Complete Task Modal -->
 {% if order.status == 'processing' %}
 <div class="modal" id="completeTaskModal">
     <div class="modal-box" style="max-width: 500px; border-radius: 12px; overflow: hidden;">

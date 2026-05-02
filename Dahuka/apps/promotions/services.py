@@ -7,11 +7,7 @@ from .models import Promotion
 class PromotionService:
     @staticmethod
     def send_promotion_notifications(promotion: Promotion):
-        """
-        Gửi thông báo về chương trình khuyến mãi cho tất cả khách hàng.
-        """
         today = timezone.localtime().date()
-        # Chỉ gửi nếu khuyến mãi đang hoạt động, bắt đầu từ hôm nay/quá khứ và CHƯA GỬI
         if promotion.is_active and promotion.start_date <= today and not promotion.notification_sent:
             customers = User.objects.filter(is_superuser=False, is_staff=False)
             for customer in customers:
@@ -22,7 +18,6 @@ class PromotionService:
                     link=reverse('promotions:promotion_detail', args=[promotion.id])
                 )
             
-            # Đánh dấu đã gửi
             promotion.notification_sent = True
             promotion.save(update_fields=['notification_sent'])
             return True

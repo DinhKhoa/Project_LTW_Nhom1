@@ -11,7 +11,6 @@ class AccountService:
 
     @staticmethod
     def create_address(customer, data):
-        """Creates an address from raw data dict."""
         if data.get('is_default'):
             Address.objects.filter(customer=customer).update(is_default=False)
         elif not Address.objects.filter(customer=customer).exists():
@@ -22,7 +21,6 @@ class AccountService:
 
     @staticmethod
     def update_address(customer, address_id, data):
-        """Updates an existing address from raw data dict."""
         address = get_object_or_404(Address, id=address_id, customer=customer)
         if data.get('is_default'):
             Address.objects.filter(customer=customer).exclude(id=address.id).update(is_default=False)
@@ -34,7 +32,6 @@ class AccountService:
 
     @staticmethod
     def delete_address(customer, address_id):
-        """Safely deletes an address."""
         address = get_object_or_404(Address, id=address_id, customer=customer)
         address.delete()
         return True
@@ -44,7 +41,7 @@ class AccountService:
         if user.check_password(old_password):
             user.set_password(new_password)
             user.save()
-            update_session_auth_hash(request, user) # refresh session
+            update_session_auth_hash(request, user)
             return True, "Đổi mật khẩu thành công"
         return False, "Mật khẩu cũ không chính xác"
 
@@ -55,3 +52,21 @@ class AccountService:
             OrderService.handle_order_action(order, 'cancel', cancel_reason=reason, user=user)
             return True, "Đã hủy đơn hàng thành công"
         return False, "Không thể hủy đơn hàng này"
+
+    @staticmethod
+    def register_user(form_data: dict) -> bool:
+        from django.contrib.auth.models import User
+        user = User.objects.create_user(
+            username=form_data["phone"],
+            password=form_data["password"],
+            email=form_data.get("email", ""),
+            first_name=form_data["first_name"],
+            last_name=form_data["last_name"],
+        )
+
+        birthday = form_data.get("birthday")
+        if birthday:
+            customer = user.customer
+            customer.birthday = birthday
+            customer.save()
+        return True

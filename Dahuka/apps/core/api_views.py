@@ -53,17 +53,17 @@ def api_product_suggestions(request):
     if not query or len(query) < 2:
         return JsonResponse({'status': 'success', 'results': []})
     
-    # Chỉ tìm theo tên sản phẩm, bỏ qua SKU theo yêu cầu của anh
+    
     products = Product.objects.filter(
         name__icontains=query,
         is_active=True
-    ).order_by('-id')[:8] # Giới hạn 8 kết quả cho gọn
+    ).order_by('-id')[:8]
     
     results = []
     for p in products:
         results.append({
             'name': p.name,
-            'price': f"{p.price:,.0f}đ".replace(',', '.'), # Định dạng tiền tệ
+            'price': f"{p.price:,.0f}đ".replace(',', '.'),
             'image': p.main_image_url,
             'url': reverse('core:view_product_detail', args=[p.slug])
         })

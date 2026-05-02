@@ -1,4 +1,3 @@
-// Logic gộp ngày sinh cho 3 ô chọn
 document.addEventListener('DOMContentLoaded', function() {
     const daySel = document.getElementById('bday_day');
     const monthSel = document.getElementById('bday_month');
@@ -17,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const year = parseInt(yearSel.value);
         const daysInMonth = getDaysInMonth(month, year);
 
-        // Xóa bớt hoặc thêm ngày vào select
         const currentDays = daySel.options.length;
         if (currentDays < daysInMonth) {
             for (let i = currentDays + 1; i <= daysInMonth; i++) {
@@ -32,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Nếu ngày cũ lớn hơn số ngày mới của tháng, chọn ngày cuối cùng của tháng đó
         if (selectedDay > daysInMonth) {
             daySel.value = daysInMonth;
         } else {
@@ -51,11 +48,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (daySel && monthSel && yearSel) {
-        // Lần đầu chạy để khớp số ngày
         updateDays();
 
         daySel.addEventListener('change', updateBirthday);
-        monthSel.addEventListener('change', updateDays); // Thay đổi tháng/năm thì cập nhật lại số ngày
+        monthSel.addEventListener('change', updateDays);
         yearSel.addEventListener('change', updateDays);
     }
 });

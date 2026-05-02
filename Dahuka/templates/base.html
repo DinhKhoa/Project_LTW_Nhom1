@@ -8,8 +8,7 @@
     <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/fonts/montserrat/google-fonts.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dahuka.css' %}?v=1.4.2">
-    {#    <link rel="stylesheet" href="{% static 'css/dahuka.css' %}">#}
+    <link rel="stylesheet" href="{% static 'css/dahuka.css' %}">
     {% block extra_css %}{% endblock %}
     <style>
 
@@ -1103,9 +1102,9 @@
     <div class="site-footer-top">
         <div class="site-footer-top-inner">
             <div>
-                <h4>Giới thiệu Mutosi</h4>
+                <h4>Giới thiệu Dahuka</h4>
                 <ul>
-                    <li>Giới thiệu về Mutosi</li>
+                    <li>Giới thiệu về Dahuka</li>
                     <li>Trách nhiệm xã hội</li>
                     <li>Tin tuyển dụng</li>
                     <li>Liên hệ</li>
@@ -1153,10 +1152,9 @@
     </div>
 </footer>
 
-<script src="{% static 'js/main.js' %}?v=1.0.1"></script>
+<script src="{% static 'js/main.js' %}"></script>
 
 {% if request.resolver_match.url_name == 'product_catalog' %}
-<!-- COMPARISON SYSTEM (CATALOG ONLY) -->
 <style>
     .compare-bar {
         position: fixed;
@@ -1168,10 +1166,8 @@
         z-index: 2000;
         transition: bottom 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         padding: 15px 0;
-        /* Border top removed as requested */
     }
     .compare-bar.active { bottom: 0; }
-    /* ... các style khác giữ nguyên ... */
     .compare-bar-inner {
         width: min(1200px, calc(100% - 40px));
         margin: 0 auto;
@@ -1227,7 +1223,6 @@
 <script src="{% static 'core/js/compare_global.js' %}"></script>
 {% endif %}
 
-<!-- Lenis Smooth Scroll -->
 <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script>
     const lenis = new Lenis({
@@ -1251,7 +1246,7 @@
 
     // --- Header Interactive Logic ---
     
-    // Search Toggle
+    
     const searchToggle = document.getElementById('headerSearchToggle');
     const searchWrapper = document.getElementById('headerSearchWrapper');
     if (searchToggle && searchWrapper) {
@@ -1264,7 +1259,7 @@
         });
     }
 
-    // Hotline Toggle
+    
     const hotlineToggle = document.getElementById('hotlineToggle');
     const hotlineWrapper = document.getElementById('hotlineWrapper');
     if (hotlineToggle && hotlineWrapper) {
@@ -1274,7 +1269,7 @@
         });
     }
 
-    // Close popups on outside click
+    
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.search-container')) {
             searchWrapper?.classList.remove('active');
@@ -1284,7 +1279,7 @@
         }
     });
 
-    // Promotion Modal Logic
+    
     window.openPromoModal = function(promoData) {
         const modal = document.getElementById('promoModal');
         const body = document.getElementById('promoModalBody');
@@ -1353,7 +1348,6 @@
 {% block extra_js %}{% endblock %}
 
 <script>
-    // --- Global Utility Functions (Available for everyone) ---
     window.showToast = function(msg, type = 'success') {
         const wrap = document.getElementById('siteToastWrap');
         if (!wrap) {
@@ -1418,7 +1412,7 @@
         return cookieValue;
     };
 
-    // Notification Polling Logic
+    
     document.addEventListener("DOMContentLoaded", function() {
         const notifToggle = document.getElementById("notifToggle");
         const notifDropdownWrapper = document.getElementById("notifDropdownWrapper");
@@ -1556,7 +1550,6 @@
     });
 </script>
 <script>
-    // Search Autocomplete Logic
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById('headerSearchInput');
         const suggestionsBox = document.getElementById('searchSuggestions');

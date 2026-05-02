@@ -15,13 +15,11 @@ def api_profile(request):
             'full_name': request.user.get_full_name(),
             'phone': customer.phone
         })
-    # Handle POST if needed
     return Response({'status': 'Profile updated'})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def api_change_password(request):
-    # Simplified logic
     return Response({'status': 'Password change request received'})
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])

@@ -5,13 +5,8 @@ from .selectors import get_warranty_settings, search_warranty_orders
 from .services import WarrantyService
 
 def warranty_view(request: HttpRequest) -> HttpResponse:
-    """
-    Main view for the warranty page.
-    Handles both display, search, and administrative updates.
-    """
     settings = get_warranty_settings()
 
-    # Handle Admin Update (Superuser only)
     if request.method == 'POST':
         if request.user.is_superuser:
             WarrantyService.update_settings(request.FILES)
@@ -20,7 +15,6 @@ def warranty_view(request: HttpRequest) -> HttpResponse:
         else:
             messages.error(request, 'Bạn không có quyền thực hiện thao tác này.')
 
-    # Search logic
     query = request.GET.get('q', '').strip()
     results = search_warranty_orders(query)
     
