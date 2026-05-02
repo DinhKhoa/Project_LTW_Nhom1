@@ -5,10 +5,12 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', verbose_name="Danh mục")
     name = models.CharField(max_length=255, verbose_name="Tên sản phẩm")
     slug = models.SlugField(unique=True, blank=True)
-    sku = models.CharField(max_length=50, unique=True, verbose_name="Mã SKU")
     description = models.TextField(verbose_name="Mô tả chi tiết")
     price = models.DecimalField(max_digits=12, decimal_places=0, verbose_name="Giá bán")
     image = models.ImageField(upload_to='products/', verbose_name="Hình ảnh chính", blank=True, null=True)
+    image_specs = models.ImageField(upload_to='products/specs/', verbose_name="Ảnh thông số", blank=True, null=True)
+    image_features = models.ImageField(upload_to='products/features/', verbose_name="Ảnh tính năng", blank=True, null=True)
+    image_description = models.ImageField(upload_to='products/description/', verbose_name="Ảnh mô tả chi tiết", blank=True, null=True)
     stock = models.IntegerField(default=100, verbose_name="Tồn kho")
     
     # Specs
@@ -86,15 +88,8 @@ class Product(models.Model):
         return 'Đầy đủ'
 
 class ProductImage(models.Model):
-    IMAGE_TYPES = (
-        ('gallery', 'Ảnh chi tiết'),
-        ('specs', 'Ảnh thông số'),
-        ('features', 'Ảnh tính năng'),
-        ('description', 'Ảnh mô tả chi tiết'),
-    )
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', verbose_name="Sản phẩm")
     image_url = models.ImageField(upload_to='products/gallery/', verbose_name="Hình ảnh", blank=True, null=True)
-    image_type = models.CharField(max_length=20, choices=IMAGE_TYPES, default='gallery', verbose_name="Loại hình ảnh")
     caption = models.CharField(max_length=255, blank=True, verbose_name="Chú thích")
     created_at = models.DateTimeField(auto_now_add=True)
 

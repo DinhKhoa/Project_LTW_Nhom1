@@ -1,7 +1,20 @@
-"""
-Services for warranty module.
-Put business logic here to keep views lean.
-"""
+from django.http import QueryDict
+from django.utils.datastructures import MultiValueDict
+from .models import WarrantyPageSettings
+from .selectors import get_warranty_settings
 
 class WarrantyService:
-    pass
+    @staticmethod
+    def update_settings(files: MultiValueDict) -> WarrantyPageSettings:
+        """
+        Updates the warranty page settings with new images.
+        """
+        settings = get_warranty_settings()
+        
+        if 'image_one' in files:
+            settings.image_one = files['image_one']
+        if 'image_two' in files:
+            settings.image_two = files['image_two']
+            
+        settings.save()
+        return settings

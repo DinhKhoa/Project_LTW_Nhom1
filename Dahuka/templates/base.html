@@ -24,14 +24,17 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            padding-top: 50px; 
         }
 
         .site-header {
             background: #fff;
             border-bottom: 1px solid #bdd5b7;
-            position: sticky;
+            position: fixed;
             top: 0;
-            z-index: 1000;
+            left: 0;
+            width: 100%;
+            z-index: 2000;
         }
 
         .site-header-inner {
@@ -41,6 +44,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 10px 0;
         }
 
         .site-logo {
@@ -964,12 +968,12 @@
                                 </div>
                             </div>
                             <div class="site-user-links">
-                                <a href="{% url 'profile_view' %}"><i
+                                <a href="{% url 'account:profile_view' %}"><i
                                         class="fa fa-user-o" style="-webkit-text-stroke: 0.5px currentColor;"></i><span>Thông tin tài khoản</span></a>
                                 {% if not user.is_staff %}
-                                    <a href="{% url 'address_list' %}"><i
+                                    <a href="{% url 'account:address_list' %}"><i
                                             class="fa fa-map-marker"></i><span>Sổ địa chỉ</span></a>
-                                    <a href="{% url 'purchase_list' %}"><i class="fa fa-shopping-bag"></i><span>Quản lý đơn hàng</span></a>
+                                    <a href="{% url 'account:purchase_list' %}"><i class="fa fa-shopping-bag"></i><span>Quản lý đơn hàng</span></a>
                                 {% endif %}
                             </div>
                             <div class="site-user-logout">
@@ -1220,102 +1224,7 @@
     </form>
 </div>
 
-<script>
-    const MAX_COMPARE = 3;
-
-    function syncGlobalCompare() {
-        const items = JSON.parse(localStorage.getItem('compareItems') || '[]');
-        const bar = document.getElementById('compareBar');
-        const list = document.getElementById('compareItemsList');
-        const countLabel = document.getElementById('compareCountLabel');
-        const btnGo = document.getElementById('btnCompareGo');
-        const form = document.getElementById('compareForm');
-
-        if (!bar) return;
-
-        if (items.length > 0) bar.classList.add('active');
-        else bar.classList.remove('active');
-
-        if (countLabel) countLabel.textContent = `Đã chọn ${items.length} sản phẩm`;
-
-        if (btnGo) {
-            if (items.length >= 2) {
-                btnGo.style.opacity = '1';
-                btnGo.style.pointerEvents = 'auto';
-            } else {
-                btnGo.style.opacity = '0.5';
-                btnGo.style.pointerEvents = 'none';
-            }
-        }
-
-        if (form) {
-            const container = document.getElementById('hiddenIdInputs') || form;
-            container.querySelectorAll('input[name="id"]').forEach(el => el.remove());
-            items.forEach(item => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'id';
-                input.value = item.id;
-                container.appendChild(input);
-            });
-        }
-
-        if (list) {
-            list.innerHTML = '';
-            items.forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'compare-item-card';
-                el.innerHTML = `<img src="${item.img}" alt="p"><div class="remove-item" data-id="${item.id}"><i class="fa fa-times"></i></div>`;
-                list.appendChild(el);
-            });
-            for (let i = items.length; i < MAX_COMPARE; i++) {
-                const empty = document.createElement('div');
-                empty.className = 'compare-item-card empty-slot';
-                list.appendChild(empty);
-            }
-        }
-    }
-
-    document.addEventListener('click', function(e) {
-        const addBtn = e.target.closest('.compare-btn');
-        if (addBtn) {
-            const card = addBtn.closest('[data-id]');
-            if (!card) return;
-            const pid = card.getAttribute('data-id');
-            const pimg = card.getAttribute('data-img') || '/static/img/no-image.png';
-            let items = JSON.parse(localStorage.getItem('compareItems') || '[]');
-            if (items.find(i => i.id === pid)) { 
-                showToast('Sản phẩm đã có trong danh sách!', 'warning'); 
-                return; 
-            }
-            if (items.length >= MAX_COMPARE) { 
-                showToast(`Tối đa ${MAX_COMPARE} sản phẩm!`, 'error'); 
-                return; 
-            }
-            items.push({ id: pid, img: pimg });
-            localStorage.setItem('compareItems', JSON.stringify(items));
-            syncGlobalCompare();
-            showToast('Đã thêm vào danh sách so sánh');
-        }
-
-        const removeBtn = e.target.closest('.remove-item');
-        if (removeBtn) {
-            const pid = removeBtn.getAttribute('data-id');
-            let items = JSON.parse(localStorage.getItem('compareItems') || '[]');
-            items = items.filter(i => i.id !== pid);
-            localStorage.setItem('compareItems', JSON.stringify(items));
-            syncGlobalCompare();
-        }
-
-        if (e.target.id === 'btnClearAll') {
-            localStorage.removeItem('compareItems');
-            syncGlobalCompare();
-            showToast('Đã xóa danh sách so sánh');
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', syncGlobalCompare);
-</script>
+<script src="{% static 'core/js/compare_global.js' %}"></script>
 {% endif %}
 
 <!-- Lenis Smooth Scroll -->
@@ -1395,7 +1304,7 @@
                             <img src="${p.image}" class="promo-product-img" alt="${p.name}">
                             <div style="flex: 1;">
                                 <div style="font-size: 13px; font-weight: 600; margin-bottom: 1px;">${p.name}</div>
-                                <div style="font-size: 11px; color: #666;">${p.sku}</div>
+                                <div style="font-size: 11px; color: #666;">ID: ${p.id}</div>
                             </div>
                             <div style="color: var(--brand); font-weight: 700; font-size: 13px;">${p.price}</div>
                         </a>
@@ -1444,6 +1353,71 @@
 {% block extra_js %}{% endblock %}
 
 <script>
+    // --- Global Utility Functions (Available for everyone) ---
+    window.showToast = function(msg, type = 'success') {
+        const wrap = document.getElementById('siteToastWrap');
+        if (!wrap) {
+            // Fallback to alert if container not found, though it should be in base.html
+            console.warn('siteToastWrap not found, falling back to alert');
+            alert(msg);
+            return;
+        }
+        const refreshToastStack = () => {
+            const toasts = wrap.querySelectorAll('.site-toast:not(.hide)');
+            toasts.forEach((item, index) => {
+                item.classList.remove('stacked-1', 'stacked-2', 'stacked-3');
+                const stackLevel = Math.min(index, 3);
+                if (stackLevel > 0) {
+                    item.classList.add(`stacked-${stackLevel}`);
+                }
+                item.style.zIndex = String(100 - index);
+            });
+        };
+
+        const toast = document.createElement('div');
+        toast.className = `site-toast ${type}`;
+        
+        let iconClass = 'fa-check-circle-o';
+        if (type === 'error') iconClass = 'fa-times-circle';
+        if (type === 'warning') iconClass = 'fa-exclamation-triangle';
+        
+        toast.innerHTML = `
+            <i class="fa ${iconClass}"></i>
+            <span>${msg}</span>
+        `;
+        
+        wrap.appendChild(toast);
+        refreshToastStack();
+
+        setTimeout(() => {
+            toast.classList.add('show');
+            refreshToastStack();
+        }, 10);
+
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => {
+                toast.remove();
+                refreshToastStack();
+            }, 500);
+        }, 4000);
+    };
+
+    window.getCookie = function(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    };
+
     // Notification Polling Logic
     document.addEventListener("DOMContentLoaded", function() {
         const notifToggle = document.getElementById("notifToggle");
@@ -1464,7 +1438,7 @@
 
         // Close when clicking outside
         document.addEventListener("click", function(e) {
-            if (!notifDropdownWrapper.contains(e.target)) {
+            if (notifDropdownWrapper && !notifDropdownWrapper.contains(e.target)) {
                 notifDropdownWrapper.classList.remove("open");
             }
         });
@@ -1538,7 +1512,7 @@
             fetch(`/api/notifications/${id}/read/`, {
                 method: "POST",
                 headers: {
-                    "X-CSRFToken": getCookie("csrftoken"),
+                    "X-CSRFToken": window.getCookie("csrftoken"),
                     "Content-Type": "application/json"
                 }
             }).then(() => {
@@ -1572,75 +1546,13 @@
             fetch("{% url 'core:api_mark_all_notifications_read' %}", {
                 method: "POST",
                 headers: {
-                    "X-CSRFToken": getCookie("csrftoken"),
+                    "X-CSRFToken": window.getCookie("csrftoken"),
                     "Content-Type": "application/json"
                 }
             }).then(() => {
                 fetchNotifications();
             });
         };
-
-        window.showToast = function(msg, type = 'success') {
-            const wrap = document.getElementById('siteToastWrap');
-            if (!wrap) return;
-            const refreshToastStack = () => {
-                const toasts = wrap.querySelectorAll('.site-toast:not(.hide)');
-                toasts.forEach((item, index) => {
-                    item.classList.remove('stacked-1', 'stacked-2', 'stacked-3');
-                    const stackLevel = Math.min(index, 3);
-                    if (stackLevel > 0) {
-                        item.classList.add(`stacked-${stackLevel}`);
-                    }
-                    item.style.zIndex = String(100 - index);
-                });
-            };
-
-            // Create toast element dynamically
-            const toast = document.createElement('div');
-            toast.className = `site-toast ${type}`;
-            
-            let iconClass = 'fa-check-circle-o';
-            if (type === 'error') iconClass = 'fa-times-circle';
-            if (type === 'warning') iconClass = 'fa-exclamation-triangle';
-            
-            toast.innerHTML = `
-                <i class="fa ${iconClass}"></i>
-                <span>${msg}</span>
-            `;
-            
-            wrap.appendChild(toast);
-            refreshToastStack();
-
-            // Trigger animation
-            setTimeout(() => {
-                toast.classList.add('show');
-                refreshToastStack();
-            }, 10);
-
-            // Remove after delay
-            setTimeout(() => {
-                toast.classList.add('hide');
-                setTimeout(() => {
-                    toast.remove();
-                    refreshToastStack();
-                }, 500);
-            }, 4000);
-        };
-
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
     });
 </script>
 <script>

@@ -17,8 +17,7 @@ class OrderModelTests(TestCase):
             email='test@example.com'
         )
         self.category = Category.objects.create(
-            name='Test Category',
-            code='TEST001'
+            name='Test Category'
         )
         self.product = Product.objects.create(
             name='Test Product',
@@ -65,8 +64,7 @@ class ProductSlugTests(TestCase):
     
     def setUp(self):
         self.category = Category.objects.create(
-            name='Test Category',
-            code='TEST001'
+            name='Test Category'
         )
     
     def test_slug_generation(self):
@@ -86,8 +84,7 @@ class ProductSlugTests(TestCase):
             name='Test Product',
             category=self.category,
             price=100000,
-            stock=50,
-            sku='SKU001'
+            stock=50
         )
         self.assertEqual(product1.slug, 'test-product')
         
@@ -96,8 +93,7 @@ class ProductSlugTests(TestCase):
             name='Test Product',
             category=self.category,
             price=100000,
-            stock=50,
-            sku='SKU002'
+            stock=50
         )
         self.assertEqual(product2.slug, 'test-product-1')
     
@@ -109,8 +105,7 @@ class ProductSlugTests(TestCase):
                 name='Test Product',
                 category=self.category,
                 price=100000,
-                stock=50,
-                sku=f'SKU{i:03d}'
+                stock=50
             )
             if i == 0:
                 self.assertEqual(product.slug, 'test-product')
@@ -124,20 +119,17 @@ class CategorySlugTests(TestCase):
     def test_category_slug_generation(self):
         """Test that category slug is auto-generated"""
         category = Category.objects.create(
-            name='Test Category',
-            code='TEST001'
+            name='Test Category'
         )
         self.assertEqual(category.slug, 'test-category')
     
     def test_category_slug_uniqueness(self):
         """Test category slug uniqueness"""
         category1 = Category.objects.create(
-            name='Test Category',
-            code='TEST001'
+            name='Test Category'
         )
         category2 = Category.objects.create(
-            name='Test Category',
-            code='TEST002'
+            name='Test Category'
         )
         self.assertEqual(category1.slug, 'test-category')
         self.assertEqual(category2.slug, 'test-category-1')

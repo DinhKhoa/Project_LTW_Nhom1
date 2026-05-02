@@ -10,7 +10,7 @@
     if (submitCancelBtn && cancelForm) {
         submitCancelBtn.addEventListener('click', function () {
             if (!cancelReasonArea.value.trim()) {
-                alert('Vui lòng nhập lý do hủy đơn.');
+                window.showToast('Vui lòng nhập lý do hủy đơn.', 'warning');
                 return;
             }
             

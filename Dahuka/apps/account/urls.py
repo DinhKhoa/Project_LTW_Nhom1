@@ -2,6 +2,8 @@ from django.urls import path
 from . import views, api_views
 
 
+app_name = "account"
+
 urlpatterns = [
     path("dashboard/", views.account_dashboard, name="account_dashboard"),
     path("profile/", views.profile_view, name="profile_view"),
@@ -25,5 +27,5 @@ urlpatterns = [
     path("api/addresses/<int:pk>/", api_views.api_addresses, name="api_address_detail"),
     path("api/orders/", api_views.api_orders, name="api_orders"),
     path("api/orders/<int:pk>/", api_views.api_orders, name="api_order_detail"),
-    path("signin/", views.signin, name="signin"),
+    path("signup/", views.signup, name="signup"),
 ]

@@ -100,9 +100,11 @@ class Command(BaseCommand):
                 'is_active': True,
             }
 
-            product, created = Product.objects.update_or_create(sku=sku, defaults=defaults)
+            # Use name as identifier
+            product_name = str(row.get('TenSP', ''))
+            product, created = Product.objects.update_or_create(name=product_name, defaults=defaults)
             action = "Created" if created else "Updated"
-            self.stdout.write(f"  {action} product: {sku}")
+            self.stdout.write(f"  {action} product ID: {product.id}")
             count += 1
         
         self.stdout.write(self.style.SUCCESS(f"Imported {count} products"))
@@ -110,26 +112,37 @@ class Command(BaseCommand):
     def import_images(self):
         self.stdout.write("Reading hinhanhsanpham.xlsx...")
         df = pd.read_excel('hinhanhsanpham.xlsx')
+        # We need a way to find products without SKU in the new system.
+        # Since this is a legacy script, we'll try to find by name if available,
+        # but the image sheet usually only has MaSP (sku).
+        # We'll use a map from the products sheet if we want to be thorough.
+        
+        # Load products again to create a mapping from MaSP to Name
+        df_p = pd.read_excel('Sanpham.xlsx')
+        sku_to_name = {str(r['MaSP']).strip(): str(r['TenSP']) for _, r in df_p.iterrows() if not pd.isna(r.get('MaSP'))}
+
         count = 0
         for index, row in df.iterrows():
             sku = str(row.get('MaSP', '')).strip()
-            if not sku or pd.isna(sku) or sku == 'nan':
+            if not sku or sku not in sku_to_name:
                 continue
+            
+            product_name = sku_to_name[sku]
 
             try:
-                product = Product.objects.get(sku=sku)
+                product = Product.objects.get(name=product_name)
             except Product.DoesNotExist:
-                self.stdout.write(self.style.WARNING(f"  Product {sku} not found for image import"))
+                self.stdout.write(self.style.WARNING(f"  Product {product_name} not found for image import"))
                 continue
 
             # Main Image
             main_url = row.get('AnhChinh')
             if main_url and not pd.isna(main_url):
                 # Only download if product doesn't have an image or we want to force update
-                image_file = self.download_image(main_url, f"{sku}_main.jpg")
+                image_file = self.download_image(main_url, f"prod_{product.id}_main.jpg")
                 if image_file:
-                    product.image.save(f"{sku}_main.jpg", image_file, save=True)
-                    self.stdout.write(f"    Saved main image for {sku}")
+                    product.image.save(f"prod_{product.id}_main.jpg", image_file, save=True)
+                    self.stdout.write(f"    Saved main image for ID: {product.id}")
 
             # Gallery Images
             gallery_urls = {
@@ -143,15 +156,14 @@ class Command(BaseCommand):
                 url = row.get(col)
                 if url and not pd.isna(url):
                     # For gallery images, we match by product and image_type and caption
-                    image_file = self.download_image(url, f"{sku}_{col}.jpg")
+                    image_file = self.download_image(url, f"prod_{product.id}_{col}.jpg")
                     if image_file:
                         ProductImage.objects.update_or_create(
                             product=product,
-                            image_type=img_type,
                             caption=f"Image {col}",
                             defaults={'image_url': image_file}
                         )
-                        self.stdout.write(f"    Saved {img_type} image ({col}) for {sku}")
+                        self.stdout.write(f"    Saved {img_type} image ({col}) for ID: {product.id}")
             
             count += 1
         

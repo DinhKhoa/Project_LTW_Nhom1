@@ -73,8 +73,7 @@ def product_detail(request: HttpRequest, pk: int = None) -> HttpResponse:
     # Prepare images by type for display
     images_by_type: Dict[str, Any] = {}
     if product:
-        for itype, _ in ProductImage.IMAGE_TYPES:
-            images_by_type[itype] = product.images.filter(image_type=itype)
+        images_by_type['gallery'] = product.images.all()
 
     context = {
         'product': product,

@@ -1,19 +1,28 @@
-/**
- * Dahuka Support Page - Interactivity
- * Focus: Smooth animations and map pin effects
- */
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dahuka Support Page Loaded');
 
-    // Add subtle hover effect for map popup reveal
-    const mapFrame = document.querySelector('.map-frame');
-    const mapPopup = document.querySelector('.map-popup');
-    const mapPin = document.querySelector('.map-pin');
+    const editModal = document.getElementById('editWarrantySettingsModal');
+    const openBtn = document.querySelector('.admin-edit-btn');
+    const closeBtns = document.querySelectorAll('.warranty-modal-close, .btn-dahuka-outline');
 
-    if (mapFrame && mapPopup && mapPin) {
-    // Manual hover effects removed
+    if (openBtn && editModal) {
+        openBtn.addEventListener('click', function() {
+            editModal.style.display = 'flex';
+        });
     }
 
-    // Animations removed as requested
+    if (closeBtns && editModal) {
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                editModal.style.display = 'none';
+            });
+        });
+    }
+
+    // Close modal when clicking outside the box
+    window.addEventListener('click', function(event) {
+        if (event.target === editModal) {
+            editModal.style.display = 'none';
+        }
+    });
 });

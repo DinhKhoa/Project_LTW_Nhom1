@@ -42,7 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             const tr = document.createElement('tr');
                             tr.className = rowClass;
-                            tr.style.cursor = 'pointer';
+                            // Cursor and click logic moved to class/event delegation if possible, 
+                            // but keeping onclick for simplicity in this specific dynamic row creation.
                             tr.onclick = (e) => {
                                 if (!e.target.closest('.switch-wrapper')) {
                                     window.location.href = `/products/${p.id}/`;
@@ -50,18 +51,18 @@ document.addEventListener('DOMContentLoaded', function() {
                             };
                             
                             tr.innerHTML = `
-                                <td class="text-center">${p.sku || ''}</td>
+                                <td class="text-center">${p.id || ''}</td>
                                 <td class="p-name">${p.name || ''}</td>
-                                <td class="p-price text-center" style="color: #1a6b3c; font-weight: 700;">${formattedPrice} đ</td>
+                                <td class="p-price text-center brand-green-text font-weight-bold">${formattedPrice} đ</td>
                                 <td class="p-stock text-center">${stockDisplay}</td>
                                 <td class="text-center">
-                                    <div class="stock-badge ${badgeClass}" style="margin: 0 auto;">
+                                    <div class="stock-badge ${badgeClass} mx-auto">
                                         <span class="dot"></span> ${statusText}
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    <div class="switch-wrapper ${toggleClass}" 
-                                         onclick="toggleVisibility(event, ${p.id}, this)" style="margin: 0 auto;">
+                                    <div class="switch-wrapper ${toggleClass} mx-auto" 
+                                         onclick="toggleVisibility(event, ${p.id}, this)">
                                         <div class="toggle-slider"></div>
                                         <span class="toggle-label">${toggleText}</span>
                                     </div>
@@ -107,12 +108,12 @@ window.toggleVisibility = function(event, productId, element) {
                 label.textContent = 'Ẩn';
             }
         } else {
-            alert('Lỗi: ' + data.message);
+            window.showToast('Lỗi: ' + data.message, 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Có lỗi xảy ra khi cập nhật trạng thái.');
+        window.showToast('Có lỗi xảy ra khi cập nhật trạng thái.', 'error');
     });
 };
 
@@ -132,7 +133,7 @@ function getCookie(name) {
 }
 
 /* ===== Category Modal Logic ===== */
-window.openCategoryModal = function(mode, id, ma, ten) {
+window.openCategoryModal = function(mode, id, ten) {
     var modal = document.getElementById('categoryModal');
     var form = document.getElementById('categoryForm');
     var title = document.getElementById('modalTitle');

@@ -4,27 +4,27 @@
 {% block title %}Chi tiết sản phẩm - DAHUKA{% endblock title %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'product_detail.css' %}?v=1.6">
+    <link rel="stylesheet" href="{% static 'products/css/product_detail.css' %}?v=1.6">
     <style>
-        /* Small overrides or specific page styles if needed */
         .container-shell {
             width: min(1200px, calc(100% - 40px));
             margin: 0 auto;
         }
 
-        /* Nút xóa ảnh khi hover */
+        /* Hover delete button functionality */
         .thumb-item {
-            position: relative;
+            position: relative !important;
+            overflow: visible !important;
         }
 
         .btn-delete-thumb {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -8px;
+            right: -8px;
             width: 22px;
             height: 22px;
             background: #ef4444;
-            color: white;
+            color: white !important;
             border: 2px solid white;
             border-radius: 50%;
             display: flex;
@@ -33,22 +33,39 @@
             font-size: 10px;
             cursor: pointer;
             opacity: 0;
-            transition: all 0.2s ease;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transform: scale(0.5);
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
             padding: 0;
+            visibility: hidden;
         }
 
         .thumb-item:hover .btn-delete-thumb {
             opacity: 1;
-            transform: scale(1.1);
+            visibility: visible;
+            transform: scale(1);
         }
 
         .btn-delete-thumb:hover {
             background: #dc2626;
+            transform: scale(1.1);
         }
 
-        /* Custom Modal Styles */
+        /* Single field specific styles */
+        .thumb-item.empty-state {
+            background: #f8fafc;
+            border: 1.5px dashed #cbd5e1;
+            color: #94a3b8;
+        }
+        
+        .thumb-item.empty-state:hover {
+            border-color: var(--brand-green);
+            color: var(--brand-green);
+            background: #f0faf4;
+        }
+
+        /* Modal Styles */
         .dahuka-modal-overlay {
             position: fixed;
             top: 0;
@@ -76,7 +93,7 @@
             padding: 24px;
             border-radius: 16px;
             width: 360px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             transform: scale(0.9);
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-align: center;
@@ -86,63 +103,25 @@
             transform: scale(1);
         }
 
-        .modal-header-simple {
-            margin-bottom: 16px;
-        }
-
         .modal-header-simple i {
             font-size: 40px;
             color: #ef4444;
             margin-bottom: 12px;
         }
 
-        .modal-header-simple h3 {
-            margin: 0;
-            font-size: 1.25rem;
-            color: #1f2937;
-            font-weight: 700;
-        }
-
-        .dahuka-modal-content p {
-            color: #4b5563;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 24px;
-        }
-
         .modal-actions-simple {
             display: flex;
             gap: 12px;
-            justify-content: center;
+            margin-top: 24px;
         }
 
         .modal-actions-simple button {
-            padding: 10px 20px;
+            flex: 1;
+            padding: 10px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.2s;
             border: none;
-            flex: 1;
-        }
-
-        .btn-cancel {
-            background: #f3f4f6;
-            color: #374151;
-        }
-
-        .btn-cancel:hover {
-            background: #e5e7eb;
-        }
-
-        .btn-confirm-delete {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-confirm-delete:hover {
-            background: #dc2626;
         }
     </style>
 {% endblock extra_css %}
@@ -167,358 +146,357 @@
                 <button type="submit" class="btn-minimal"><i class="fa fa-check"></i> {% if mode == 'create' %}Tạo sản phẩm{% else %}Lưu thay đổi{% endif %}</button>
             </div>
 
-        <div class="product-detail-layout">
-            <!-- Left Column: Images -->
-            <div class="product-images-sidebar">
-                <div class="main-image-card" onclick="document.querySelector('input[name=\'image\']').click()" style="cursor: pointer;">
-                    <div class="image-box">
-                        {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" id="mainProductImage">
-                        {% else %}
-                        <img src="{% static 'img/no-image.png' %}" alt="No image" id="mainProductImage">
-                        {% endif %}
-                    </div>
-                    <div class="main-image-label">Ảnh chính</div>
-                    <div class="d-none">
-                        {{ form.image }}
-                    </div>
-                </div>
-
-                <div class="image-sections-accordion mt-3">
-                    <!-- Ảnh chính Section -->
-                    <div class="acc-item">
-                        <div class="acc-header" onclick="toggleAcc(this)">
-                            <span><i class="fa fa-chevron-down mr-2 icon-chevron"></i> Ảnh chính</span>
+            <div class="product-detail-layout">
+                <!-- Left Column: Images -->
+                <div class="product-images-sidebar">
+                    <div class="main-image-card">
+                        <div class="image-box" onclick="document.querySelector('input[name=\'image\']').click()" style="cursor: pointer;">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" id="mainProductImage">
+                            {% else %}
+                            <div class="empty-main-box">
+                                <i class="fa fa-picture-o fa-3x" style="color: #cbd5e1;"></i>
+                                <p class="mt-2" style="color: #94a3b8; font-size: 13px;">Chưa có ảnh chính</p>
+                            </div>
+                            {% endif %}
                         </div>
-                        <div class="acc-content show">
-                            <div class="thumb-list">
-                                <div class="thumb-item active">
-                                    {% if product.image %}
-                                    <img src="{{ product.image.url }}" alt="">
-                                    {% else %}
-                                    <img src="{% static 'img/no-image.png' %}" alt="">
+                        <div class="main-image-label">Ảnh chính</div>
+                        <div class="d-none">
+                            {{ form.image }}
+                            {{ form.image_specs }}
+                            {{ form.image_features }}
+                            {{ form.image_description }}
+                            <!-- Hidden clear triggers -->
+                            <input type="checkbox" name="image-clear" id="id_image-clear">
+                            <input type="checkbox" name="image_specs-clear" id="id_image_specs-clear">
+                            <input type="checkbox" name="image_features-clear" id="id_image_features-clear">
+                            <input type="checkbox" name="image_description-clear" id="id_image_description-clear">
+                        </div>
+                    </div>
+
+                    <div class="image-sections-accordion mt-3">
+                        <!-- Ảnh chính -->
+                        <div class="acc-item">
+                            <div class="acc-header" onclick="toggleAcc(this)">
+                                <span><i class="fa fa-chevron-down mr-2 icon-chevron"></i> Ảnh chính</span>
+                            </div>
+                            <div class="acc-content show">
+                                <div class="thumb-list">
+                                    <div class="thumb-item {% if product.image %}has-image{% else %}empty-state{% endif %}" onclick="document.querySelector('input[name=\'image\']').click()">
+                                        {% if product.image %}
+                                            <img src="{{ product.image.url }}" alt="">
+                                            <button type="button" class="btn-delete-thumb" onclick="clearSingleField(event, 'image')" title="Xóa ảnh"><i class="fa fa-times"></i></button>
+                                        {% else %}
+                                            <i class="fa fa-plus"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ảnh chi tiết (Gallery) -->
+                        <div class="acc-item">
+                            <div class="acc-header" onclick="toggleAcc(this)">
+                                <span><i class="fa fa-chevron-down mr-2 icon-chevron"></i> Ảnh chi tiết</span>
+                            </div>
+                            <div class="acc-content show">
+                                <div class="thumb-list" data-type="gallery">
+                                    {% if images_by_type.gallery %}
+                                        {% for img in images_by_type.gallery %}
+                                        <div class="thumb-item" data-img-id="{{ img.id }}">
+                                            <img src="{{ img.image_url.url }}" alt="">
+                                            <button type="button" class="btn-delete-thumb js-delete-saved-image" data-img-id="{{ img.id }}" title="Xóa ảnh"><i class="fa fa-times"></i></button>
+                                        </div>
+                                        {% endfor %}
                                     {% endif %}
+                                    <div class="thumb-item add-btn" title="Thêm ảnh chi tiết"><i class="fa fa-plus"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ảnh Thông số -->
+                        <div class="acc-item">
+                            <div class="acc-header" onclick="toggleAcc(this)">
+                                <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh thông số</span>
+                            </div>
+                            <div class="acc-content">
+                                <div class="thumb-list">
+                                    <div class="thumb-item {% if product.image_specs %}has-image{% else %}empty-state{% endif %}" onclick="document.querySelector('input[name=\'image_specs\']').click()">
+                                        {% if product.image_specs %}
+                                            <img src="{{ product.image_specs.url }}" alt="">
+                                            <button type="button" class="btn-delete-thumb" onclick="clearSingleField(event, 'image_specs')" title="Xóa ảnh"><i class="fa fa-times"></i></button>
+                                        {% else %}
+                                            <i class="fa fa-plus"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ảnh Tính năng -->
+                        <div class="acc-item">
+                            <div class="acc-header" onclick="toggleAcc(this)">
+                                <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh tính năng</span>
+                            </div>
+                            <div class="acc-content">
+                                <div class="thumb-list">
+                                    <div class="thumb-item {% if product.image_features %}has-image{% else %}empty-state{% endif %}" onclick="document.querySelector('input[name=\'image_features\']').click()">
+                                        {% if product.image_features %}
+                                            <img src="{{ product.image_features.url }}" alt="">
+                                            <button type="button" class="btn-delete-thumb" onclick="clearSingleField(event, 'image_features')" title="Xóa ảnh"><i class="fa fa-times"></i></button>
+                                        {% else %}
+                                            <i class="fa fa-plus"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ảnh Mô tả -->
+                        <div class="acc-item">
+                            <div class="acc-header" onclick="toggleAcc(this)">
+                                <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh mô tả chi tiết</span>
+                            </div>
+                            <div class="acc-content">
+                                <div class="thumb-list">
+                                    <div class="thumb-item {% if product.image_description %}has-image{% else %}empty-state{% endif %}" onclick="document.querySelector('input[name=\'image_description\']').click()">
+                                        {% if product.image_description %}
+                                            <img src="{{ product.image_description.url }}" alt="">
+                                            <button type="button" class="btn-delete-thumb" onclick="clearSingleField(event, 'image_description')" title="Xóa ảnh"><i class="fa fa-times"></i></button>
+                                        {% else %}
+                                            <i class="fa fa-plus"></i>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Ảnh chi tiết Section -->
-                    <div class="acc-item">
-                        <div class="acc-header" onclick="toggleAcc(this)">
-                            <span><i class="fa fa-chevron-down mr-2 icon-chevron"></i> Ảnh chi tiết</span>
+                </div>
+
+                <!-- Right Column: Form Data -->
+                <div class="product-data-main">
+                    <!-- Section 1: Thông tin cơ bản -->
+                    <div class="form-section-card">
+                        <div class="section-header">
+                            <i class="fa fa-cog icon-green"></i> Thông tin cơ bản
                         </div>
-                        <div class="acc-content show">
-                            <div class="thumb-list" data-type="gallery">
-                                {% if images_by_type.gallery %}
-                                    {% for img in images_by_type.gallery %}
-                                    <div class="thumb-item" data-img-id="{{ img.id }}">
-                                        <img src="{{ img.image_url.url }}" alt="">
-                                        <button type="button" class="btn-delete-thumb js-delete-saved-image" data-img-id="{{ img.id }}" title="Xóa ảnh này">
-                                            <i class="fa fa-times"></i>
-                                        </button>
+                        <div class="section-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka">
+                                        <label>Mã sản phẩm (ID): <b>{{ product.id|default:"Sẽ tự động tạo" }}</b></label>
+                                        <input type="text" class="form-control-dahuka" value="{{ product.id|default:'---' }}" readonly>
                                     </div>
-                                    {% endfor %}
-                                {% endif %}
-                                <div class="thumb-item add-btn" title="Thêm ảnh chi tiết"><i class="fa fa-plus"></i></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka">
+                                        <label>Danh mục <span class="required">*</span></label>
+                                        <div class="select-wrapper">
+                                            {{ form.category }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group-dahuka mt-3">
+                                <label>Tên sản phẩm <span class="required">*</span></label>
+                                {{ form.name }}
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka input-addon-right">
+                                        <label>Giá tiền <span class="required">*</span></label>
+                                        <div class="input-unit-box">
+                                            {{ form.price }}
+                                            <span class="unit-text">đ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka input-addon-right">
+                                        <label>Số lượng tồn kho <span class="required">*</span></label>
+                                        <div class="input-unit-box">
+                                            {{ form.stock }}
+                                            <span class="unit-text">cái</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka">
+                                        <label>Loại máy</label>
+                                        <input type="text" class="form-control-dahuka" value="Máy lọc nước" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka">
+                                        <label>Công nghệ lọc</label>
+                                        {{ form.spec_technology }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Other Sections placeholders -->
-                    <div class="acc-item">
-                        <div class="acc-header" onclick="toggleAcc(this)">
-                            <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh thông số</span>
+
+                    <!-- Section 2: Thông số kỹ thuật -->
+                    <div class="form-section-card mt-4">
+                        <div class="section-header">
+                            <i class="fa fa-television icon-green"></i> Thông số kỹ thuật
                         </div>
-                        <div class="acc-content">
-                            <div class="thumb-list" data-type="specs">
-                                {% if images_by_type.specs %}
-                                    {% for img in images_by_type.specs %}
-                                    <div class="thumb-item" data-img-id="{{ img.id }}">
-                                        <img src="{{ img.image_url.url }}" alt="">
-                                        <button type="button" class="btn-delete-thumb js-delete-saved-image" data-img-id="{{ img.id }}" title="Xóa ảnh này">
-                                            <i class="fa fa-times"></i>
-                                        </button>
+                        <div class="section-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka input-addon-right">
+                                        <label>Công suất lọc</label>
+                                        <div class="input-unit-box">
+                                            {{ form.spec_power }}
+                                            <span class="unit-text wide">lít/giờ</span>
+                                        </div>
                                     </div>
-                                    {% endfor %}
-                                {% endif %}
-                                <div class="thumb-item add-btn" title="Thêm ảnh thông số"><i class="fa fa-plus"></i></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka input-addon-right">
+                                        <label>Dung tích bình</label>
+                                        <div class="input-unit-box">
+                                            {{ form.spec_capacity }}
+                                            <span class="unit-text">lít</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka input-addon-right">
+                                        <label>Nhiệt độ nóng</label>
+                                        <div class="input-unit-box">
+                                            {{ form.spec_hot_temp }}
+                                            <span class="unit-text">°C</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka input-addon-right">
+                                        <label>Nhiệt độ lạnh</label>
+                                        <div class="input-unit-box">
+                                            {{ form.spec_cold_temp }}
+                                            <span class="unit-text">°C</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka input-addon-right">
+                                        <label>Số lõi lọc</label>
+                                        <div class="input-unit-box">
+                                            {{ form.spec_filters_count }}
+                                            <span class="unit-text">lớp</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka">
+                                        <label>Năm ra mắt</label>
+                                        {{ form.spec_release_year }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group-dahuka mt-3">
+                                <label>Kích thước</label>
+                                {{ form.spec_dimensions }}
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka input-addon-right">
+                                        <label>Khối lượng</label>
+                                        <div class="input-unit-box">
+                                            {{ form.spec_weight }}
+                                            <span class="unit-text">kg</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka">
+                                        <label>Nơi sản xuất</label>
+                                        {{ form.spec_origin }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="form-group-dahuka input-addon-right">
+                                        <label>Thời gian bảo hành</label>
+                                        <div class="input-unit-box">
+                                            {{ form.spec_warranty }}
+                                            <span class="unit-text">năm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group-dahuka mt-3">
+                                <label>Tính năng</label>
+                                {{ form.spec_features }}
+                            </div>
+                            <div class="form-group-dahuka mt-3">
+                                <label>Thông số</label>
+                                {{ form.spec_other }}
                             </div>
                         </div>
                     </div>
-                    <div class="acc-item">
-                        <div class="acc-header" onclick="toggleAcc(this)">
-                            <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh tính năng</span>
+
+                    <!-- Section 3: Mô tả sản phẩm -->
+                    <div class="form-section-card mt-4">
+                        <div class="section-header">
+                            <i class="fa fa-file-text-o icon-green"></i> Mô tả sản phẩm
                         </div>
-                        <div class="acc-content">
-                            <div class="thumb-list" data-type="features">
-                                {% if images_by_type.features %}
-                                    {% for img in images_by_type.features %}
-                                    <div class="thumb-item" data-img-id="{{ img.id }}">
-                                        <img src="{{ img.image_url.url }}" alt="">
-                                        <button type="button" class="btn-delete-thumb js-delete-saved-image" data-img-id="{{ img.id }}" title="Xóa ảnh này">
-                                            <i class="fa fa-times"></i>
-                                        </button>
-                                    </div>
-                                    {% endfor %}
-                                {% endif %}
-                                <div class="thumb-item add-btn" title="Thêm ảnh tính năng"><i class="fa fa-plus"></i></div>
+                        <div class="section-body">
+                            <div class="form-group-dahuka">
+                                <label>Mô tả ngắn</label>
+                                {{ form.short_description }}
+                            </div>
+                            <div class="form-group-dahuka mt-3">
+                                <label>Mô tả chi tiết</label>
+                                {{ form.description }}
                             </div>
                         </div>
                     </div>
-                    <div class="acc-item">
-                        <div class="acc-header" onclick="toggleAcc(this)">
-                            <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh mô tả chi tiết</span>
+
+                    <!-- Section 4: Trạng thái -->
+                    <div class="form-section-card mt-4">
+                        <div class="section-header">
+                            <i class="fa fa-clock-o icon-green"></i> Trạng thái
                         </div>
-                        <div class="acc-content">
-                            <div class="thumb-list" data-type="description">
-                                {% if images_by_type.description %}
-                                    {% for img in images_by_type.description %}
-                                    <div class="thumb-item" data-img-id="{{ img.id }}">
-                                        <img src="{{ img.image_url.url }}" alt="">
-                                        <button type="button" class="btn-delete-thumb js-delete-saved-image" data-img-id="{{ img.id }}" title="Xóa ảnh này">
-                                            <i class="fa fa-times"></i>
-                                        </button>
-                                    </div>
-                                    {% endfor %}
-                                {% endif %}
-                                <div class="thumb-item add-btn" title="Thêm ảnh mô tả"><i class="fa fa-plus"></i></div>
+                        <div class="section-body">
+                            <div class="form-group-dahuka">
+                                <label>Trạng thái hiển thị</label>
+                                <div class="toggle-flex">
+                                    <label class="switch-ios">
+                                        {{ form.is_active }}
+                                        <span class="slider-ios"></span>
+                                    </label>
+                                    <span class="toggle-txt" id="toggleTxt">Hiển thị trên website</span>
+                                </div>
+                            </div>
+                            <div class="form-group-dahuka mt-3" id="featuredSection" {% if not form.is_active.value %}style="display: none;"{% endif %}>
+                                <label>Sản phẩm nổi bật</label>
+                                <div class="toggle-flex">
+                                    <label class="switch-ios">
+                                        {{ form.is_featured }}
+                                        <span class="slider-ios"></span>
+                                    </label>
+                                    <span class="toggle-txt">Nổi bật trên trang chủ</span>
+                                </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="bottom-actions mt-4 mb-5 d-flex justify-content-end gap-2">
+                        <a href="{% url 'products:product_list' %}" class="btn-dahuka-white">Hủy</a>
+                        <button type="submit" class="btn-minimal"><i class="fa fa-check"></i> {% if mode == 'create' %}Tạo sản phẩm{% else %}Lưu thay đổi{% endif %}</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Right Column: Form Data -->
-            <div class="product-data-main">
-                <!-- Section 1: Thông tin cơ bản -->
-                <div class="form-section-card">
-                    <div class="section-header">
-                        <i class="fa fa-cog icon-green"></i> Thông tin cơ bản
-                    </div>
-                    <div class="section-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka">
-                                    <label>Mã sản phẩm (SKU) <span class="required">*</span></label>
-                                    {{ form.sku }}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka">
-                                    <label>Danh mục <span class="required">*</span></label>
-                                    <div class="select-wrapper">
-                                        {{ form.category }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group-dahuka mt-3">
-                            <label>Tên sản phẩm <span class="required">*</span></label>
-                            {{ form.name }}
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka input-addon-right">
-                                    <label>Giá tiền <span class="required">*</span></label>
-                                    <div class="input-unit-box">
-                                        {{ form.price }}
-                                        <span class="unit-text">đ</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka input-addon-right">
-                                    <label>Số lượng tồn kho <span class="required">*</span></label>
-                                    <div class="input-unit-box">
-                                        {{ form.stock }}
-                                        <span class="unit-text">cái</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka">
-                                    <label>Loại máy</label>
-                                    <input type="text" class="form-control-dahuka" value="Máy lọc nước" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka">
-                                    <label>Công nghệ lọc</label>
-                                    {{ form.spec_technology }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 2: Thông số kỹ thuật -->
-                <div class="form-section-card mt-4">
-                    <div class="section-header">
-                        <i class="fa fa-television icon-green"></i> Thông số kỹ thuật
-                    </div>
-                    <div class="section-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka input-addon-right">
-                                    <label>Công suất lọc</label>
-                                    <div class="input-unit-box">
-                                        {{ form.spec_power }}
-                                        <span class="unit-text wide">lít/giờ</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka input-addon-right">
-                                    <label>Dung tích bình</label>
-                                    <div class="input-unit-box">
-                                        {{ form.spec_capacity }}
-                                        <span class="unit-text">lít</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka input-addon-right">
-                                    <label>Nhiệt độ nóng</label>
-                                    <div class="input-unit-box">
-                                        {{ form.spec_hot_temp }}
-                                        <span class="unit-text">°C</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka input-addon-right">
-                                    <label>Nhiệt độ lạnh</label>
-                                    <div class="input-unit-box">
-                                        {{ form.spec_cold_temp }}
-                                        <span class="unit-text">°C</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka input-addon-right">
-                                    <label>Số lõi lọc</label>
-                                    <div class="input-unit-box">
-                                        {{ form.spec_filters_count }}
-                                        <span class="unit-text">lớp</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka">
-                                    <label>Năm ra mắt</label>
-                                    {{ form.spec_release_year }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group-dahuka mt-3">
-                            <label>Kích thước</label>
-                            {{ form.spec_dimensions }}
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka input-addon-right">
-                                    <label>Khối lượng</label>
-                                    <div class="input-unit-box">
-                                        {{ form.spec_weight }}
-                                        <span class="unit-text">kg</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka">
-                                    <label>Nơi sản xuất</label>
-                                    {{ form.spec_origin }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <div class="form-group-dahuka input-addon-right">
-                                    <label>Thời gian bảo hành</label>
-                                    <div class="input-unit-box">
-                                        {{ form.spec_warranty }}
-                                        <span class="unit-text">năm</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group-dahuka mt-3">
-                            <label>Tính năng</label>
-                            {{ form.spec_features }}
-                        </div>
-                        <div class="form-group-dahuka mt-3">
-                            <label>Thông số</label>
-                            {{ form.spec_other }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 3: Mô tả sản phẩm -->
-                <div class="form-section-card mt-4">
-                    <div class="section-header">
-                        <i class="fa fa-file-text-o icon-green"></i> Mô tả sản phẩm
-                    </div>
-                    <div class="section-body">
-                        <div class="form-group-dahuka">
-                            <label>Mô tả ngắn</label>
-                            {{ form.short_description }}
-                        </div>
-                        <div class="form-group-dahuka mt-3">
-                            <label>Mô tả chi tiết</label>
-                            {{ form.description }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 4: Trạng thái -->
-                <div class="form-section-card mt-4">
-                    <div class="section-header">
-                        <i class="fa fa-clock-o icon-green"></i> Trạng thái
-                    </div>
-                    <div class="section-body">
-                        <div class="form-group-dahuka">
-                            <label>Trạng thái hiển thị</label>
-                            <div class="toggle-flex">
-                                <label class="switch-ios">
-                                    {{ form.is_active }}
-                                    <span class="slider-ios"></span>
-                                </label>
-                                <span class="toggle-txt" id="toggleTxt">Hiển thị trên website</span>
-                            </div>
-                        </div>
-                        <div class="form-group-dahuka mt-3" id="featuredSection" {% if not form.is_active.value %}style="display: none;"{% endif %}>
-                            <label>Sản phẩm nổi bật</label>
-                            <div class="toggle-flex">
-                                <label class="switch-ios">
-                                    {{ form.is_featured }}
-                                    <span class="slider-ios"></span>
-                                </label>
-                                <span class="toggle-txt">Nổi bật trên trang chủ</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bottom-actions mt-4 mb-5 d-flex justify-content-end gap-2">
-                    <a href="{% url 'products:product_list' %}" class="btn-dahuka-white">Hủy</a>
-                    <button type="submit" class="btn-minimal"><i class="fa fa-check"></i> {% if mode == 'create' %}Tạo sản phẩm{% else %}Lưu thay đổi{% endif %}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
-
-    <!-- Toast Notification -->
-    <div id="saveToast" class="dahuka-toast">
-        <div class="toast-content">
-            <i class="fa fa-check-circle"></i>
-            <span>Lưu thay đổi thành công!</span>
-        </div>
+        </form>
     </div>
 
     <!-- Custom Confirmation Modal -->
@@ -528,7 +506,7 @@
                 <i class="fa fa-exclamation-triangle"></i>
                 <h3>Xác nhận xóa</h3>
             </div>
-            <p>Bạn có chắc chắn muốn xóa ảnh này không? Hành động này không thể hoàn tác.</p>
+            <p id="confirmModalText">Bạn có chắc chắn muốn xóa ảnh này không? Hành động này không thể hoàn tác.</p>
             <div class="modal-actions-simple">
                 <button type="button" class="btn-cancel" onclick="closeConfirmModal()">Hủy</button>
                 <button type="button" class="btn-confirm-delete" id="confirmDeleteBtn">Xóa ngay</button>
@@ -538,63 +516,67 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="{% static 'product_detail_admin.js' %}?v=1.0.2"></script>
+<script src="{% static 'products/js/product_detail_admin.js' %}?v=1.0.2"></script>
 <script>
-    let currentDeleteContext = { btn: null, imgId: null };
+    let currentDeleteContext = { type: 'gallery', btn: null, idOrName: null };
 
     function closeConfirmModal() {
         document.getElementById('customConfirmModal').classList.remove('show');
     }
 
-    function deleteImage(btn, imgId) {
-        // Lưu lại context để dùng khi bấm xác nhận trong modal
-        currentDeleteContext = { btn, imgId };
+    function clearSingleField(e, fieldName) {
+        e.stopPropagation();
+        currentDeleteContext = { type: 'single', btn: e.currentTarget, idOrName: fieldName };
+        document.getElementById('confirmModalText').innerText = "Bạn có chắc muốn xóa ảnh này? Nó sẽ bị xóa hoàn toàn khỏi sản phẩm.";
         document.getElementById('customConfirmModal').classList.add('show');
     }
 
-    // Lắng nghe sự kiện click cho các nút xóa ảnh đã lưu (Dùng Event Delegation để tránh lỗi lặp lại)
+    // Event delegation for gallery images
     document.addEventListener('click', function(e) {
         const deleteBtn = e.target.closest('.js-delete-saved-image');
         if (deleteBtn) {
+            e.stopPropagation();
             const imgId = deleteBtn.getAttribute('data-img-id');
-            deleteImage(deleteBtn, imgId);
+            currentDeleteContext = { type: 'gallery', btn: deleteBtn, idOrName: imgId };
+            document.getElementById('confirmModalText').innerText = "Bạn có chắc muốn xóa ảnh chi tiết này? Hành động không thể hoàn tác.";
+            document.getElementById('customConfirmModal').classList.add('show');
         }
     });
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
-        const { btn, imgId } = currentDeleteContext;
-        if (!btn || !imgId) return;
-
+        const { type, btn, idOrName } = currentDeleteContext;
         closeConfirmModal();
 
-        try {
-            const response = await fetch(`/products/delete-image/${imgId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
+        if (type === 'gallery') {
+            try {
+                const response = await fetch(`/products/delete-image/${idOrName}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                });
+                if (response.ok) {
+                    const thumbItem = btn.closest('.thumb-item');
+                    thumbItem.style.opacity = '0';
+                    setTimeout(() => thumbItem.remove(), 300);
+                    window.showToast('Đã xóa ảnh chi tiết!', 'success');
                 }
-            });
-
-            const result = await response.json();
-            if (result.status === 'success') {
-                const thumbItem = btn.closest('.thumb-item');
-                thumbItem.style.opacity = '0';
-                thumbItem.style.transform = 'scale(0.8)';
-                setTimeout(() => {
-                    thumbItem.remove();
-                }, 300);
-
-                const toast = document.getElementById('saveToast');
-                toast.querySelector('span').textContent = 'Đã xóa ảnh thành công!';
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 3000);
-            } else {
-                alert('Lỗi: ' + result.message);
+            } catch (err) { console.error(err); }
+        } else {
+            // Mark for clearing on save
+            const checkbox = document.getElementById(`id_${idOrName}-clear`);
+            if (checkbox) checkbox.checked = true;
+            
+            const thumbItem = btn.closest('.thumb-item');
+            thumbItem.classList.remove('has-image');
+            thumbItem.classList.add('empty-state');
+            thumbItem.innerHTML = '<i class="fa fa-plus"></i>';
+            
+            // If main image, update main preview too
+            if (idOrName === 'image') {
+                const mainImgBox = document.querySelector('.image-box');
+                mainImgBox.innerHTML = '<div class="empty-main-box"><i class="fa fa-picture-o fa-3x" style="color: #cbd5e1;"></i><p class="mt-2" style="color: #94a3b8; font-size: 13px;">Chưa có ảnh chính</p></div>';
             }
-        } catch (error) {
-            console.error('Error deleting image:', error);
-            alert('Đã có lỗi xảy ra khi xóa ảnh.');
+            
+            window.showToast('Ảnh đã được đánh dấu để xóa. Hãy nhấn "Lưu thay đổi" để hoàn tất.', 'info');
         }
     });
 

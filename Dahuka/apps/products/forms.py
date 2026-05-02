@@ -8,9 +8,11 @@ class ProductForm(forms.ModelForm):
         fields = [
             "category",
             "name",
-            "sku",
             "price",
             "image",
+            "image_specs",
+            "image_features",
+            "image_description",
             "stock",
             "short_description",
             "description",
@@ -39,9 +41,6 @@ class ProductForm(forms.ModelForm):
                     "class": "form-control-dahuka",
                     "placeholder": "Nhập tên sản phẩm",
                 }
-            ),
-            "sku": forms.TextInput(
-                attrs={"class": "form-control-dahuka", "placeholder": "VD: MP-S96"}
             ),
             "price": forms.NumberInput(
                 attrs={"class": "form-control-dahuka", "placeholder": "Giá bán (VNĐ)"}
@@ -98,13 +97,3 @@ class ProductForm(forms.ModelForm):
             raise forms.ValidationError(f'Sản phẩm với tên "{name}" đã tồn tại.')
         return name
 
-    def clean_sku(self):
-        sku = self.cleaned_data.get("sku")
-        instance = self.instance
-        qs = Product.objects.filter(sku__iexact=sku)
-        if instance and instance.pk:
-            qs = qs.exclude(pk=instance.pk)
-
-        if qs.exists():
-            raise forms.ValidationError(f'Mã SKU "{sku}" đã tồn tại trong hệ thống.')
-        return sku

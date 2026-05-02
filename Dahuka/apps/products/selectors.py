@@ -18,7 +18,7 @@ def get_filtered_products(
 
     if query:
         products = products.filter(
-            Q(name__icontains=query) | Q(sku__icontains=query)
+            Q(name__icontains=query)
         )
     
     if category_id != 'all':

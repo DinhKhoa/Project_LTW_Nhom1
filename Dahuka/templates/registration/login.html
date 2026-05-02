@@ -26,11 +26,11 @@
         <button type="submit" class="btn-minimal" style="width: 100%;">Đăng nhập</button>
 
         <div style="text-align: center; margin-top: 24px; font-size: 14px; color: #6b7280;">
-            Bạn chưa có tài khoản? <a href="{% url 'signin' %}" style="color: var(--brand, #0B6E4F); text-decoration: none; font-weight: 600;">Đăng ký</a>
+            Bạn chưa có tài khoản? <a href="{% url 'account:signup' %}" style="color: var(--brand, #0B6E4F); text-decoration: none; font-weight: 600;">Đăng ký</a>
         </div>
 
         <div style="text-align: right; margin-top: 12px;">
-            <a href="{% url 'public_change_password' %}" style="color: var(--brand, #0B6E4F); font-size: 13px; text-decoration: none; font-weight: 500;">Đổi mật khẩu?</a>
+            <a href="{% url 'account:public_change_password' %}" style="color: var(--brand, #0B6E4F); font-size: 13px; text-decoration: none; font-weight: 500;">Đổi mật khẩu?</a>
         </div>
     </form>
 </section>

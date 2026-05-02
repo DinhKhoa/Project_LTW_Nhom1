@@ -5,9 +5,6 @@ from django.utils.text import slugify
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="Tên danh mục")
     slug = models.SlugField(unique=True, blank=True)
-    code = models.CharField(
-        max_length=50, unique=True, blank=True, null=True, verbose_name="Mã danh mục"
-    )
     description = models.TextField(blank=True, verbose_name="Mô tả")
     image = models.ImageField(
         upload_to="categories/", blank=True, null=True, verbose_name="Ảnh biểu tượng"

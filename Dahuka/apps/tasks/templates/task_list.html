@@ -5,110 +5,6 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'tasks/task_installation.css' %}">
-<style>
-    /* Synchronized with order_list.html */
-    .summary-container-dahuka {
-        display: flex;
-        gap: 15px;
-    }
-    .summary-box-card {
-        background: #fff;
-        border: 1px solid #1a6b3c;
-        border-radius: 12px;
-        padding: 20px 10px;
-        text-align: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s;
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        flex: 1;
-    }
-    .summary-box-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 15px -3px rgba(26, 107, 60, 0.2);
-        text-decoration: none;
-    }
-    .summary-box-card--staff {
-        background: linear-gradient(135deg, #0b7a63 0%, #0f5d4d 100%);
-        color: #fff;
-        border: none;
-        text-align: left;
-        padding-left: 25px;
-    }
-    .summary-box-card .label {
-        font-size: 14px;
-        color: #475569;
-        font-weight: 500;
-        margin-bottom: 12px;
-    }
-    .summary-box-card--staff .label {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 16px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-    .summary-box-card .value {
-        font-size: 24px;
-        font-weight: 800;
-    }
-    .summary-box-card--staff .value {
-        color: #fff;
-        font-size: 26px;
-    }
-    .summary-box-card p {
-        margin: 0;
-        font-size: 13px;
-        opacity: 0.9;
-    }
-
-
-
-    /* Table Styles synchronized with product_list */
-    .product-table-wrapper {
-        background: #fff;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-    .product-table tbody tr {
-        cursor: pointer;
-        transition: var(--transition);
-    }
-    .product-table tbody tr:hover {
-        background-color: #f8fafc;
-    }
-
-    /* Order Status Badges */
-    .order-status-badge {
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 700;
-        display: inline-block;
-        min-width: 140px;
-        text-align: center;
-    }
-    .order-status-badge.confirmed {
-        background-color: #fef3c7;
-        color: #d97706;
-    }
-    .order-status-badge.processing {
-        background-color: #dbeafe;
-        color: #2563eb;
-    }
-    .order-status-badge.completed {
-        background-color: #dcfce7;
-        color: #16a34a;
-    }
-    .order-status-badge.cancelled {
-        background-color: #fee2e2;
-        color: #dc2626;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -129,32 +25,30 @@
             <div class="value">{{ user.get_full_name|default:user.username }}</div>
             <p>Mã NV: NV-{{ user.id|stringformat:"03d" }}</p>
         </div>
-        <div class="summary-box-card" onclick="quickFilter('all')" style="cursor: pointer;">
+        <div class="summary-box-card" onclick="quickFilter('all')">
             <div class="label">Tổng công việc</div>
-            <div class="value color-total" style="color: #1e293b;">{{ tasks.paginator.count }}</div>
+            <div class="value" style="color: #1e293b;">{{ tasks.paginator.count }}</div>
         </div>
-        <div class="summary-box-card" onclick="quickFilter('confirmed')" style="cursor: pointer;">
+        <div class="summary-box-card" onclick="quickFilter('confirmed')">
             <div class="label">Được giao nhiệm vụ</div>
-            <div class="value color-confirmed" style="color: #f59e0b;">{{ confirmed_count }}</div>
+            <div class="value" style="color: #f59e0b;">{{ confirmed_count }}</div>
         </div>
-        <div class="summary-box-card" onclick="quickFilter('processing')" style="cursor: pointer;">
+        <div class="summary-box-card" onclick="quickFilter('processing')">
             <div class="label">Đang giao</div>
-            <div class="value color-processing" style="color: #2563eb;">{{ in_progress_count }}</div>
+            <div class="value" style="color: #2563eb;">{{ in_progress_count }}</div>
         </div>
-        <div class="summary-box-card" onclick="quickFilter('completed')" style="cursor: pointer;">
+        <div class="summary-box-card" onclick="quickFilter('completed')">
             <div class="label">Đã hoàn thành</div>
-            <div class="value color-completed" style="color: #059669;">{{ completed_count }}</div>
+            <div class="value" style="color: #059669;">{{ completed_count }}</div>
         </div>
     </section>
 
-
-
-    <!-- Filter Bar synchronized with order_list -->
+    <!-- Filter Bar -->
     <div class="filter-bar d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center" style="gap: 10px;">
             <div class="position-relative">
-                <i class="fa fa-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                <input type="text" class="search-input" id="jobSearch" style="padding-left: 40px; min-width: 350px;"
+                <i class="fa fa-search position-absolute"></i>
+                <input type="text" class="search-input" id="jobSearch"
                        placeholder="Tìm theo mã đơn, khách hàng hoặc địa chỉ...">
             </div>
 
@@ -186,7 +80,6 @@
                         <span class="check-icon">✓</span>
                     </div>
                 </div>
-
             </div>
 
             <button type="button" class="btn-search" onclick="applyJobFilters()">Tìm kiếm</button>
@@ -211,15 +104,15 @@
                     data-href="{% url 'tasks:task_detail' order.pk %}">
                     <td class="text-center"><strong>{{ order.order_code }}</strong></td>
                     <td>
-                        <div style="font-weight: 700; color: var(--ink-strong);">{{ order.full_name }}</div>
-                        <small style="color: #64748b; font-size: 11px; display: block; margin-top: 2px;">{{ order.full_address }}</small>
+                        <div class="font-weight-bold" style="color: #0f172a;">{{ order.full_name }}</div>
+                        <small class="text-muted d-block" style="font-size: 11px; margin-top: 2px;">{{ order.full_address }}</small>
                     </td>
                     <td class="text-center" style="font-size: 13px;">{{ order.created_at|date:"d/m/Y - H:i" }}</td>
                     <td class="text-center" style="font-size: 13px;">
                         {% if order.status == 'completed' %}
                         {{ order.updated_at|date:"d/m/Y - H:i" }}
                         {% else %}
-                        <span style="color: #94a3b8; font-style: italic;">Chưa hoàn thành</span>
+                        <span class="text-muted font-italic">Chưa hoàn thành</span>
                         {% endif %}
                     </td>
                     <td class="text-center">
@@ -234,14 +127,14 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center py-5" style="color: #64748b;">Không có công việc nào được phân công.</td>
+                    <td colspan="5" class="text-center py-5 text-muted">Không có công việc nào được phân công.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <!-- Pagination synchronized with order_list -->
+    <!-- Pagination -->
     {% if tasks.has_other_pages %}
     <nav aria-label="Page navigation" class="d-flex justify-content-center mt-5 mb-4">
         <ul class="pagination custom-pagination">
@@ -278,72 +171,4 @@
 
 {% block extra_js %}
 <script src="{% static 'tasks/task_installation.js' %}"></script>
-<script>
-    function toggleFilterDropdown(id) {
-        const wrapper = document.getElementById(id);
-        wrapper.querySelector('.filter-dropdown-btn').classList.toggle('open');
-        wrapper.querySelector('.filter-dropdown-menu').classList.toggle('show');
-    }
-
-    function quickFilter(status) {
-        const item = document.querySelector(`#statusFilter .filter-item[data-value="${status}"]`);
-        if (item) {
-            selectJobFilter(item);
-        }
-    }
-
-    function selectJobFilter(item) {
-
-        const wrapper = item.closest('.filter-dropdown-wrapper');
-        const items = wrapper.querySelectorAll('.filter-item');
-        items.forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
-        
-        // Only get the text content of the filter name, excluding the checkmark
-        const filterName = item.childNodes[0].textContent.trim();
-        wrapper.querySelector('.filter-value').textContent = filterName;
-        
-        toggleFilterDropdown(wrapper.id);
-        applyJobFilters();
-    }
-
-
-    function applyJobFilters() {
-        const keyword = document.getElementById('jobSearch').value.toLowerCase();
-        const status = document.querySelector('#statusFilter .filter-item.selected').dataset.value;
-        const rows = document.querySelectorAll('#jobTableBody tr');
-
-        rows.forEach(row => {
-            const rowText = row.textContent.toLowerCase();
-            const rowStatus = row.dataset.status;
-            
-            const matchesSearch = rowText.includes(keyword);
-            const matchesStatus = status === 'all' || rowStatus === status;
-
-            row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
-        });
-    }
-
-    document.getElementById('jobSearch').addEventListener('input', applyJobFilters);
-    
-    // Row navigation
-    document.addEventListener('click', function(e) {
-        const row = e.target.closest('.clickable-row');
-        if (row && row.dataset.href) {
-            window.location = row.dataset.href;
-        }
-    });
-
-    // Close dropdowns on outside click
-    window.addEventListener('click', function(e) {
-        if (!e.target.closest('.filter-dropdown-wrapper')) {
-            document.querySelectorAll('.filter-dropdown-btn').forEach(btn => btn.classList.remove('open'));
-            document.querySelectorAll('.filter-dropdown-menu').forEach(menu => menu.classList.remove('show'));
-        }
-    });
-</script>
 {% endblock %}
-
-
-
-

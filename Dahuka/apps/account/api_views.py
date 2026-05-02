@@ -13,8 +13,7 @@ def api_profile(request):
         return Response({
             'username': request.user.username,
             'full_name': request.user.get_full_name(),
-            'phone': customer.phone,
-            'points': customer.points
+            'phone': customer.phone
         })
     # Handle POST if needed
     return Response({'status': 'Profile updated'})

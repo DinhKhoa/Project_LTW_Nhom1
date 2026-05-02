@@ -4,7 +4,7 @@
 {% block title %}DAHUKA - Nâng tầm sống khỏe chuẩn Nhật{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/home.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/home.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -62,29 +62,29 @@
         </div>
     </section>
 
-    <!-- 3. Mutosi Pro Section -->
-    <div class="mutosi-pro-full-wrap admin-edit-overlay">
+    <!-- 3. Dahuka Pro Section -->
+    <div class="dahuka-pro-full-wrap admin-edit-overlay">
         {% if user.is_superuser %}
-        <button class="admin-edit-btn" onclick="openModal('modalMutosi')"><i class="fa fa-pencil"></i> Sửa nội dung & Ảnh</button>
+        <button class="admin-edit-btn" onclick="openModal('modalDahuka')"><i class="fa fa-pencil"></i> Sửa nội dung & Ảnh</button>
         {% endif %}
         
         <div class="container-shell">
-            <div class="mutosi-pro-brand">
-                <h2>MUTOSI•PRO</h2>
+            <div class="dahuka-pro-brand">
+                <h2>DAHUKA•PRO</h2>
             </div>
             
-            <div class="mutosi-pro-content-grid">
+            <div class="dahuka-pro-content-grid">
                 <div class="promo-text-box">
-                    <h2>{{ home_settings.mutosi_pro_title|linebreaksbr }}</h2>
-                    <p>{{ home_settings.mutosi_pro_desc }}</p>
-                    <b>{{ home_settings.mutosi_pro_highlight }}</b>
+                    <h2>{{ home_settings.dahuka_pro_title|linebreaksbr }}</h2>
+                    <p>{{ home_settings.dahuka_pro_desc }}</p>
+                    <b>{{ home_settings.dahuka_pro_highlight }}</b>
                     <a href="{% url 'products:product_list' %}" class="btn-explore">Khám phá ngay</a>
                 </div>
                 <div class="promo-image-box text-right">
-                    {% if home_settings.mutosi_pro_image %}
-                    <img src="{{ home_settings.mutosi_pro_image.url }}" alt="Mutosi Pro" style="max-width: 100%; border-radius: 0;">
+                    {% if home_settings.dahuka_pro_image %}
+                    <img src="{{ home_settings.dahuka_pro_image.url }}" alt="Dahuka Pro" style="max-width: 100%; border-radius: 0;">
                     {% else %}
-                    <img src="{% static 'img/MUTOSI PRO.png' %}" alt="Mutosi Pro Default" style="max-width: 100%; border-radius: 0;">
+                    <img src="{% static 'img/MUTOSI PRO.png' %}" alt="Dahuka Pro Default" style="max-width: 100%; border-radius: 0;">
                     {% endif %}
                 </div>
             </div>
@@ -125,53 +125,53 @@
     {% if user.is_superuser %}
     <!-- Modal Banner -->
     <div id="modalBanner" class="modal-dahuka">
-        <div class="modal-dahuka-content" style="max-width: 700px;">
+        <div class="modal-dahuka-content modal-dahuka-content-custom">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="m-0" style="font-weight: 800; color: #111;"><i class="fa fa-image mr-2" style="color: var(--brand);"></i> Cập nhật Banner</h3>
-                <button type="button" class="close-modal-x" onclick="closeModal('modalBanner')" style="border:none; background:none; font-size: 24px;">&times;</button>
+                <h3 class="m-0 modal-title-dahuka"><i class="fa fa-image mr-2 modal-title-icon"></i> Cập nhật Banner</h3>
+                <button type="button" class="close-modal-x" onclick="closeModal('modalBanner')">&times;</button>
             </div>
             
             <form action="{% url 'core:update_home_settings' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 
                 <!-- Current Preview -->
-                <div class="mb-4">
-                    <p style="font-weight: 700; font-size: 13px; color: #666; margin-bottom: 10px; text-transform: uppercase;">Banner Hiện Tại</p>
-                    <div style="border-radius: 0; overflow: hidden; border: 1px solid #eee; background: #f9f9f9;">
+                <div class="current-preview-section">
+                    <p class="current-preview-label">Banner Hiện Tại</p>
+                    <div class="preview-image-wrapper">
                         {% if home_settings.banner_image %}
-                        <img src="{{ home_settings.banner_image.url }}" style="width: 100%; height: 180px; object-fit: cover;">
+                        <img src="{{ home_settings.banner_image.url }}" class="preview-image-banner">
                         {% else %}
-                        <img src="{% static 'img/BANNER.png' %}" style="width: 100%; height: 180px; object-fit: cover; opacity: 0.5;">
+                        <img src="{% static 'img/BANNER.png' %}" class="preview-image-banner" style="opacity: 0.5;">
                         {% endif %}
                     </div>
                 </div>
 
                 <!-- Custom File Upload -->
                 <div class="form-group-dahuka">
-                    <label style="font-weight: 700; font-size: 13px; color: #666; text-transform: uppercase;">Tải lên Banner mới</label>
+                    <label class="form-label-dahuka-custom">Tải lên Banner mới</label>
                     <div class="custom-upload-zone" onclick="document.getElementById('bannerInput').click()">
                         <div class="upload-icon-circle"><i class="fa fa-cloud-upload"></i></div>
                         <p class="m-0">Kéo thả hoặc Click để chọn ảnh Banner</p>
                         <small>Định dạng hỗ trợ: JPG, PNG, WEBP (Khuyên dùng 1920x800)</small>
                         <input type="file" id="bannerInput" name="banner_image" accept="image/*" style="display: none;" onchange="updateFileName(this, 'bannerFileName')">
-                        <div id="bannerFileName" class="mt-2 text-brand font-weight-bold" style="font-size: 14px;"></div>
+                        <div id="bannerFileName" class="upload-filename-preview text-brand font-weight-bold"></div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end mt-5">
-                    <button type="button" class="btn-dahuka-outline mr-3" style="min-width: 120px;" onclick="closeModal('modalBanner')">Hủy bỏ</button>
-                    <button type="submit" class="btn-minimal" style="min-width: 150px; border: none; padding: 12px 0; color: #fff !important; background: #111;">Cập nhật ngay</button>
+                <div class="modal-footer-dahuka">
+                    <button type="button" class="btn-dahuka-outline mr-3 btn-dahuka-cancel" onclick="closeModal('modalBanner')">Hủy bỏ</button>
+                    <button type="submit" class="btn-minimal btn-dahuka-submit">Cập nhật ngay</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal Mutosi Pro -->
-    <div id="modalMutosi" class="modal-dahuka">
-        <div class="modal-dahuka-content" style="max-width: 700px;">
+    <!-- Modal Dahuka Pro -->
+    <div id="modalDahuka" class="modal-dahuka">
+        <div class="modal-dahuka-content modal-dahuka-content-custom">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="m-0" style="font-weight: 800; color: #111;"><i class="fa fa-pencil-square-o mr-2" style="color: var(--brand);"></i> Nội dung Mutosi Pro</h3>
-                <button type="button" class="close-modal-x" onclick="closeModal('modalMutosi')" style="border:none; background:none; font-size: 24px;">&times;</button>
+                <h3 class="m-0 modal-title-dahuka"><i class="fa fa-pencil-square-o mr-2 modal-title-icon"></i> Nội dung Dahuka Pro</h3>
+                <button type="button" class="close-modal-x" onclick="closeModal('modalDahuka')">&times;</button>
             </div>
 
             <form action="{% url 'core:update_home_settings' %}" method="POST" enctype="multipart/form-data">
@@ -180,40 +180,40 @@
                 <div class="row">
                     <div class="col-md-7">
                         <div class="form-group-dahuka">
-                            <label style="font-weight: 700; font-size: 13px; color: #666; text-transform: uppercase;">Tiêu đề Hydrogen Pro</label>
-                            <input type="text" name="mutosi_pro_title" value="{{ home_settings.mutosi_pro_title }}" class="form-control" style="border-radius: 0; padding: 12px;">
+                            <label class="form-label-dahuka-custom">Tiêu đề Hydrogen Pro</label>
+                            <input type="text" name="dahuka_pro_title" value="{{ home_settings.dahuka_pro_title }}" class="form-control modal-dahuka-input-field">
                         </div>
                         <div class="form-group-dahuka mt-3">
-                            <label style="font-weight: 700; font-size: 13px; color: #666; text-transform: uppercase;">Mô tả chi tiết</label>
-                            <textarea name="mutosi_pro_desc" rows="5" class="form-control" style="border-radius: 0; padding: 12px; line-height: 1.6;">{{ home_settings.mutosi_pro_desc }}</textarea>
+                            <label class="form-label-dahuka-custom">Mô tả chi tiết</label>
+                            <textarea name="dahuka_pro_desc" rows="5" class="form-control modal-dahuka-textarea-field">{{ home_settings.dahuka_pro_desc }}</textarea>
                         </div>
                     </div>
                     
                     <div class="col-md-5">
-                        <p style="font-weight: 700; font-size: 13px; color: #666; margin-bottom: 10px; text-transform: uppercase;">Ảnh Đại Diện Hiện Tại</p>
-                        <div class="mb-3" style="border-radius: 0; overflow: hidden; border: 1px solid #eee; background: #f9f9f9; text-align: center;">
-                            {% if home_settings.mutosi_pro_image %}
-                            <img src="{{ home_settings.mutosi_pro_image.url }}" style="max-width: 100%; height: 160px; object-fit: contain; padding: 10px;">
+                        <p class="current-preview-label">Ảnh Đại Diện Hiện Tại</p>
+                        <div class="mb-3 preview-image-wrapper text-center">
+                            {% if home_settings.dahuka_pro_image %}
+                            <img src="{{ home_settings.dahuka_pro_image.url }}" class="preview-image-brand">
                             {% else %}
-                            <img src="{% static 'img/MUTOSI PRO.png' %}" style="max-width: 100%; height: 160px; object-fit: contain; opacity: 0.5; padding: 10px;">
+                            <img src="{% static 'img/MUTOSI PRO.png' %}" class="preview-image-brand" style="opacity: 0.5;">
                             {% endif %}
                         </div>
 
                         <div class="form-group-dahuka">
-                            <label style="font-weight: 700; font-size: 13px; color: #666; text-transform: uppercase;">Thay đổi ảnh</label>
+                            <label class="form-label-dahuka-custom">Thay đổi ảnh</label>
                             <div class="custom-upload-zone" style="padding: 20px 10px;" onclick="document.getElementById('brandInput').click()">
-                                <i class="fa fa-cloud-upload" style="font-size: 20px; color: var(--brand);"></i>
+                                <i class="fa fa-cloud-upload modal-title-icon" style="font-size: 20px;"></i>
                                 <p class="m-0" style="font-size: 12px;">Click để đổi ảnh</p>
-                                <input type="file" id="brandInput" name="mutosi_pro_image" accept="image/*" style="display: none;" onchange="updateFileName(this, 'brandFileName')">
-                                <div id="brandFileName" class="mt-1 text-brand font-weight-bold" style="font-size: 11px;"></div>
+                                <input type="file" id="brandInput" name="dahuka_pro_image" accept="image/*" style="display: none;" onchange="updateFileName(this, 'brandFileName')">
+                                <div id="brandFileName" class="upload-filename-preview text-brand font-weight-bold" style="font-size: 11px;"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end mt-5">
-                    <button type="button" class="btn-dahuka-outline mr-3" style="min-width: 120px;" onclick="closeModal('modalMutosi')">Hủy bỏ</button>
-                    <button type="submit" class="btn-minimal" style="min-width: 150px; background: #111; border: none; padding: 12px 0; color: #fff !important;">Lưu thay đổi</button>
+                <div class="modal-footer-dahuka">
+                    <button type="button" class="btn-dahuka-outline mr-3 btn-dahuka-cancel" onclick="closeModal('modalDahuka')">Hủy bỏ</button>
+                    <button type="submit" class="btn-minimal btn-dahuka-submit">Lưu thay đổi</button>
                 </div>
             </form>
         </div>
@@ -223,5 +223,5 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="{% static 'core/home.js' %}"></script>
+<script src="{% static 'core/js/home.js' %}"></script>
 {% endblock %}

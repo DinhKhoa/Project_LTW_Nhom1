@@ -1,21 +1,21 @@
 from typing import Any, Dict, List, Optional
 from django.db import transaction
 from django.contrib.auth.models import User
+from django.http import HttpRequest
+from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from decimal import Decimal
 from apps.promotions.models import Promotion
 from apps.orders.services import OrderService
+from apps.products.models import Product
 from .models import Cart, CartItem
-
+from apps.core.constants import CART_DEFAULT_DEPOSIT_PERCENT
 
 class CartService:
-    """Service class for shopping cart operations."""
+    """Service class for shopping cart and checkout operations."""
 
     @staticmethod
-    def get_or_create_cart(request) -> Cart:
-        """
-        Retrieves existing cart from session/user or creates a new one.
-        Handles merging session cart into user cart upon login.
-        """
+    def get_or_create_cart(request: HttpRequest) -> Cart:
         session_key = request.session.session_key
         if not session_key:
             request.session.create()
@@ -23,14 +23,11 @@ class CartService:
 
         if request.user.is_authenticated:
             user_cart, created = Cart.objects.get_or_create(user=request.user)
-            # Merge session cart if it exists
             session_cart = Cart.objects.filter(session_key=session_key).first()
             if session_cart and session_cart != user_cart:
                 for item in session_cart.items.all():
-                    # Update or create items in user cart
                     existing_item = user_cart.items.filter(
-                        product=item.product, 
-                        variant=item.variant
+                        product=item.product
                     ).first()
                     if existing_item:
                         existing_item.quantity += item.quantity
@@ -45,129 +42,101 @@ class CartService:
         return cart
 
     @staticmethod
-    def add_to_cart(cart: Cart, product: Any, quantity: int, variant: str) -> CartItem:
-        """
-        Adds a product variant to the cart or updates quantity if already exists.
-        Captures current product price.
-        """
-        item, created = CartItem.objects.get_or_create(
-            cart=cart, 
-            product=product, 
-            variant=variant,
-            defaults={
-                'quantity': quantity,
-                'price': product.price
+    def get_checkout_state(request: HttpRequest) -> Dict[str, Any]:
+        """Manages checkout state in session, initializing with customer data if needed."""
+        if "checkout_state" not in request.session:
+            customer_data = {
+                "full_name": "", "phone": "", "province": "", "district": "",
+                "ward": "", "address_detail": "", "address_type": "home",
+                "is_default": False, "id": None,
             }
-        )
-        if not created:
-            item.quantity += quantity
-            item.price = product.price # Update to latest price
-            item.save()
-        return item
+
+            if request.user.is_authenticated:
+                try:
+                    profile = request.user.customer
+                    customer_data["full_name"] = request.user.get_full_name() or request.user.username
+                    customer_data["phone"] = profile.phone
+                    default_addr = profile.addresses.filter(is_default=True).first() or profile.addresses.first()
+                    if default_addr:
+                        customer_data.update({
+                            "full_name": default_addr.full_name, "phone": default_addr.phone,
+                            "province": default_addr.province, "district": default_addr.district,
+                            "ward": default_addr.ward, "address_detail": default_addr.address_detail,
+                            "address_type": default_addr.address_type, "is_default": default_addr.is_default,
+                            "id": default_addr.id,
+                        })
+                except: pass
+
+            request.session["checkout_state"] = {
+                "current_screen": "cart",
+                "cart_payment_type": "full",
+                "deposit_percent": CART_DEFAULT_DEPOSIT_PERCENT,
+                "coupon_code": "",
+                "customer": customer_data,
+                "selected_ids": [],
+            }
+
+        state = request.session["checkout_state"]
+        # Sync address if empty
+        if request.user.is_authenticated and not state["customer"].get("full_name"):
+            try:
+                profile = request.user.customer
+                default_addr = profile.addresses.filter(is_default=True).first() or profile.addresses.first()
+                if default_addr:
+                    state["customer"].update({
+                        "full_name": default_addr.full_name, "phone": default_addr.phone,
+                        "province": default_addr.province, "district": default_addr.district,
+                        "ward": default_addr.ward, "address_detail": default_addr.address_detail,
+                        "address_type": default_addr.address_type, "id": default_addr.id,
+                    })
+                    request.session.modified = True
+            except: pass
+        
+        if "selected_ids" not in state: state["selected_ids"] = []
+        return state
 
     @staticmethod
-    def get_applied_promotions(total_price: float) -> List[Dict[str, Any]]:
-        """
-        Finds all currently valid promotions that meet the condition.
-        Returns a list of dicts with promotion info and calculated discount.
-        Priority: Fixed amount discounts first, then percentage discounts.
-        """
-        from django.utils import timezone
-        today = timezone.localtime().date()
-        
-        # Get all valid and active promotions
-        promos = Promotion.objects.filter(
-            is_active=True,
-            start_date__lte=today,
-            end_date__gte=today,
-            condition__lte=total_price
-        )
-        
-        applied = []
-        current_total = float(total_price)
-        
-        # Separate and sort: fixed first, then percent
-        fixed_promos = promos.filter(discount_type='fixed').order_by('-value')
-        percent_promos = promos.filter(discount_type='percent').order_by('-value')
-        
-        # 1. Apply Fixed discounts
-        for promo in fixed_promos:
-            if current_total <= 0: break
-            discount = min(float(promo.value), current_total)
-            if discount > 0:
-                applied.append({
-                    "name": promo.name,
-                    "code": promo.code,
-                    "discount_amount": discount,
-                    "formatted_discount": f"-{Decimal(str(discount)):.0f}" # Temporary, will format in template
-                })
-                current_total -= discount
-                
-        # 2. Apply Percentage discounts (on the original total_price for maximum benefit, 
-        # or on current_total? Let's use original total as per common practice, but capped by current_total)
-        for promo in percent_promos:
-            if current_total <= 0: break
-            discount = (float(promo.value) / 100) * float(total_price)
-            discount = min(discount, current_total)
-            if discount > 0:
-                applied.append({
-                    "name": promo.name,
-                    "code": promo.code,
-                    "discount_amount": discount,
-                    "formatted_discount": f"-{Decimal(str(discount)):.0f}"
-                })
-                current_total -= discount
-                
-        return applied
-    @staticmethod
-    @transaction.atomic
-    def create_order_from_cart(
-        user: Optional[User],
-        cart_obj: Cart,
-        customer_data: Dict[str, Any],
-        order_items_data: List[Dict[str, Any]],
-        payment_type: str = 'full',
-        deposit_amount: float = 0,
-        note: str = ""
-    ) -> Any:
-        """
-        Orchestrates order creation using OrderService.
-        Automatically applies all eligible promotions.
-        """
-        total_price = sum(float(item['price']) * int(item['quantity']) for item in order_items_data)
-        
-        # Recalculate auto-promotions for the order
-        applied_promos = CartService.get_applied_promotions(total_price)
-        discount_amount = sum(p['discount_amount'] for p in applied_promos)
-        
-        payment_status = 'da_thanh_toan' if payment_type == 'full' else 'chua_thanh_toan'
+    def handle_cart_action(request: HttpRequest, cart_obj: Cart, state: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Processes AJAX and standard POST actions from the cart screen."""
+        action = request.POST.get("action")
+        if not action: return None
 
-        if payment_type == 'full':
-            deposit_amount = total_price - discount_amount
+        if action == "toggle_select":
+            item_id = int(request.POST.get("item_id"))
+            is_selected = request.POST.get("is_selected") == "true"
+            if is_selected:
+                if item_id not in state["selected_ids"]: state["selected_ids"].append(item_id)
+            else:
+                if item_id in state["selected_ids"]: state["selected_ids"].remove(item_id)
+        
+        elif action == "toggle_select_all":
+            is_selected = request.POST.get("is_selected") == "true"
+            state["selected_ids"] = [item.id for item in cart_obj.items.all()] if is_selected else []
 
-        order = OrderService.create_order(
-            customer=user,
-            full_name=customer_data.get("full_name", ""),
-            phone=customer_data.get("phone", ""),
-            city=customer_data.get("province", ""),
-            district=customer_data.get("district", ""),
-            ward=customer_data.get("ward", ""),
-            house_details=customer_data.get("address_detail", ""),
-            cart_items=order_items_data,
-            discount_amount=discount_amount,
-            deposit_amount=deposit_amount,
-            payment_method=payment_type,
-            payment_status=payment_status,
-            note=note
-        )
-        return order
+        elif action == "bulk_delete":
+            selected_ids = state.get("selected_ids", [])
+            if selected_ids:
+                cart_obj.items.filter(id__in=selected_ids).delete()
+                state["selected_ids"] = []
+
+        elif action == "update_quantity":
+            item_id = request.POST.get("item_id")
+            quantity = int(request.POST.get("quantity", 1))
+            if quantity >= 1:
+                CartItem.objects.filter(id=item_id, cart=cart_obj).update(quantity=quantity)
+
+        elif action == "update_payment_type":
+            state["cart_payment_type"] = request.POST.get("cart_payment_type")
+            if state["cart_payment_type"] == "full": state["order_method"] = "bank"
+
+        elif action == "update_deposit":
+            state["deposit_percent"] = int(request.POST.get("deposit_percent_input", 10))
+
+        request.session.modified = True
+        return state
 
     @staticmethod
     def get_cart_totals(cart: Cart, state: Dict[str, Any], apply_promos: bool = True) -> Dict[str, Any]:
-        """
-        Calculates all cart totals based on current state.
-        apply_promos: If True, automatically applies all eligible promotions.
-        """
         selected_ids = state.get("selected_ids", [])
         selected_items = cart.items.filter(id__in=selected_ids)
         total_price = sum((item.subtotal for item in selected_items), Decimal(0))
@@ -180,41 +149,78 @@ class CartService:
         
         shipping_fee = 0
         final_total = max(0, float(total_price) + shipping_fee - discount_amount)
-        
         deposit_percent = state.get("deposit_percent", 10) if selected_ids else 0
         deposit_amount = round(final_total * deposit_percent / 100)
-        remaining_amount = final_total - deposit_amount
-
+        
         return {
-            "total_price": total_price,
-            "shipping_fee": shipping_fee,
-            "discount_amount": discount_amount,
-            "applied_promotions": applied_promotions,
-            "final_total": final_total,
-            "deposit_amount": deposit_amount,
-            "remaining_amount": remaining_amount,
-            "deposit_percent": deposit_percent,
+            "total_price": total_price, "shipping_fee": shipping_fee,
+            "discount_amount": discount_amount, "applied_promotions": applied_promotions,
+            "final_total": final_total, "deposit_amount": deposit_amount,
+            "remaining_amount": final_total - deposit_amount, "deposit_percent": deposit_percent,
         }
+
+    @staticmethod
+    def add_to_cart(cart: Cart, product: Product, quantity: int) -> CartItem:
+        item, created = CartItem.objects.get_or_create(
+            cart=cart, product=product,
+            defaults={'quantity': quantity, 'price': product.price}
+        )
+        if not created:
+            item.quantity += quantity
+            item.price = product.price
+            item.save()
+        return item
+
+    @staticmethod
+    def apply_promotion(code: str, total_price: float) -> float:
+        from django.utils import timezone
+        today = timezone.localtime().date()
+        promo = Promotion.objects.filter(code=code, is_active=True, start_date__lte=today, end_date__gte=today, condition__lte=total_price).first()
+        if not promo: return 0
+        return float(promo.value) if promo.discount_type == 'fixed' else (float(promo.value) / 100 * total_price)
+
+    @staticmethod
+    def get_applied_promotions(total_price: float) -> List[Dict[str, Any]]:
+        from django.utils import timezone
+        today = timezone.localtime().date()
+        promos = Promotion.objects.filter(is_active=True, start_date__lte=today, end_date__gte=today, condition__lte=total_price)
+        applied = []
+        current_total = float(total_price)
+        for promo in promos.filter(discount_type='fixed').order_by('-value'):
+            if current_total <= 0: break
+            discount = min(float(promo.value), current_total)
+            applied.append({"name": promo.name, "code": promo.code, "discount_amount": discount})
+            current_total -= discount
+        for promo in promos.filter(discount_type='percent').order_by('-value'):
+            if current_total <= 0: break
+            discount = min((float(promo.value) / 100) * float(total_price), current_total)
+            applied.append({"name": promo.name, "code": promo.code, "discount_amount": discount})
+            current_total -= discount
+        return applied
+
+    @staticmethod
+    @transaction.atomic
+    def create_order_from_cart(user: Optional[User], cart_obj: Cart, customer_data: Dict[str, Any], order_items_data: List[Dict[str, Any]], payment_type: str = 'full', deposit_amount: float = 0, note: str = "") -> Any:
+        total_price = sum(float(item['price']) * int(item['quantity']) for item in order_items_data)
+        applied_promos = CartService.get_applied_promotions(total_price)
+        discount_amount = sum(p['discount_amount'] for p in applied_promos)
+        payment_status = 'da_thanh_toan' if payment_type == 'full' else 'chua_thanh_toan'
+        if payment_type == 'full': deposit_amount = total_price - discount_amount
+
+        return OrderService.create_order(
+            customer=user, full_name=customer_data.get("full_name", ""), phone=customer_data.get("phone", ""),
+            city=customer_data.get("province", ""), district=customer_data.get("district", ""),
+            ward=customer_data.get("ward", ""), house_details=customer_data.get("address_detail", ""),
+            cart_items=order_items_data, discount_amount=discount_amount, deposit_amount=deposit_amount,
+            payment_method=payment_type, payment_status=payment_status, note=note
+        )
 
     @staticmethod
     @transaction.atomic
     def reorder(cart: Cart, order: Any) -> List[int]:
-        """
-        Adds all items from a previous order to the cart.
-        Returns the list of CartItem IDs that were added or updated.
-        """
         item_ids = []
-        # Import OrderItem inside to avoid circular dependency if any
-        from apps.orders.models import OrderItem
-        
         for order_item in order.items.all():
             if order_item.product:
-                # We default variant to "Mặc định" as OrderItem doesn't store variants
-                cart_item = CartService.add_to_cart(
-                    cart=cart,
-                    product=order_item.product,
-                    quantity=order_item.quantity,
-                    variant="Mặc định"
-                )
+                cart_item = CartService.add_to_cart(cart=cart, product=order_item.product, quantity=order_item.quantity)
                 item_ids.append(cart_item.id)
         return item_ids

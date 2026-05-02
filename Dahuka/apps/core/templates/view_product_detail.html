@@ -1,18 +1,17 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}Chi tiết sản phẩm - DAHUKA{% endblock %}
 
 {% block extra_css %}
-
-<link rel="stylesheet" href="{% static 'view_product_details/view_product_detail.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/view_product_detail.css' %}">
 {% endblock %}
 
 {% block content %}
 <main class="product-detail-page">
     <!-- Top Section with Gray Background -->
     <div class="product-detail-header-section">
-        <div class="container-shell" style="padding-top: 20px;">
+        <div class="container-shell breadcrumb-padding-top">
             <nav class="page-breadcrumbs">
                 <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
                 <a href="{% url 'core:product_catalog' %}{% if product.category %}?category={{ product.category.id }}{% endif %}">{% if product.category %}{{ product.category.name }}{% else %}Sản phẩm{% endif %}</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
@@ -24,11 +23,13 @@
             <div class="product-detail-main">
                 <div class="product-detail-info">
                     <h1 class="product-display-name">{{ product.name }}</h1>
-                    <p class="product-sku-label">Mã sản phẩm: {{ product.sku }}</p>
+                    <p class="product-sku-label">Mã sản phẩm: {{ product.id }}</p>
                     
                     <div class="product-highlights-list">
                         {{ product.short_description|linebreaks }}
                     </div>
+                    
+                    <p class="product-price-display">Giá bán: <span class="product-price-value">{{ product.price|intcomma }} đ</span></p>
 
                     <div class="shipping-section">
                         <div class="shipping-row">
@@ -87,7 +88,7 @@
     </div>
 
     <!-- Tab Content Section (White Background) -->
-    <div class="container-shell" style="padding: 40px 0;">
+    <div class="container-shell tab-content-wrapper-padding">
         <div id="thong-so" class="tab-content-minimal active">
             <div class="rich-text-content mb-5">
                 <div class="specs-grid">
@@ -100,17 +101,16 @@
                     {% if product.spec_filters_count %}<div class="spec-label">Số lõi lọc</div><div class="spec-value">{{ product.spec_filters_count }}</div>{% endif %}
                     {% if product.spec_dimensions %}<div class="spec-label">Kích thước</div><div class="spec-value">{{ product.spec_dimensions }}</div>{% endif %}
                     {% if product.spec_weight %}<div class="spec-label">Khối lượng</div><div class="spec-value">{{ product.spec_weight }}</div>{% endif %}
+                    {% if product.spec_release_year %}<div class="spec-label">Năm ra mắt</div><div class="spec-value">{{ product.spec_release_year }}</div>{% endif %}
                     {% if product.spec_origin %}<div class="spec-label">Nơi sản xuất</div><div class="spec-value">{{ product.spec_origin }}</div>{% endif %}
                     {% if product.spec_warranty %}<div class="spec-label">Bảo hành</div><div class="spec-value">{{ product.spec_warranty }}</div>{% endif %}
                 </div>
             </div>
-            {% if images_by_type.specs %}
+            {% if product.image_specs %}
                 <div class="product-info-images mt-4">
-                    {% for img in images_by_type.specs %}
-                        <div class="info-image-item text-center mb-4">
-                            <img src="{{ img.image_url.url }}" alt="{{ product.name }}" style="max-width: 100%; border-radius: 8px;">
-                        </div>
-                    {% endfor %}
+                    <div class="info-image-item text-center mb-4">
+                        <img src="{{ product.image_specs.url }}" alt="{{ product.name }}" class="product-info-img">
+                    </div>
                 </div>
             {% endif %}
             {% if product.spec_other %}
@@ -125,25 +125,21 @@
             <div class="rich-text-content">
                 {{ product.spec_features|default:"Đang cập nhật tính năng..."|linebreaks }}
             </div>
-            {% if images_by_type.features %}
+            {% if product.image_features %}
                 <div class="product-info-images mt-4">
-                    {% for img in images_by_type.features %}
-                        <div class="info-image-item text-center mb-4">
-                            <img src="{{ img.image_url.url }}" alt="{{ product.name }}" style="max-width: 100%; border-radius: 8px;">
-                        </div>
-                    {% endfor %}
+                    <div class="info-image-item text-center mb-4">
+                        <img src="{{ product.image_features.url }}" alt="{{ product.name }}" class="product-info-img">
+                    </div>
                 </div>
             {% endif %}
         </div>
 
         <div id="mo-ta" class="tab-content-minimal">
-            {% if images_by_type.description %}
+            {% if product.image_description %}
                 <div class="product-info-images mb-4">
-                    {% for img in images_by_type.description %}
-                        <div class="info-image-item text-center mb-4">
-                            <img src="{{ img.image_url.url }}" alt="{{ product.name }}" style="max-width: 100%; border-radius: 8px;">
-                        </div>
-                    {% endfor %}
+                    <div class="info-image-item text-center mb-4">
+                        <img src="{{ product.image_description.url }}" alt="{{ product.name }}" class="product-info-img">
+                    </div>
                 </div>
             {% endif %}
             <div class="rich-text-content">
@@ -155,6 +151,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'view_product_details/view_product_detail.js' %}"></script>
+<script src="{% static 'core/js/view_product_detail.js' %}"></script>
 {% endblock %}
-

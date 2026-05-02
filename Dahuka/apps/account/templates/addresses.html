@@ -5,148 +5,13 @@
 
 {% block account_body %}
 <link rel='stylesheet' href='{% static "account/address_shared.css" %}'>
-<style>
-    .address-stack {
-        display: grid;
-        gap: 18px;
-    }
-
-    .address-add-card {
-        min-height: 128px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        color: #767f8b;
-    }
-
-    .address-add-card:hover {
-        color: #232b39;
-    }
-
-    .address-add-icon {
-        width: 44px;
-        height: 44px;
-        border: 3px solid #111;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        line-height: 1;
-        margin-bottom: 10px;
-    }
-
-    .address-item {
-        padding: 22px 18px;
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 18px;
-        align-items: start;
-    }
-
-    .address-name {
-        font-size: 16px;
-        font-weight: 700;
-        color: #2b3340;
-        text-transform: uppercase;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-
-    .address-default {
-        font-style: italic;
-        font-size: 14px;
-        color: #9aa1ac;
-        text-transform: none;
-        font-weight: 400;
-    }
-
-    .address-info-grid {
-        display: grid;
-        grid-template-columns: 110px 1fr;
-        gap: 12px 18px;
-        font-size: 14px;
-    }
-
-    .address-info-grid div:nth-child(odd) {
-        color: #747d8a;
-        font-weight: 500;
-    }
-
-    .address-info-grid div:nth-child(even) {
-        color: #9aa1ac;
-        font-style: italic;
-    }
-
-    .address-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        justify-content: flex-end;
-    }
-
-    .btn-edit, .btn-delete {
-        padding: 6px 14px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        border: 1px solid transparent;
-        display: inline-flex;
-        align-items: center;
-    }
-
-    .btn-edit {
-        background: #f0fdf4;
-        color: var(--brand-dark);
-        border-color: #dcfce7;
-    }
-
-    .btn-edit:hover {
-        background: var(--brand-dark);
-        color: #fff;
-        border-color: var(--brand-dark);
-        transform: translateY(-1px);
-    }
-
-    .btn-delete {
-        background: #fef2f2;
-        color: #ef4444;
-        border-color: #fee2e2;
-    }
-
-    .btn-delete:hover {
-        background: #ef4444;
-        color: #fff;
-        border-color: #ef4444;
-        transform: translateY(-1px);
-    }
-
-    @media (max-width: 900px) {
-        .address-item {
-            grid-template-columns: 1fr;
-        }
-
-        .address-actions {
-            justify-content: flex-start;
-        }
-
-        .address-form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+<link rel='stylesheet' href='{% static "account/css/addresses.css" %}'>
 
 <h1 class="account-heading">Sổ địa chỉ</h1>
 
 <div class="address-stack">
     <a href="javascript:void(0)" 
-       data-url="{% url 'add_address' %}" 
+       data-url="{% url 'account:add_address' %}" 
        onclick="openAddressModal(this.dataset.url)" 
        class="account-card address-add-card">
         <div style="text-align: center;">
@@ -173,12 +38,12 @@
             </div>
             <div class="address-actions">
                 <a href="javascript:void(0)" 
-                   data-url="{% url 'edit_address' address.id %}" 
+                   data-url="{% url 'account:edit_address' address.id %}" 
                    onclick="openAddressModal(this.dataset.url)" 
                    class="btn-edit">Chỉnh sửa</a>
                 <a href="javascript:void(0)" 
                    class="delete-trigger btn-delete" 
-                   data-url="{% url 'delete_address' address.id %}" 
+                   data-url="{% url 'account:delete_address' address.id %}" 
                    data-info="{{ address.full_name|escapejs }}"
                    onclick="showDeleteModal(this)">Xóa</a>
             </div>
@@ -206,118 +71,6 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    function showDeleteModal(el) {
-        const modal = document.getElementById('deleteAddressModal');
-        const form = document.getElementById('deleteAddressForm');
-        const infoText = document.getElementById('deleteAddressInfo');
-        
-        form.action = el.dataset.url;
-        infoText.textContent = el.dataset.info;
-        modal.classList.add('active');
-    }
-
-    function closeDeleteModal() {
-        document.getElementById('deleteAddressModal').classList.remove('active');
-    }
-
-    window.onclick = function(event) {
-        const deleteModal = document.getElementById('deleteAddressModal');
-        const addressModal = document.getElementById('addressModal');
-        if (event.target == deleteModal) {
-            closeDeleteModal();
-        }
-        if (event.target == addressModal) {
-            closeAddressModal();
-        }
-    }
-
-    // Event delegation for form submission
-    document.addEventListener('submit', async function(e) {
-        if (e.target && e.target.id === 'addressEntryForm') {
-            e.preventDefault();
-            console.log("Form submission triggered for:", e.target.id);
-            const form = e.target;
-            const formData = new FormData(form);
-            const url = form.action;
-            const body = document.getElementById('addressModalBody');
-
-            console.log("Posting to URL:", url);
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-                    }
-                });
-                
-                console.log("Response status:", response.status);
-                
-                if (!response.ok) {
-                    const text = await response.text();
-                    console.error("Server error response:", text);
-                    throw new Error("Server error: " + response.status);
-                }
-
-                const result = await response.json();
-                console.log("Server JSON response:", result);
-                
-                if (result.success) {
-                    console.log("Success! Reloading page...");
-                    window.location.href = window.location.pathname; // Force reload/redirect to same page
-                } else if (result.html) {
-                    console.log("Form has errors, re-rendering...");
-                    body.innerHTML = result.html;
-                    executeScripts(body);
-                }
-            } catch (error) {
-                console.error("AJAX submission error:", error);
-                alert("Đã xảy ra lỗi: " + error.message);
-            }
-        }
-    });
-
-    function executeScripts(container) {
-        const scripts = container.querySelectorAll('script');
-        scripts.forEach(oldScript => {
-            const newScript = document.createElement('script');
-            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-            oldScript.parentNode.replaceChild(newScript, oldScript);
-        });
-    }
-
-    async function openAddressModal(url) {
-        const modal = document.getElementById('addressModal');
-        const body = document.getElementById('addressModalBody');
-        const title = document.getElementById('addressModalTitle');
-        
-        title.textContent = 'THÔNG TIN KHÁCH HÀNG';
-        body.innerHTML = '<div style="text-align:center; padding:40px;">Đang tải...</div>';
-        modal.classList.add('active');
-
-        try {
-            const response = await fetch(url, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            const data = await response.json();
-            body.innerHTML = data.html;
-            executeScripts(body);
-        } catch (error) {
-            body.innerHTML = '<div style="color:red; text-align:center; padding:40px;">Không thể tải form. Vui lòng thử lại.</div>';
-        }
-    }
-
-    function closeAddressModal() {
-        document.getElementById('addressModal').classList.remove('active');
-    }
-</script>
 
 <!-- Address Form Modal -->
 <div id="addressModal" class="modal-overlay">
@@ -333,3 +86,6 @@
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'account/js/addresses.js' %}"></script>
+{% endblock %}

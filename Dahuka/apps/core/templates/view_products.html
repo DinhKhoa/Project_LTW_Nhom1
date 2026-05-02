@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 
-<link rel="stylesheet" href="{% static 'core/view_products.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/view_products.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -19,25 +19,25 @@
     </div>
 </section>
 
-<main class="catalog-page container-shell" style="padding: 40px 0;">
+<main class="catalog-page container-shell catalog-page-padding">
     <nav class="page-breadcrumbs">
         <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
         <b>{% if current_category %}{{ current_category.name }}{% else %}Máy lọc nước{% endif %}</b>
     </nav>
 
-    <div class="section-title-row catalog-title-row" style="margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 24px; flex: 1;">
-            <h2 style="font-size: 32px; font-weight: 800; color: var(--ink-strong); margin: 0;">Danh mục sản phẩm</h2>
-            <div class="line" style="flex: 1; height: 1px; background: var(--border); max-width: 400px;"></div>
+    <div class="section-title-row catalog-title-row catalog-title-row-custom">
+        <div class="catalog-title-left">
+            <h2 class="catalog-title-h2">Danh mục sản phẩm</h2>
+            <div class="line catalog-title-line"></div>
         </div>
         <div class="catalog-sort dropdown">
-            <button class="account-btn-outline" type="button" style="height: 42px; gap: 10px; padding: 0 20px;" onclick="toggleSort()">
+            <button class="account-btn-outline sort-btn-custom" type="button" onclick="toggleSort()">
                 <span id="sortLabel" class="label">Sắp xếp: {% if current_sort == 'oldest' %}Cũ nhất{% else %}Mới nhất{% endif %}</span>
                 <i class="fa fa-angle-down"></i>
             </button>
             <div id="sortOptions" class="catalog-sort-menu">
-                <a href="javascript:void(0)" onclick="updateSort('newest', 'Mới nhất')" style="display: block; padding: 10px 20px; color: var(--ink); text-decoration: none;">Mới nhất</a>
-                <a href="javascript:void(0)" onclick="updateSort('oldest', 'Cũ nhất')" style="display: block; padding: 10px 20px; color: var(--ink); text-decoration: none;">Cũ nhất</a>
+                <a href="javascript:void(0)" onclick="updateSort('newest', 'Mới nhất')" class="sort-option-item">Mới nhất</a>
+                <a href="javascript:void(0)" onclick="updateSort('oldest', 'Cũ nhất')" class="sort-option-item">Cũ nhất</a>
             </div>
         </div>
     </div>
@@ -87,103 +87,13 @@
     </section>
 </main>
 
-<script>
-    function toggleSort() {
-        document.getElementById('sortOptions').classList.toggle('show');
-    }
 
-    // Close dropdown when clicking outside
-    window.onclick = function(event) {
-        if (!event.target.closest('.catalog-sort')) {
-            var dropdowns = document.getElementsByClassName("catalog-sort-menu");
-            for (var i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
-                }
-            }
-        }
-    }
-
-    function updateSort(val, label) {
-        document.getElementById('sortInput').value = val;
-        document.getElementById('sortLabel').innerText = 'Sắp xếp: ' + label;
-        document.getElementById('sortOptions').classList.remove('show');
-        applyFilters();
-    }
-
-    function applyFilters() {
-        const form = document.getElementById('filterForm');
-        const formData = new FormData(form);
-        const params = new URLSearchParams(formData);
-        
-        loadData(params.toString());
-        
-        // Update URL without reloading
-        const newUrl = window.location.pathname + '?' + params.toString();
-        window.history.pushState({path: newUrl}, '', newUrl);
-    }
-
-    function loadPage(page) {
-        const form = document.getElementById('filterForm');
-        const formData = new FormData(form);
-        const params = new URLSearchParams(formData);
-        params.set('page', page);
-        
-        loadData(params.toString());
-        
-        // Update URL
-        const newUrl = window.location.pathname + '?' + params.toString();
-        window.history.pushState({path: newUrl}, '', newUrl);
-        
-        // Scroll to top of product list
-        document.getElementById('productListContainer').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function loadData(queryString) {
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.classList.add('active');
-        
-        fetch(`{% url 'core:product_catalog' %}?${queryString}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('productListWrapper').innerHTML = html;
-            overlay.classList.remove('active');
-            
-            // Re-attach pagination listeners after AJAX update
-            attachPaginationListeners();
-        })
-        .catch(error => {
-            console.error('Error fetching products:', error);
-            overlay.classList.remove('active');
-        });
-    }
-
-    function attachPaginationListeners() {
-        const links = document.querySelectorAll('.pagination-link');
-        links.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const page = this.getAttribute('data-page');
-                if (page) {
-                    loadPage(page);
-                }
-            });
-        });
-    }
-
-    // Initial attachment
-    document.addEventListener('DOMContentLoaded', attachPaginationListeners);
-</script>
     </section>
 </main>
 
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'core/js/view_products.js' %}"></script>
 {% endblock %}
 

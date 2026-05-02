@@ -1,84 +1,86 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, HttpRequest, HttpResponse
+from django.contrib import messages
+from typing import Any
+
 from apps.core.decorators import admin_required
 from apps.core.utils import get_paginated_data
-from django.http import JsonResponse
-from django.contrib import messages
-from .models import Category
-from .services import CategoryService
-from .forms import CategoryForm
 from apps.products.services import ProductsService
 
+from .selectors import search_categories, get_category_by_id
+from .services import CategoryService
 
 @login_required
 @admin_required
-def category_list(request):
+def category_list(request: HttpRequest) -> HttpResponse:
+    """
+    Displays a paginated list of categories with search functionality.
+    """
     query = request.GET.get("q", "")
-    categories_qs = Category.objects.all().order_by("id")
-
-    if query:
-        from django.db.models import Q
-
-        categories_qs = categories_qs.filter(
-            Q(code__icontains=query) | Q(name__icontains=query)
-        )
-
+    categories_qs = search_categories(query)
     page_obj = get_paginated_data(categories_qs, request, 10)
 
-    context = {
+    return render(request, "categories_list.html", {
         "page_obj": page_obj,
         "query": query,
-    }
-    return render(request, "categories_list.html", context)
-
+    })
 
 @login_required
 @admin_required
-def category_add(request):
+def category_add(request: HttpRequest) -> HttpResponse:
+    """
+    Handles the creation of a new category via POST.
+    """
     if request.method == "POST":
-        form = CategoryForm(request.POST, request.FILES)
-        if form.is_valid():
-            category = form.save()
+        success, category, errors = CategoryService.create_category(request.POST, request.FILES)
+        if success:
             messages.success(request, f'Đã thêm danh mục "{category.name}" thành công.')
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, error)
+            for field, field_errors in errors.items():
+                for error in field_errors:
+                    messages.error(request, f"{field}: {error}")
+    
     return redirect("categories:category_list")
-
 
 @login_required
 @admin_required
-def category_edit(request, pk):
-    category = get_object_or_404(Category, pk=pk)
+def category_edit(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Handles updating an existing category.
+    """
+    category = get_category_by_id(pk)
     if request.method == "POST":
-        form = CategoryForm(request.POST, request.FILES, instance=category)
-        if form.is_valid():
-            form.save()
-            messages.success(
-                request, f'Đã cập nhật danh mục "{category.name}" thành công.'
-            )
+        success, category, errors = CategoryService.update_category(category, request.POST, request.FILES)
+        if success:
+            messages.success(request, f'Đã cập nhật danh mục "{category.name}" thành công.')
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, error)
+            for field, field_errors in errors.items():
+                for error in field_errors:
+                    messages.error(request, f"{field}: {error}")
+                    
     return redirect("categories:category_list")
-
 
 @login_required
 @admin_required
-def category_delete(request, pk):
+def category_delete(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Handles category deletion.
+    """
     if request.method == "POST":
-        category = get_object_or_404(Category, pk=pk)
-        name = category.name
-        category.delete()
-        messages.success(request, f'Đã xóa danh mục "{name}" thành công.')
+        category = get_category_by_id(pk)
+        success, name = CategoryService.delete_category(category)
+        if success:
+            messages.success(request, f'Đã xóa danh mục "{name}" thành công.')
+            
     return redirect("categories:category_list")
-
 
 @login_required
 @admin_required
-def get_category_products(request, pk):
-    category = get_object_or_404(Category, pk=pk)
+def get_category_products(request: HttpRequest, pk: int) -> JsonResponse:
+    """
+    API endpoint to get products belonging to a specific category for dropdowns.
+    """
+    category = get_category_by_id(pk)
     products = ProductsService.format_products_for_dropdown(category)
     return JsonResponse({"products": products})

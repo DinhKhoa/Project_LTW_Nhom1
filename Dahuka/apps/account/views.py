@@ -37,7 +37,7 @@ def public_change_password(request: HttpRequest) -> HttpResponse:
         else:
             messages.error(request, 'Số điện thoại hoặc mật khẩu hiện tại không chính xác.')
 
-    return render(request, 'public_change_password.html', {'form': form})
+    return render(request, 'registration/password_reset_confirm.html', {'form': form})
 
 
 @login_required
@@ -53,11 +53,11 @@ def account_dashboard(request: HttpRequest) -> HttpResponse:
         messages.warning(request, "Tài khoản nhân viên/admin không thể truy cập mục này.")
 
     section_map = {
-        'orders': 'purchase_list',
-        'addresses': 'address_list',
-        'profile': 'profile_view',
+        'orders': 'account:purchase_list',
+        'addresses': 'account:address_list',
+        'profile': 'account:profile_view',
     }
-    return redirect(section_map.get(section, 'profile_view'))
+    return redirect(section_map.get(section, 'account:profile_view'))
 
 
 @login_required
@@ -109,7 +109,7 @@ def add_address(request: HttpRequest) -> HttpResponse:
             }, request=request)
             return JsonResponse({'html': html})
 
-    return redirect('address_list')
+    return redirect('account:address_list')
 
 
 @login_required
@@ -143,7 +143,7 @@ def edit_address(request: HttpRequest, pk: int) -> HttpResponse:
             }, request=request)
             return JsonResponse({'html': html})
 
-    return redirect('address_list')
+    return redirect('account:address_list')
 
 
 @login_required
@@ -158,9 +158,9 @@ def delete_address(request: HttpRequest, pk: int) -> HttpResponse:
     if request.method == 'POST':
         address.delete()
         messages.success(request, 'Xóa địa chỉ thành công')
-        return redirect('address_list')
+        return redirect('account:address_list')
 
-    return redirect('address_list')
+    return redirect('account:address_list')
 
 
 @login_required
@@ -175,7 +175,7 @@ def profile_view(request: HttpRequest) -> HttpResponse:
         if form.is_valid():
             form.save(user=request.user)
             messages.success(request, 'Lưu thông tin thành công')
-            return redirect('profile_view')
+            return redirect('account:profile_view')
     else:
         form = CustomerForm(
             initial={
@@ -213,12 +213,12 @@ def change_password(request: HttpRequest) -> HttpResponse:
         )
         if success:
             messages.success(request, message)
-            return redirect('profile_view')
+            return redirect('account:profile_view')
         messages.error(request, message)
 
     return render(
         request,
-        'change_password.html',
+        'registration/password_change_form.html',
         {
             'form': form,
             'customer': AccountService.get_or_create_customer(request.user),
@@ -242,7 +242,7 @@ def purchase_list(request: HttpRequest) -> HttpResponse:
     if query:
         # Search by ID, recipient name, phone, or product name/SKU
         search_filter = Q(full_name__icontains=query) | Q(phone__icontains=query) | \
-                        Q(items__product__name__icontains=query) | Q(items__product__sku__icontains=query)
+                        Q(items__product__name__icontains=query) | Q(items__product__id__icontains=query)
         if query.isdigit():
             search_filter |= Q(id=query)
         orders_list = orders_list.filter(search_filter).distinct()
@@ -334,16 +334,16 @@ def cancel_order(request: HttpRequest, pk: int) -> HttpResponse:
 
     if order.status not in ['pending', 'processing']:
         messages.error(request, 'Không thể hủy đơn hàng ở trạng thái này')
-        return redirect('purchase_detail', pk=pk)
+        return redirect('account:purchase_detail', pk=pk)
 
     form = CancelOrderForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         success, message = AccountService.cancel_order(order, form.cleaned_data['cancel_reason'], user=request.user)
         if success:
             messages.success(request, message)
-            return redirect('purchase_detail', pk=pk)
+            return redirect('account:purchase_detail', pk=pk)
         messages.error(request, message)
-        return redirect('purchase_detail', pk=pk)
+        return redirect('account:purchase_detail', pk=pk)
 
     return render(
         request,
@@ -357,7 +357,7 @@ def cancel_order(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-def signin(request: HttpRequest) -> HttpResponse:
+def signup(request: HttpRequest) -> HttpResponse:
     """
     Handles new user registration.
     """

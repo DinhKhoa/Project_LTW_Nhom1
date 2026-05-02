@@ -5,14 +5,14 @@
 {% block title %}Dahuka - {{ display_title }}{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'cart/checkout.css' %}?v=20260428-1">
+    <link rel="stylesheet" href="{% static 'cart/css/checkout.css' %}?v=20260428-1">
     <link rel="stylesheet" href="{% static 'account/address_shared.css' %}">
 {% endblock %}
 
 {% block content %}
-    <main class="page-content" style="padding-top: 10px;">
-        <div style="max-width: 1200px; margin: 0 auto; padding: 0 18px;">
-            <div class="checkout-progress" style="margin-bottom: 10px;">
+    <main class="page-content checkout-page-content">
+        <div class="checkout-max-width-box">
+            <div class="checkout-progress checkout-progress-margin">
                 <div class="progress-step {% if current_screen == 'order' or current_screen == 'bank_payment' %}active{% elif current_screen == 'success' %}completed{% endif %}">
                     <span>Thủ tục</span>
                 </div>
@@ -45,12 +45,11 @@
                                         <span>{{ customer_formatted_phone }}</span>
                                         <span>{{ customer_full_address }}</span>
                                     {% else %}
-                                        <span style="color: #888; font-style: italic;">--- Vui lòng cập nhật thông tin nhận hàng ---</span>
+                                        <span class="placeholder-msg-empty">--- Vui lòng cập nhật thông tin nhận hàng ---</span>
                                     {% endif %}
                                 </div>
                             </div>
-                            <button class="icon-btn" type="button" onclick="openModal('customerModal')"
-                                    style="color: #2563b8; font-weight: 700; font-size: 13px;">THAY ĐỔI
+                            <button class="icon-btn change-address-btn" type="button" onclick="openModal('customerModal')">THAY ĐỔI
                             </button>
                         </div>
 
@@ -60,9 +59,9 @@
 
                             <div class="order-table-head">
                                 <span>Sản phẩm</span>
-                                <span style="text-align: right;">Đơn giá</span>
-                                <span style="text-align: center;">Số lượng</span>
-                                <span style="text-align: right;">Thành tiền</span>
+                                <span class="order-col-right">Đơn giá</span>
+                                <span class="order-col-center">Số lượng</span>
+                                <span class="order-col-right">Thành tiền</span>
                             </div>
 
                             {% for item in cart_items %}
@@ -80,15 +79,15 @@
                                             <div class="order-item-variant">Loại: {{ item.product.category.name }}</div>
                                         </div>
                                     </div>
-                                    <div style="text-align: right; color: #444;">{{ item.price|format_money }} đ</div>
-                                    <div style="text-align: center; color: #444;">{{ item.quantity }}</div>
-                                    <div style="text-align: right; font-weight: 700; color: #111;">{{ item.subtotal|format_money }} đ</div>
+                                    <div class="order-col-right order-col-price-dark">{{ item.price|format_money }} đ</div>
+                                    <div class="order-col-center order-col-price-dark">{{ item.quantity }}</div>
+                                    <div class="order-col-right order-col-total-bold">{{ item.subtotal|format_money }} đ</div>
                                 </div>
                             {% endfor %}
 
                             <div class="note-row">
                                 <div>
-                                    <label style="font-size: 13px; color: #777;">Lời nhắn:</label>
+                                    <label class="label-msg-gray">Lời nhắn:</label>
                                     <input type="text" name="note" class="text-input" placeholder="Lưu ý cho Người bán ...">
                                 </div>
                             </div>
@@ -97,16 +96,16 @@
                                 <div class="summary-line"><span>Tổng tiền hàng</span><strong>{{ total_price|format_money }} đ</strong></div>
                                 
                                 {% for promo in applied_promotions %}
-                                    <div class="summary-line" style="color: #e74c3c; font-size: 13.5px; margin-top: 4px;">
+                                    <div class="summary-line promo-item-red">
                                         <span>{{ promo.name }}:</span>
                                         <strong>-{{ promo.discount_amount|format_money }} đ</strong>
                                     </div>
                                 {% endfor %}
 
                                 {% if applied_promotions %}
-                                    <div class="summary-line" style="margin: 8px 0; padding: 8px 0; border-top: 1px dashed #eee; border-bottom: 1px dashed #eee; font-size: 14px;">
+                                    <div class="summary-line summary-dashed-separator">
                                         <span>Tổng sau giảm:</span>
-                                        <strong style="color: #222;">{{ final_total|format_money }} đ</strong>
+                                        <strong class="final-total-after-promo">{{ final_total|format_money }} đ</strong>
                                     </div>
                                 {% endif %}
 
@@ -118,12 +117,11 @@
                                 </div>
 
                                 <div class="warn-text {% if state.cart_payment_type != 'deposit' %}hidden{% endif %}"
-                                     id="depositWarn" style="color: #2563b8; font-size: 12px; margin-top: 4px;">* Đơn này cần chuyển khoản trước phần tiền cọc.
+                                     id="depositWarn" class="deposit-warn-blue">* Đơn này cần chuyển khoản trước phần tiền cọc.
                                 </div>
 
-                                <div class="order-submit" style="text-align: right; margin-top: 24px;">
-                                    <button type="submit" class="btn btn-green"
-                                            style="padding: 14px 60px; font-size: 16px;">ĐẶT HÀNG NGAY
+                                <div class="order-submit order-submit-footer">
+                                    <button type="submit" class="btn btn-green btn-order-now">ĐẶT HÀNG NGAY
                                     </button>
                                 </div>
                             </div>
@@ -157,19 +155,19 @@
                         <div class="bank-payment-content">
                             <div class="vietqr-section">
                                 <div class="vietqr-header">
-                                    <span style="color: #e63946; font-weight: 800; font-size: 20px;">Viet</span>
-                                    <span style="color: #001D3D; font-weight: 800; font-size: 20px;">QR</span>
+                                    <span class="vietqr-brand-text-red">Viet</span>
+                                    <span class="vietqr-brand-text-dark">QR</span>
                                 </div>
                                 <div class="qr-display">
                                     <div class="qr-box">
-                                        <img src="{% static 'cart/qr.png' %}" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+                                        <img src="{% static 'cart/qr.png' %}" class="qr-image-full">
                                     </div>
                                 </div>
-                                <div class="qr-instruction text-center" style="font-size: 13px; color: #777;">Sử dụng ứng dụng Ngân hàng quét mã để nhận đầy đủ thông tin</div>
+                                <div class="qr-instruction text-center qr-note-small">Sử dụng ứng dụng Ngân hàng quét mã để nhận đầy đủ thông tin</div>
                             </div>
 
                             <div class="bank-info-section">
-                                <div class="bank-info-title" style="font-weight: 700; margin-bottom: 12px; color: #555;">Thông tin tài khoản</div>
+                                <div class="bank-info-title bank-info-title-gray">Thông tin tài khoản</div>
 
                                 <div class="bank-details-card">
                                     <div class="bank-info-row"><span class="label">Ngân hàng:</span><strong>Vietcombank</strong></div>
@@ -196,7 +194,7 @@
                                 <div class="payment-timer">
                                     <div class="timer-display">
                                         <div class="timer-box"><strong id="timerMinutes">05</strong><span>PHÚT</span></div>
-                                        <span class="timer-separator" style="font-size: 24px; font-weight: 700; color: #333;">:</span>
+                                        <span class="timer-separator timer-sep-bold">:</span>
                                         <div class="timer-box"><strong id="timerSeconds">00</strong><span>GIÂY</span></div>
                                     </div>
                                 </div>
@@ -204,7 +202,7 @@
                                 <form method="post">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="confirm_bank_payment">
-                                    <button type="submit" class="btn btn-green w-100" style="padding: 14px 0; font-size: 16px;">XÁC NHẬN ĐÃ CHUYỂN KHOẢN</button>
+                                    <button type="submit" class="btn btn-green w-100 btn-order-now">XÁC NHẬN ĐÃ CHUYỂN KHOẢN</button>
                                 </form>
                             </div>
                         </div>
@@ -213,23 +211,23 @@
 
             {% elif current_screen == 'success' %}
                 <section class="screen active" id="successScreen">
-                    <div class="success-card card" style="padding: 15px 30px; margin: 0 auto;">
-                        <h2 style="font-weight: 800; color: var(--brand-green); font-size: 32px; margin-bottom: 12px; margin-top: 0;">ĐẶT HÀNG THÀNH CÔNG</h2>
+                    <div class="success-card card success-card-wide">
+                        <h2 class="success-title-main">ĐẶT HÀNG THÀNH CÔNG</h2>
                         
                         {% if state.last_order_code %}
-                            <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 12px 20px; border-radius: 8px; margin: 0 auto 16px; max-width: 520px; text-align: center;">
-                                <p style="color: #64748b; font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600;">Mã đơn hàng của bạn</p>
-                                <p style="font-weight: 900; font-size: 24px; color: #111; margin: 0; letter-spacing: 1px; white-space: nowrap;">{{ state.last_order_code }}</p>
+                            <div class="order-code-banner">
+                                <p class="order-code-label">Mã đơn hàng của bạn</p>
+                                <p class="order-code-value">{{ state.last_order_code }}</p>
                             </div>
                             
-                            <div style="max-width: 520px; margin: 0 auto 16px; background: #fff9eb; color: #92400e; border: 1px solid #fde68a; padding: 12px 18px; border-radius: 8px; font-size: 14.5px; line-height: 1.5; text-align: left; display: flex; gap: 10px; align-items: flex-start;">
+                            <div class="success-info-note">
                                 <i class="fa fa-info-circle" style="margin-top: 3px; font-size: 18px;"></i>
                                 <span><strong>Lưu ý:</strong> Vui lòng lưu lại hoặc chụp ảnh mã đơn hàng trên để thuận tiện cho việc tra cứu và hỗ trợ sau này.</span>
                             </div>
                         {% endif %}
 
-                        <p style="color: #666; max-width: 650px; margin: 0 auto 10px; font-size: 15px;">Đơn hàng của bạn đã được ghi nhận. Dahuka sẽ sớm liên hệ để xác nhận.</p>
-                        <div class="success-status" style="display: inline-block; background: #e6f2ef; color: var(--brand-green); padding: 5px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; margin-bottom: 24px;">* ĐANG XỬ LÝ *</div>
+                        <p class="success-desc-text">Đơn hàng của bạn đã được ghi nhận. Dahuka sẽ sớm liên hệ để xác nhận.</p>
+                        <div class="success-status-badge">* ĐANG XỬ LÝ *</div>
                         <div class="success-actions d-flex justify-content-center gap-3">
                             <a href="{% url 'core:home' %}" class="btn btn-soft" style="margin-right:12px; padding: 10px 28px; font-size: 14px;">VỀ TRANG CHỦ</a>
                             <a href="{% url 'core:product_catalog' %}" class="btn btn-green" style="padding: 10px 28px; font-size: 14px;">TIẾP TỤC MUA SẮM</a>
@@ -239,10 +237,10 @@
             {% endif %}
 
             {% static 'img/BANNER.png' as banner_url %}
-            <div class="experience-banner"
-                 style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ banner_url }}'); background-size: cover; background-position: center; border-radius: 12px; padding: 60px 24px; color: white; text-align: center; margin-top: 40px;">
-                <h3 style="font-style: italic; font-weight: 300; font-size: 24px; margin-bottom: 20px;">“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
-                <button class="btn btn-outline-light" style="border: 2px solid white; background: transparent; color: white; padding: 10px 40px;">KHÁM PHÁ NGAY</button>
+            <div class="experience-banner experience-banner-box"
+                 style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ banner_url }}');">
+                <h3 class="experience-banner-quote">“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
+                <button class="btn btn-outline-light experience-banner-btn-outline">KHÁM PHÁ NGAY</button>
             </div>
         </div>
     </main>
@@ -272,121 +270,11 @@
                 {% endif %}
             </div>
         </div>
-        <script>
-            function showAddressSelector() {
-                document.getElementById('addressSelectorView').style.display = 'block';
-                document.getElementById('addressFormView').style.display = 'none';
-                document.getElementById('customerModalTitle').textContent = 'ĐỊA CHỈ CỦA TÔI';
-            }
-        </script>
-        <style>
-            #customerModal {
-                align-items: flex-start !important;
-                padding: 60px 18px !important;
-                overflow-y: auto !important;
-                display: none;
-                background: rgba(0,0,0,0.6);
-                backdrop-filter: blur(4px);
-            }
-            #customerModal.show {
-                display: flex !important;
-            }
-            #customerModal .modal-box {
-                max-height: none !important;
-                margin: 0 auto 40px !important;
-                position: relative;
-                overflow: visible !important;
-                background: #fff;
-                width: 800px;
-                max-width: 95%;
-                border-radius: 0;
-                box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            }
-            
-            /* Styles synchronized with addresses.html */
-            .address-form-grid {
-                display: grid;
-                grid-template-columns: 170px 1fr;
-                gap: 18px 18px;
-                align-items: start;
-                text-align: left;
-                font-family: inherit;
-            }
-            .address-form-grid label {
-                color: #7f8792;
-                font-size: 14px;
-                margin: 12px 0 0;
-                font-weight: 500;
-            }
-            .address-form-grid input:not([type="radio"]):not([type="checkbox"]),
-            .address-form-grid select,
-            .address-form-grid textarea {
-                width: 100%;
-                border: 1px solid #eceff4;
-                background: #fff;
-                padding: 10px 14px;
-                color: #67707f;
-                font-size: 14px;
-                box-sizing: border-box;
-                border-radius: 0 !important;
-                height: 44px;
-            }
-            .address-form-grid textarea {
-                height: auto;
-                min-height: 100px;
-            }
-            .address-type-row {
-                display: flex;
-                gap: 24px;
-                align-items: center;
-                color: #5c6474;
-                font-size: 14px;
-                height: 44px;
-            }
-            .address-type-row label,
-            .default-check label {
-                margin: 0;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                color: #5c6474;
-                white-space: nowrap;
-                cursor: pointer;
-                font-weight: 400;
-            }
-            .default-check {
-                display: flex;
-                align-items: center;
-                height: 44px;
-            }
-            .account-btn-outline {
-                padding: 10px 35px;
-                font-weight: 700;
-                font-size: 13px;
-                cursor: pointer;
-                transition: all 0.2s;
-                border-radius: 0;
-                background: #111;
-                color: #fff;
-                border: 1px solid #111;
-                text-transform: uppercase;
-            }
-            .account-btn-outline:hover {
-                background: #333;
-            }
-
-            @media (max-width: 900px) {
-                .address-form-grid {
-                    grid-template-columns: 1fr;
-                }
-                #customerModal { padding-top: 20px !important; }
-            }
-        </style>
     </div>
 
     <div class="toast" id="successToast">{% if message %}{{ message }}{% endif %}</div>
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'cart/checkout.js' %}?v=20260428-1"></script>
+    <script src="{% static 'cart/js/checkout.js' %}?v=20260428-1"></script>
 {% endblock %}

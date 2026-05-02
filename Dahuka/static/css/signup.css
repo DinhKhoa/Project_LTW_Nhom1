@@ -1,0 +1,22 @@
+.signup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.signup-required {
+    color: #ef4444;
+}
+
+.signup-footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.signup-login-link {
+    color: var(--brand, #0B6E4F);
+    text-decoration: none;
+    font-weight: 600;
+}

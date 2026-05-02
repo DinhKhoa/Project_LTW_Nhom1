@@ -14,10 +14,7 @@ class Customer(models.Model):
         max_length=10, choices=GENDER_CHOICES, default="male", verbose_name="Giới tính"
     )
     birthday = models.DateField(null=True, blank=True, verbose_name="Ngày sinh")
-    rank = models.CharField(
-        max_length=50, default="Classic", verbose_name="Hạng thành viên"
-    )
-    points = models.IntegerField(default=0, verbose_name="Điểm tích lũy")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

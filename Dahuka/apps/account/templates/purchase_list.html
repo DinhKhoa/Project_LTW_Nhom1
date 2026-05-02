@@ -81,7 +81,7 @@
             <div class="order-bottom">
                 <div class="order-actions">
                     <a href="{% url 'cart:reorder' order.id %}">Mua lại</a>
-                    <a href="{% url 'purchase_detail' order.id %}">Xem chi tiết</a>
+                    <a href="{% url 'account:purchase_detail' order.id %}">Xem chi tiết</a>
                 </div>
                 <div class="order-total">Tổng tiền: <strong>{{ order.total_amount|intcomma }} đ</strong></div>
             </div>

@@ -18,7 +18,7 @@
     <div class="filter-bar d-flex justify-content-between align-items-center mb-4 mt-3">
             <div class="d-flex align-items-center" style="gap: 10px;">
                 <input type="text" class="search-input" id="searchInput"
-                       placeholder="Tìm kiếm theo tên hoặc mã sản phẩm...">
+                       placeholder="Tìm kiếm theo tên sản phẩm...">
 
                 <!-- Category Filter -->
                 <div class="filter-dropdown-wrapper" id="categoryFilter">
@@ -118,7 +118,7 @@
                     <tr class="{% if sp.stock == 0 %}row-hethang{% elif sp.stock < 10 %}row-thap{% else %}row-daydu{% endif %}" 
                         data-category="{{ sp.category.id }}" data-stock="{{ sp.stock }}"
                         onclick="handleRowClick(event, '{{ detail_url }}')">
-                        <td class="text-center">{{ sp.sku }}</td>
+                        <td class="text-center">{{ sp.id }}</td>
                         <td class="p-name">{{ sp.name }}</td>
                         <td class="p-price text-center">{{ sp.price|intcomma }} đ</td>
                         <td class="p-stock text-center">{{ sp.stock }}</td>
@@ -155,6 +155,6 @@
 {% endblock content %}
 
 {% block extra_js %}
-    <script src="{% static 'product_admin.js' %}?v=1.2"></script>
+    <script src="{% static 'products/js/product_admin.js' %}?v=1.2"></script>
 {% endblock extra_js %}
 

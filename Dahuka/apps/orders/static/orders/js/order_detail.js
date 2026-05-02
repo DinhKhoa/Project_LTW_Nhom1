@@ -178,8 +178,7 @@
     if (confirmAssignBtn) {
         confirmAssignBtn.addEventListener('click', function () {
             if (!staffSelectValue.value) {
-                if (window.showToast) window.showToast('Vui lòng chọn nhân viên để giao việc.', 'warning');
-                else alert('Vui lòng chọn nhân viên để giao việc.');
+                window.showToast('Vui lòng chọn nhân viên để giao việc.', 'warning');
                 return;
             }
             performAjaxAction('assign_staff', { 'assigned_staff': staffSelectValue.value }, confirmAssignBtn);

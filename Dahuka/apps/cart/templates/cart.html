@@ -5,13 +5,13 @@
 {% block title %}Dahuka - {{ display_title }}{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'cart/cart.css' %}?v=20260414-6">
+    <link rel="stylesheet" href="{% static 'cart/css/cart.css' %}?v=20260414-6">
 
 {% endblock %}
 
 {% block content %}
     <main class="page-content">
-        <div style="max-width: 1200px; margin: 0 auto; padding: 0 18px;">
+        <div class="cart-page-container">
             <section class="screen active" id="cartScreen">
                 <nav class="page-breadcrumbs">
                     {% for item in breadcrumbs %}
@@ -25,17 +25,17 @@
                 <h1 class="page-title">Giỏ hàng</h1>
 
                 <div class="cart-grid card">
-                    <div class="cart-left" style="max-height: 600px; overflow-y: auto; background: transparent; border: none; padding-right: 10px; scrollbar-width: thin;">
+                    <div class="cart-left cart-left-scrollable">
                         {% if cart_items %}
-                        <div class="cart-header-actions" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: #fff; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ececec; width: 100%; box-sizing: border-box; position: sticky; top: 0; z-index: 10;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div style="position: relative; width: 20px; height: 20px;">
-                                    <input type="checkbox" id="selectAllCheckbox" class="item-checkbox" style="position: absolute; inset: 0; opacity: 0; z-index: 2; cursor: pointer; margin: 0;">
-                                    <label for="selectAllCheckbox" class="item-check-label" style="position: absolute; inset: 0; z-index: 1; margin: 0;"></label>
+                        <div class="cart-header-actions cart-header-sticky">
+                            <div class="cart-header-left-group">
+                                <div class="checkbox-wrapper-relative">
+                                    <input type="checkbox" id="selectAllCheckbox" class="item-checkbox item-checkbox-hidden">
+                                    <label for="selectAllCheckbox" class="item-check-label item-check-label-absolute"></label>
                                 </div>
-                                <span style="font-weight: 700; font-size: 14px; color: #111;">Chọn tất cả (<span id="selectAllCount">{{ cart_items.count }}</span>)</span>
+                                <span class="selectAll-text-label">Chọn tất cả (<span id="selectAllCount">{{ cart_items.count }}</span>)</span>
                             </div>
-                            <button type="button" id="bulkDeleteBtn" class="btn-text-danger" style="display: flex; align-items: center; gap: 6px; font-size: 14px; color: #dc3545; background: none; border: none; cursor: pointer; font-weight: 600; padding: 0;">
+                            <button type="button" id="bulkDeleteBtn" class="bulk-delete-btn-custom">
                                 <i class="fa fa-trash-o" style="font-size: 16px;"></i> Xóa mục đã chọn
                             </button>
                         </div>
@@ -43,9 +43,9 @@
 
                         {% for item in cart_items %}
                             <div class="cart-item" data-item-id="{{ item.id }}" data-item-subtotal="{{ item.subtotal|floatformat:0 }}">
-                                <div style="position: relative; width: 20px; height: 20px; flex-shrink: 0;">
-                                    <input type="checkbox" id="item_cb_{{ item.id }}" class="item-checkbox" {% if item.is_selected %}checked{% endif %} style="position: absolute; inset: 0; opacity: 0; z-index: 2; cursor: pointer; margin: 0;">
-                                    <label for="item_cb_{{ item.id }}" class="item-check-label" style="position: absolute; inset: 0; z-index: 1; margin: 0;"></label>
+                                <div class="checkbox-wrapper-relative">
+                                    <input type="checkbox" id="item_cb_{{ item.id }}" class="item-checkbox item-checkbox-hidden" {% if item.is_selected %}checked{% endif %}>
+                                    <label for="item_cb_{{ item.id }}" class="item-check-label item-check-label-absolute"></label>
                                 </div>
                                 <a href="{% url 'core:view_product_detail' item.product.slug %}" class="product-image-wrap">
                                     {% if item.product.image %}
@@ -55,8 +55,8 @@
                                     {% endif %}
                                 </a>
                                 <div class="item-info">
-                                    <a href="{% url 'core:view_product_detail' item.product.slug %}" style="text-decoration: none; color: inherit;">
-                                        <h3 style="margin-bottom: 4px; transition: color 0.2s;" onmouseover="this.style.color='#356954'" onmouseout="this.style.color='inherit'">{{ item.product.name }}</h3>
+                                    <a href="{% url 'core:view_product_detail' item.product.slug %}" class="product-name-link" style="text-decoration: none; color: inherit;">
+                                        <h3>{{ item.product.name }}</h3>
                                     </a>
                                     <p>Loại: {{ item.product.category.name }}</p>
                                     <div class="item-qty-stepper">
@@ -65,15 +65,15 @@
                                         <button type="button" class="qty-btn plus" data-delta="1">+</button>
                                     </div>
                                 </div>
-                                <div class="item-right-col" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; margin-left: auto;">
-                                    <div class="item-price" style="margin-left: 0;">{{ item.price|format_money }}&nbsp;đ</div>
-                                    <button type="button" class="cart-item-delete-btn" onclick="directDeleteItem('{{ item.id }}')" style="margin: 0; padding: 4px 0; color: #94a3b8; font-size: 12px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#dc3545'" onmouseout="this.style.color='#94a3b8'">
+                                <div class="item-right-col item-right-col-custom">
+                                    <div class="item-price item-price-no-margin">{{ item.price|format_money }}&nbsp;đ</div>
+                                    <button type="button" class="cart-item-delete-btn cart-item-delete-btn-tiny" onclick="directDeleteItem('{{ item.id }}')">
                                         <i class="fa fa-trash-o"></i> Xóa
                                     </button>
                                 </div>
                             </div>
                         {% empty %}
-                            <div class="empty-cart-msg" style="padding: 40px; text-align: center;">
+                            <div class="empty-cart-msg empty-cart-msg-box">
                                 <p>Giỏ hàng của bạn đang trống</p>
                                 <a href="{% url 'core:product_catalog' %}" class="btn btn-green">Mua sắm ngay</a>
                             </div>
@@ -127,28 +127,29 @@
                     </div>
                 </div>
 
-                <div class="cart-bottom card"
-                     style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;padding:22px 28px;margin-top:18px;">
-                    <div class="cart-total" style="display:flex;flex-direction:column;align-items:flex-start;">
+                <div class="cart-bottom card cart-summary-bottom-row">
+                    <div class="cart-total cart-total-info-col">
                         <div class="total-caption">Tổng cộng {{ cart_items.count }} sản phẩm</div>
                         <div class="total-price" id="totalPrice">{{ total_price|format_money }} đ</div>
                     </div>
-                    <div class="bottom-actions" style="display:flex;gap:12px;align-items:center;">
+                    <div class="bottom-actions cart-bottom-actions-group">
                         <a href="{% url 'core:product_catalog' %}" class="btn btn-soft">Tiếp tục mua sắm</a>
-                        <form method="post" style="display: inline;" id="cartCheckoutForm">
+                        <form method="post" class="form-inline-display" id="cartCheckoutForm">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="go_to_order">
-                            <button type="submit" class="btn btn-green">TIẾN HÀNH THANH TOÁN</button>
+                            <button type="submit" class="btn btn-green checkout-btn-final">TIẾN HÀNH THANH TOÁN</button>
                         </form>
                     </div>
                 </div>
             </section>
 
             {% static 'img/BANNER.png' as banner_url %}
-            <div class="experience-banner"
-                 style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ banner_url }}'); background-size: cover; background-position: center; border-radius: 12px; padding: 60px 24px; color: white; text-align: center; margin-top: 40px;">
-                <h3 style="font-style: italic; font-weight: 300; font-size: 24px; margin-bottom: 20px;">“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
-                <button class="btn btn-outline-light" style="border: 2px solid white; background: transparent; color: white; padding: 10px 40px;">KHÁM PHÁ NGAY</button>
+            <div class="experience-banner experience-banner-box"
+                 style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ banner_url }}');">
+                <div class="experience-banner-content">
+                    <h3 class="experience-banner-quote">“Hãy đến và trải nghiệm sản phẩm Mutosi mới nhất tại các cửa hàng của chúng tôi”</h3>
+                    <button class="btn experience-banner-btn-outline">KHÁM PHÁ NGAY</button>
+                </div>
             </div>
         </div>
     </main>
@@ -172,5 +173,5 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'cart/cart.js' %}?v=20260501-1"></script>
+    <script src="{% static 'cart/js/cart.js' %}?v=20260501-1"></script>
 {% endblock %}
