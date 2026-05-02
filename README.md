@@ -1,64 +1,93 @@
-# Hệ Thống Quản Lý Tài Khoản Dahuka
+# Web bán sản phẩm chăm sóc nước Dahuka
+
+## Giới Thiệu
+
+Dahuka là hệ thống thương mại điện tử chuyên về sản phẩm máy lọc nước và cây nước nóng lạnh, được xây dựng bằng Django 6.0. Hệ thống cung cấp đầy đủ các tính năng từ quản lý sản phẩm, giỏ hàng, đặt hàng đến quản lý tài khoản khách hàng.
 
 ## Tính Năng Chính
 
-Hệ thống gồm 3 module chính:
+### 1. Quản Lý Sản Phẩm (Products)
 
-### 1. Sổ Địa Chỉ (Address Book)
-- ✅ **Thêm Địa Chỉ**: Click vào nút "Thêm địa chỉ" để mở overlay form
-  - Nhập thông tin: Số điện thoại, tên, email, tỉnh/thành phố, quận/huyện, phường/xã, địa chỉ
-  - Chọn loại địa chỉ (mặc định: Nhà riêng/Chung cư)
-  - Hover buttons: Trắng→Đen (Xác nhận), Đen→Trắng (Hủy)
-  - Click X để đóng mà không lưu
-  - Sau xác nhận: Hiển thị thông báo thành công 2 giây, sau đó hiển thị danh sách địa chỉ
+- ✅ Hiển thị danh sách sản phẩm theo danh mục
+- ✅ Chi tiết sản phẩm với thông số kỹ thuật đầy đủ
+- ✅ Thư viện ảnh sản phẩm (ảnh chính, ảnh thông số, ảnh tính năng, ảnh mô tả)
+- ✅ Quản lý tồn kho và trạng thái sản phẩm
+- ✅ Sản phẩm nổi bật hiển thị trên trang chủ
+- ✅ Tìm kiếm và lọc sản phẩm
 
-- ✅ **Chỉnh Sửa Địa Chỉ**: Click nút "Chỉnh sửa" trên mỗi địa chỉ
-  - Form được điền sẵn dữ liệu hiện tại
-  - Nút thay đổi thành "Cập nhập"
-  - Sau cập nhập thành công: Thông báo 2 giây, quay lại danh sách
+### 2. Danh Mục Sản Phẩm (Categories)
 
-- ✅ **Xóa Địa Chỉ**: Click nút "Xóa" trên mỗi địa chỉ
-  - Mở overlay xác nhận với nền mờ
-  - Nút "Hủy" (Đen→Trắng khi hover), Nút "Xác nhận" (Trắng→Đen khi hover)
-  - Sau xóa: Thông báo 2 giây, danh sách cập nhập
+- ✅ Cấu trúc danh mục phân cấp
+- ✅ Lọc sản phẩm theo danh mục
+- ✅ Quản lý mã danh mục và slug
 
-### 2. Thông Tin Tài Khoản (Account Info)
-- ✅ **Xem Thông Tin**: Hiển thị thông tin từ khi tạo tài khoản
-  - Họ, Tên, Email, Số điện thoại
-  - Biệt danh và Quốc tịch: Đã bỏ đi
-  - Mật khẩu: Hiển thị ẩn, có nút "Cập nhập"
+### 3. Giỏ Hàng (Cart)
 
-- ✅ **Lưu Thay Đổi**: Click "Lưu thay đổi"
-  - Validate thông tin
-  - Thông báo "Lưu thông tin thành công"
+- ✅ Thêm/xóa/cập nhật số lượng sản phẩm
+- ✅ Hỗ trợ giỏ hàng cho cả user đã đăng nhập và guest (session)
+- ✅ Tính tổng tiền tự động
+- ✅ Hiển thị số lượng sản phẩm trong giỏ hàng
 
-- ✅ **Đổi Mật Khẩu**: Click nút "Cập nhập" bên cạnh mật khẩu
-  - Bước 1: Nhập mật khẩu mới + xác nhận
-  - Bước 2: Nhập mật khẩu cũ để xác thực
-  - Thông báo "Cập nhập mật khẩu thành công"
+### 4. Đặt Hàng (Orders)
 
-### 3. Quản Lý Đơn Hàng (Order Management)
-- ✅ **Danh Sách Đơn Hàng**: Hiển thị tất cả đơn hàng
-  - Mã đơn, Trạng thái, Ngày đặt, Tổng tiền
-  - Nút "Xem chi tiết" và "Hủy đơn hàng" (chỉ khi pending/processing)
+- ✅ Tạo đơn hàng với thông tin giao hàng đầy đủ
+- ✅ Mã đơn hàng tự động (format: DHK-YYYYMMDD-XXXXX)
+- ✅ Quản lý trạng thái đơn hàng: Chờ xử lý → Đã xác nhận → Đang giao → Hoàn thành/Hủy
+- ✅ Hỗ trợ thanh toán toàn bộ hoặc đặt cọc
+- ✅ Phân công nhân viên phụ trách đơn hàng
+- ✅ Ghi chú và ảnh minh chứng
+- ✅ Hủy đơn hàng với lý do
 
-- ✅ **Xem Chi Tiết**: Click "Xem chi tiết"
-  - Hiển thị overlay với:
-    - Mã đơn, Trạng thái, Ngày đặt
-    - Thông tin người nhận
-    - Danh sách sản phẩm với số lượng, giá
-    - Tổng tiền
-    - (Nếu đã hủy) Lý do hủy
+### 5. Quản Lý Tài Khoản (Account)
 
-- ✅ **Hủy Đơn Hàng**: Click "Hủy đơn hàng"
-  - Mở overlay form nhập lý do hủy
-  - Validate: Không được để trống
-  - Thông báo "Hủy đơn hàng thành công"
-  - Danh sách cập nhập
+#### 5.1. Thông Tin Cá Nhân
+
+- ✅ Xem và cập nhật thông tin: Họ, Tên, Email, Số điện thoại, Giới tính, Ngày sinh
+- ✅ Đổi mật khẩu với xác thực mật khẩu cũ
+- ✅ Thông báo thành công/lỗi với hiệu ứng mượt mà
+
+#### 5.2. Sổ Địa Chỉ
+
+- ✅ **Thêm Địa Chỉ**: Form overlay với đầy đủ thông tin
+  - Tên người nhận, Số điện thoại
+  - Tỉnh/Thành phố, Quận/Huyện, Phường/Xã, Địa chỉ chi tiết
+  - Loại địa chỉ: Nhà riêng/Chung cư, Văn phòng, Khác
+  - Đặt làm địa chỉ mặc định
+- ✅ **Chỉnh Sửa Địa Chỉ**: Form điền sẵn dữ liệu hiện tại
+- ✅ **Xóa Địa Chỉ**: Xác nhận trước khi xóa
+- ✅ **Địa Chỉ Mặc Định**: Tự động sử dụng khi đặt hàng
+
+#### 5.3. Quản Lý Đơn Hàng
+
+- ✅ **Danh Sách Đơn Hàng**: Xem tất cả đơn hàng đã đặt
+  - Mã đơn hàng, Trạng thái, Ngày đặt, Tổng tiền
+  - Lọc theo trạng thái
+- ✅ **Chi Tiết Đơn Hàng**:
+  - Thông tin người nhận và địa chỉ giao hàng
+  - Danh sách sản phẩm với số lượng và giá
+  - Tổng tiền và trạng thái thanh toán
+  - Lý do hủy (nếu có)
+- ✅ **Hủy Đơn Hàng**: Chỉ áp dụng cho đơn hàng ở trạng thái "Chờ xử lý" hoặc "Đã xác nhận"
+
+### 6. Khuyến Mãi (Promotions)
+
+- ✅ Quản lý các chương trình khuyến mãi
+- ✅ Áp dụng giảm giá theo sản phẩm hoặc đơn hàng
+
+### 7. Bảo Hành (Warranty)
+
+- ✅ Quản lý thông tin bảo hành sản phẩm
+- ✅ Theo dõi ngày hết hạn bảo hành
+
+### 8. Công Việc (Tasks)
+
+- ✅ Quản lý công việc nội bộ
+- ✅ Phân công và theo dõi tiến độ
 
 ## Hướng Dẫn Sử Dụng
 
 ### 1. Cài Đặt
+
 ```bash
 cd Dahuka
 pip install django
@@ -67,39 +96,46 @@ python create_sample_data.py
 ```
 
 ### 2. Khởi Động Server
+
 ```bash
 python manage.py runserver
 ```
 
 ### 3. Truy Cập
+
 - Trang chính: http://localhost:8000
 - Đăng nhập: http://localhost:8000/login/
 - Quản lý tài khoản: http://localhost:8000/account/
 
 ### 4. Tài Khoản Demo
+
 - **Tên**: testuser
 - **Mật khẩu**: password123
 
 ## Chi Tiết Kỹ Thuật
 
 ### Backend
+
 - **Framework**: Django 6.0
 - **Database**: SQLite (db.sqlite3)
 - **Authentication**: Django Auth
 
 ### Models
+
 1. **Customer**: OneToOne với User, lưu số điện thoại
 2. **Address**: Foreign Key đến Customer, lưu thông tin địa chỉ
 3. **Order**: Foreign Key đến Customer, lưu thông tin đơn hàng
 4. **OrderItem**: Foreign Key đến Order, lưu chi tiết sản phẩm
 
 ### Frontend
+
 - **CSS Framework**: Bootstrap 4
 - **JavaScript**: Vanilla JS (không jQuery cho AJAX)
 - **API Communication**: Fetch API với JSON
 - **Notifications**: Custom toast notifications
 
 ### API Endpoints
+
 ```
 GET    /api/profile/                    - Lấy thông tin tài khoản
 PUT    /api/profile/                    - Cập nhập thông tin tài khoản
@@ -119,6 +155,7 @@ POST   /api/orders/<id>/cancel/         - Hủy đơn hàng
 ## Tính Năng Hover Effects
 
 Tất cả các nút đều có hover effects:
+
 - **Nút Trắng/Border**: Trắng → Đen (text trắng)
 - **Nút Đen**: Đen → Trắng (text đen)
 - Transition mượt 0.3s
@@ -129,36 +166,157 @@ Tất cả các nút đều có hover effects:
 - **Lỗi**: Đỏ (#e74c3c), tự đóng sau 2 giây
 - Hiệu ứng: Slide down vào, slide up ra
 
-## Validation
-
-- **Số điện thoại**: 10-11 chữ số
-- **Email**: Format hợp lệ
-- **Bắt buộc**: Tên, SĐT, Email, Địa chỉ, Tỉnh, Quận, Phường
 - **Xác nhận**: Mật khẩu mới phải khớp với xác nhận
 
 ## Cấu Trúc Thư Mục
 
 ```
 Dahuka/
-├── templates/
-│   ├── base.html              # Layout chính
-│   ├── login.html             # Trang đăng nhập
-│   └── account/
-│       └── dashboard.html     # Trang quản lý tài khoản
-├── static/
-│   ├── img/                   # Hình ảnh
-│   └── js/
-│       └── account.js         # Logic JavaScript
-├── trangchu/
-│   ├── models.py              # Customer, Address, Order, OrderItem
-│   ├── views.py               # API views + Auth views
-│   ├── admin.py               # Django admin config
-│   └── migrations/
-├── Dahuka/
-│   ├── urls.py                # URL routing
-│   ├── settings.py            # Django config
+├── manage.py                          # Django management script
+├── .gitignore                         # Git ignore rules
+├── apps/                              # All Django apps
+│   ├── account/                       # User account & addresses
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── api_views.py
+│   │   ├── apps.py
+│   │   ├── create_staff.py
+│   │   ├── decorators.py
+│   │   ├── forms.py
+│   │   ├── models.py                  # Customer model
+│   │   ├── selectors.py
+│   │   ├── services.py
+│   │   ├── signals.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   ├── migrations/
+│   │   ├── static/account/
+│   │   └── templates/
+│   ├── cart/                          # Shopping cart
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── context_processors.py
+│   │   ├── forms.py
+│   │   ├── models.py
+│   │   ├── selectors.py
+│   │   ├── services.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   ├── migrations/
+│   │   ├── static/cart/
+│   │   ├── templates/
+│   │   └── templatetags/
+│   ├── categories/                    # Product categories
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── forms.py
+│   │   ├── models.py
+│   │   ├── selectors.py
+│   │   ├── services.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   ├── migrations/
+│   │   ├── static/
+│   │   └── templates/
+│   ├── core/                          # Core functionality
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── api_views.py
+│   │   ├── apps.py
+│   │   ├── constants.py
+│   │   ├── context_processors.py
+│   │   ├── decorators.py
+│   │   ├── forms.py
+│   │   ├── models.py
+│   │   ├── selectors.py
+│   │   ├── services.py
+│   │   ├── urls.py
+│   │   ├── utils.py
+│   │   ├── views.py
+│   │   ├── migrations/
+│   │   ├── static/
+│   │   └── templates/
+│   ├── orders/                        # Orders management
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── selectors.py
+│   │   ├── services.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   ├── migrations/
+│   │   ├── static/
+│   │   └── templates/
+│   ├── products/                      # Products catalog
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── forms.py
+│   │   ├── models.py
+│   │   ├── selectors.py
+│   │   ├── services.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   ├── management/
+│   │   ├── migrations/
+│   │   ├── static/
+│   │   └── templates/
+│   ├── promotions/                    # Promotions & discounts
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── forms.py
+│   │   ├── models.py
+│   │   ├── selectors.py
+│   │   ├── services.py
+│   │   ├── signals.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   ├── management/
+│   │   ├── migrations/
+│   │   ├── static/
+│   │   └── templates/
+│   ├── tasks/                         # Internal tasks
+│   │   ├── __init__.py
+│   │   ├── apps.py
+│   │   ├── selectors.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   ├── migrations/
+│   │   ├── static/
+│   │   └── templates/
+│   └── warranty/                      # Warranty management
+│       ├── __init__.py
+│       ├── admin.py
+│       ├── apps.py
+│       ├── models.py
+│       ├── selectors.py
+│       ├── services.py
+│       ├── urls.py
+│       ├── views.py
+│       ├── migrations/
+│       ├── static/
+│       └── templates/
+├── Dahuka/                            # Django project config
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
 │   └── wsgi.py
-└── manage.py
+├── document/                          # Project docs
+│   └── STRUCTURE.md
+├── media/                             # Uploaded files
+├── scratch/                           # Temporary files
+├── static/                            # Static assets
+└── templates/                         # Base templates
+    ├── account_base.html
+    ├── base.html
+    ├── components/
+    ├── partials/
+    └── registration/
 ```
 
 ## Ghi Chú
@@ -171,5 +329,4 @@ Dahuka/
 
 ## Tác Giả
 
-Nhóm phát triển Dahuka - Dự án lập trình web
-
+Dự án phát triển Dahuka - Dự án lập trình web **Nhom 1**
