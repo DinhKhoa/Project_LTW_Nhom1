@@ -1,4 +1,4 @@
-from django.db.models import Sum, Count, F, Q
+from django.db.models import Sum, F, Q
 from django.utils import timezone
 from datetime import datetime, timedelta
 import calendar

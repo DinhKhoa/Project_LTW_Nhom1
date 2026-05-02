@@ -1,4 +1,3 @@
-from typing import Any, Dict, List, Optional
 from django.http import JsonResponse, Http404, HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
@@ -13,7 +12,7 @@ from apps.account.decorators import customer_required
 from apps.account.services import AccountService
 from apps.core.utils import format_money
 from apps.core.constants import DEFAULT_DELIVERY_DAYS
-from .models import Cart, CartItem
+from .models import CartItem
 from .forms import CustomerInfoForm
 from .services import CartService
 from . import selectors
@@ -122,7 +121,6 @@ def checkout(request: HttpRequest) -> HttpResponse:
 
         elif action == "select_saved_address":
             if request.user.is_authenticated:
-                from apps.account.models import Address
                 addr = get_object_or_404(request.user.customer.addresses, id=request.POST.get("address_id"))
                 state["customer"].update({
                     "full_name": addr.full_name, "phone": addr.phone, "province": addr.province,

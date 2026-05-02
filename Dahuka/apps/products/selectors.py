@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 from django.db.models import QuerySet, Q
 from .models import Product
 

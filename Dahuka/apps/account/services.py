@@ -1,7 +1,6 @@
-from django.contrib.auth import authenticate, update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import get_object_or_404
 from .models import Customer, Address
-from apps.orders.models import Order
 
 class AccountService:
     @staticmethod

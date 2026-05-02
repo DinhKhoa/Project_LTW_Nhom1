@@ -2,8 +2,6 @@ from typing import Any, Dict, List, Optional
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from django.urls import reverse
-from django.shortcuts import get_object_or_404
 from decimal import Decimal
 from apps.promotions.models import Promotion
 from apps.orders.services import OrderService

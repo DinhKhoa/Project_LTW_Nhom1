@@ -1,10 +1,8 @@
 import csv
 import ast
-import os
 from django.core.management.base import BaseCommand
 from apps.categories.models import Category
 from apps.products.models import Product, ProductImage
-from django.utils.text import slugify
 
 class Command(BaseCommand):
     help = 'Import categories and products from CSV files'

@@ -1,4 +1,3 @@
-from django.http import QueryDict
 from django.utils.datastructures import MultiValueDict
 from .models import WarrantyPageSettings
 from .selectors import get_warranty_settings

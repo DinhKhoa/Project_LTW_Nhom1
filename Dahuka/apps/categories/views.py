@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.contrib import messages
-from typing import Any
 
 from apps.core.decorators import admin_required
 from apps.core.utils import get_paginated_data

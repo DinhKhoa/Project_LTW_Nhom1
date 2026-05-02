@@ -1,6 +1,3 @@
-from apps.orders.models import Order
-
-
 def notification_counts(request):
     if not request.user.is_authenticated:
         return {}

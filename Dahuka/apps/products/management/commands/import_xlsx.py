@@ -1,11 +1,9 @@
-import os
 import requests
 import pandas as pd
 from django.core.management.base import BaseCommand
 from django.core.files.base import ContentFile
 from apps.categories.models import Category
 from apps.products.models import Product, ProductImage
-from django.utils.text import slugify
 
 class Command(BaseCommand):
     help = 'Import products and images from XLSX files (Sanpham.xlsx and hinhanhsanpham.xlsx)'

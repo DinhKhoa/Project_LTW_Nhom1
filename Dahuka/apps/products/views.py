@@ -9,7 +9,7 @@ from django.contrib import messages
 from apps.core.utils import get_paginated_data
 from apps.core.decorators import admin_required
 from apps.categories.models import Category
-from .models import Product, ProductImage
+from .models import ProductImage
 from .forms import ProductForm
 from .services import ProductsService
 from . import selectors

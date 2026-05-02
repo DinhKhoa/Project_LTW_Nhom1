@@ -2,9 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from apps.products.models import Product
 import random
-import re
 from django.utils import timezone
-import datetime
 
 
 class Order(models.Model):

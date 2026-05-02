@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from django.db import transaction
 from .models import Product, ProductImage
 

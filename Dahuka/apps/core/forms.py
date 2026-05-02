@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.models import User
 from apps.account.models import Address, Customer
 
 class CustomerForm(forms.ModelForm):

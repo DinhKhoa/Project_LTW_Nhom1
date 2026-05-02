@@ -1,13 +1,11 @@
-from typing import Any
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.core.decorators import admin_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.db.models import Prefetch
 from django.http import Http404, HttpRequest, HttpResponse
 
-from .models import Order, OrderItem
+from .models import Order
 from .services import OrderService
 from . import selectors
 
