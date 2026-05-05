@@ -9,7 +9,11 @@ class AccountService:
         return customer
 
     @staticmethod
-    def create_address(customer, data):
+    def create_address(customer, cleaned_data):
+        # Filter allowed fields to prevent unexpected keys from causing errors
+        allowed_fields = ['full_name', 'phone', 'province', 'district', 'ward', 'address_detail', 'address_type', 'is_default']
+        data = {k: v for k, v in cleaned_data.items() if k in allowed_fields}
+        
         if data.get('is_default'):
             Address.objects.filter(customer=customer).update(is_default=False)
         elif not Address.objects.filter(customer=customer).exists():
@@ -19,8 +23,13 @@ class AccountService:
         return address
 
     @staticmethod
-    def update_address(customer, address_id, data):
+    def update_address(customer, address_id, cleaned_data):
         address = get_object_or_404(Address, id=address_id, customer=customer)
+        
+        # Filter allowed fields
+        allowed_fields = ['full_name', 'phone', 'province', 'district', 'ward', 'address_detail', 'address_type', 'is_default']
+        data = {k: v for k, v in cleaned_data.items() if k in allowed_fields}
+        
         if data.get('is_default'):
             Address.objects.filter(customer=customer).exclude(id=address.id).update(is_default=False)
         

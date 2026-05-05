@@ -117,6 +117,8 @@ def checkout(request: HttpRequest) -> HttpResponse:
             else:
                 messages.success(request, "Đã cập nhật thông tin nhận hàng")
             request.session.modified = True
+            if is_ajax:
+                return JsonResponse({"status": "success", "message": "Cập nhật thành công"})
             return redirect(request.path)
 
         elif action == "select_saved_address":

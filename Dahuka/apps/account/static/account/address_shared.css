@@ -5,12 +5,14 @@
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999 !important;
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
-.modal-overlay.active {
-    display: flex;
+.modal-overlay.active,
+.modal-overlay.show {
+    display: flex !important;
 }
 
 .modal-content-small {

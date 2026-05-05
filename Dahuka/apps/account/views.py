@@ -90,7 +90,8 @@ def add_address(request: HttpRequest) -> HttpResponse:
         if request.method == "POST":
             form = AddressForm(request.POST)
             if form.is_valid():
-                AccountService.create_address(customer, form)
+                AccountService.create_address(customer, form.cleaned_data)
+                messages.success(request, "Thêm địa chỉ mới thành công")
                 return JsonResponse({"success": True})
             else:
                 html = render_to_string(
@@ -121,7 +122,8 @@ def edit_address(request: HttpRequest, pk: int) -> HttpResponse:
         if request.method == "POST":
             form = AddressForm(request.POST, instance=address)
             if form.is_valid():
-                AccountService.update_address(customer, address, form)
+                AccountService.update_address(customer, address.id, form.cleaned_data)
+                messages.success(request, "Cập nhật địa chỉ thành công")
                 return JsonResponse({"success": True})
             else:
                 html = render_to_string(
