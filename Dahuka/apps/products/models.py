@@ -1,16 +1,20 @@
 from django.db import models
 from apps.categories.models import Category
 
+# Model lưu thông tin sản phẩm (máy lọc nước, cây nước nóng lạnh, v.v.)
 class Product(models.Model):
+    # Quan hệ 1-nhiều: 1 Category có nhiều Product; xóa category → xóa luôn sản phẩm
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', verbose_name="Danh mục")
     name = models.CharField(max_length=255, verbose_name="Tên sản phẩm")
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True)  # Dùng trong URL: /product/ten-san-pham/
     description = models.TextField(verbose_name="Mô tả chi tiết")
     price = models.DecimalField(max_digits=12, decimal_places=0, verbose_name="Giá bán")
     image = models.ImageField(upload_to='products/', verbose_name="Hình ảnh chính", blank=True, null=True)
-    image_specs = models.ImageField(upload_to='products/specs/', verbose_name="Ảnh thông số", blank=True, null=True)
+
+    # Ảnh minh hoạ riêng cho các phần Tab chi tiết sản phẩm (Lưu ý: Đã lược bỏ ảnh thông số)
     image_features = models.ImageField(upload_to='products/features/', verbose_name="Ảnh tính năng", blank=True, null=True)
     image_description = models.ImageField(upload_to='products/description/', verbose_name="Ảnh mô tả chi tiết", blank=True, null=True)
+    
     stock = models.IntegerField(default=100, verbose_name="Tồn kho")
     
     short_description = models.TextField(blank=True, verbose_name="Mô tả ngắn")
@@ -31,8 +35,8 @@ class Product(models.Model):
     spec_features = models.TextField(blank=True, verbose_name="Tính năng")
     spec_other = models.TextField(blank=True, verbose_name="Thông số khác")
 
-    is_active = models.BooleanField(default=True, verbose_name="Đang kinh doanh")
-    is_featured = models.BooleanField(default=False, verbose_name="Nổi bật (Trang chủ)")
+    is_active = models.BooleanField(default=True, verbose_name="Đang kinh doanh")    # False → ẩn khỏi người dùng
+    is_featured = models.BooleanField(default=False, verbose_name="Nổi bật (Trang chủ)")  # True → hiện ở trang chủ
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -42,9 +46,11 @@ class Product(models.Model):
         verbose_name_plural = "Danh sách sản phẩm"
 
     def save(self, *args, **kwargs):
+        # Sản phẩm bị ẩn (is_active=False) → không được hiện ở trang chủ
         if not self.is_active:
             self.is_featured = False
 
+        # Tự tạo slug từ tên nếu chưa có; trùng → thêm số đằng sau
         if not self.slug:
             from django.utils.text import slugify
             base_slug = slugify(self.name)
@@ -67,13 +73,14 @@ class Product(models.Model):
             return first_img.image_url.url
         return '/static/img/no-image.png'
 
+    # Tính trạng thái tồn kho để hiển thị màu sắc cảnh báo
     @property
     def stock_status(self):
         if self.stock <= 0:
-            return 'het_hang'
+            return 'het_hang'   # Đỏ
         elif self.stock <= 10:
-            return 'thap'
-        return 'day_du'
+            return 'thap'       # Vàng — cảnh báo sắp hết
+        return 'day_du'         # Xanh
 
     @property
     def stock_status_display(self):

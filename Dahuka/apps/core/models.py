@@ -3,12 +3,17 @@ from django.conf import settings
 from apps.categories.models import Category
 from apps.products.models import Product
 
-
+# --- MODEL CÀI ĐẶT GIAO DIỆN TRANG CHỦ ---
 class HomePageSettings(models.Model):
+    """
+    Lưu trữ các cấu hình động cho trang chủ giúp Admin có thể thay đổi giao diện 
+    mà không cần can thiệp vào code (Banner, Sản phẩm nổi bật, Nội dung giới thiệu).
+    """
     banner_image = models.ImageField(
         upload_to="home/banners/", blank=True, null=True, verbose_name="Banner chính"
     )
 
+    # Các danh mục sản phẩm muốn đẩy mạnh trên trang chủ
     category_one = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
@@ -26,6 +31,7 @@ class HomePageSettings(models.Model):
         verbose_name="Danh mục nổi bật 2",
     )
 
+    # Nội dung cho Section giới thiệu thương hiệu Dahuka Pro
     dahuka_pro_title = models.CharField(
         max_length=255, default="Dahuka Hydrogen Pro", verbose_name="Tiêu đề Dahuka Pro"
     )
@@ -42,6 +48,7 @@ class HomePageSettings(models.Model):
         upload_to="home/brands/", blank=True, null=True, verbose_name="Ảnh Dahuka Pro"
     )
 
+    # Danh sách các sản phẩm được 'pin' lên vị trí đặc biệt
     featured_products = models.ManyToManyField(
         Product, blank=True, verbose_name="Sản phẩm đặc sắc"
     )
@@ -66,7 +73,9 @@ class HomePageSettings(models.Model):
         return "Cấu hình Trang chủ hiện tại"
 
 
+# --- MODEL HỆ THỐNG THÔNG BÁO (INTERNAL NOTIFICATIONS) ---
 class Notification(models.Model):
+    """Lưu trữ thông báo gửi đến người dùng (Xác nhận đơn hàng, Giao việc cho nhân viên)."""
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -76,7 +85,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=255, verbose_name="Tiêu đề")
     message = models.TextField(verbose_name="Nội dung")
     link = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Đường dẫn"
+        max_length=255, blank=True, null=True, verbose_name="Đường dẫn khi bấm vào thông báo"
     )
     is_read = models.BooleanField(default=False, verbose_name="Đã đọc")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
@@ -84,7 +93,7 @@ class Notification(models.Model):
     class Meta:
         verbose_name = "Thông báo"
         verbose_name_plural = "Các thông báo"
-        ordering = ["-created_at"]
+        ordering = ["-created_at"] # Luôn hiện thông báo mới nhất lên đầu
 
     def __str__(self):
         return f"{self.title} - {self.recipient.username}"

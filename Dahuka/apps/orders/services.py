@@ -5,6 +5,9 @@ from django.urls import reverse
 from apps.core.services import CoreService
 from .models import Order, OrderItem
 
+# ==============================================================================
+# SERVICE LAYER: XỬ LÝ NGHIỆP VỤ ĐƠN HÀNG (BUSINESS LOGIC)
+# ==============================================================================
 
 class OrderService:
 
@@ -25,6 +28,12 @@ class OrderService:
         payment_status: str = "chua_thanh_toan",
         note: str = "",
     ) -> Order:
+        """
+        Quy trình tạo đơn hàng mới: 
+        1. Tính tổng tiền -> 2. Lưu Order -> 3. Kiểm tra & Trừ kho -> 4. Tạo OrderItem -> 5. Gửi thông báo.
+        @transaction.atomic: Đảm bảo nếu bước 3 lỗi thì bước 2 sẽ bị hủy bỏ (Rollback).
+        """
+        # --- BƯỚC 1: TÍNH TỔNG GIÁ TRỊ ĐƠN HÀNG ---
         total_amount = float(
             sum(item["price"] * item.get("quantity", 1) for item in cart_items)
         ) - float(discount_amount)
@@ -32,6 +41,7 @@ class OrderService:
         if total_amount < 0:
             total_amount = 0
 
+        # --- BƯỚC 2: KHỞI TẠO ĐƠN HÀNG CHÍNH ---
         order = Order.objects.create(
             customer=customer,
             full_name=full_name,
@@ -50,8 +60,11 @@ class OrderService:
 
         from apps.products.models import Product
 
+        # --- BƯỚC 3: XỬ LÝ CHI TIẾT SẢN PHẨM & TỒN KHO ---
         for item in cart_items:
             quantity = item.get("quantity", 1)
+            
+            # select_for_update(): Khoá hàng này trong DB để tránh 2 người cùng mua cái cuối cùng (Race Condition prevention)
             product = Product.objects.select_for_update().get(id=item["product_id"])
 
             if product.stock < quantity:
@@ -59,13 +72,16 @@ class OrderService:
                     f"Sản phẩm '{product.name}' không đủ tồn kho (hiện còn {product.stock})."
                 )
 
+            # Trừ số lượng tồn kho
             product.stock -= quantity
             product.save()
 
+            # Tạo bản ghi chi tiết
             OrderItem.objects.create(
                 order=order, product=product, quantity=quantity, price=item["price"]
             )
 
+        # --- BƯỚC 4: GỬI THÔNG BÁO CHO ADMIN ---
         admins = User.objects.filter(is_superuser=True)
         order_url = reverse("orders:order_detail", args=[order.id])
         for admin in admins:
@@ -80,6 +96,10 @@ class OrderService:
 
     @staticmethod
     def process_warranty(order: Order) -> None:
+        """
+        Tự động tính toán ngày hết hạn bảo hành dựa trên chuỗi văn bản trong Product spec.
+        VD: "24 tháng" -> cộng 24 tháng vào ngày hiện tại.
+        """
         import re
         from django.utils import timezone
         import datetime
@@ -87,18 +107,21 @@ class OrderService:
         items = order.items.all()
         for item in items:
             if not item.warranty_expiration:
-                months = 24
+                months = 24 # Mặc định 2 năm nếu không ghi gì
                 if item.product and item.product.spec_warranty:
                     warranty_str = item.product.spec_warranty.lower()
+                    # Sử dụng Regex để tìm số trong chuỗi (VD: "24 tháng" -> lấy số 24)
                     numbers = re.findall(r"\d+", warranty_str)
                     if numbers:
                         val = int(numbers[0])
+                        # Nếu ghi "năm" thì nhân với 12 để quy đổi ra tháng
                         if "năm" in warranty_str or "nam" in warranty_str:
                             val *= 12
                         months = val
 
                 try:
                     current_time = timezone.localtime()
+                    # Cộng năm/tháng vào ngày hiện tại
                     if months % 12 == 0:
                         years = months // 12
                         item.warranty_expiration = current_time.replace(
@@ -124,6 +147,12 @@ class OrderService:
         proof_image=None,
         user=None,
     ) -> Order:
+        """
+        Cơ chế Máy trạng thái (State Machine) điều khiển vòng đời đơn hàng.
+        Xử lý: Giao việc -> Giao hàng -> Hoàn thành -> Hủy.
+        """
+        
+        # 1. Giao việc cho nhân viên
         if action == "assign_staff":
             if staff_id:
                 try:
@@ -132,28 +161,36 @@ class OrderService:
                     order.status = "confirmed"
 
                     if staff:
-                        order_url = reverse("orders:order_detail", args=[order.id])
+                        # Sửa link dẫn đến app tasks dành cho nhân viên (không phải orders dành cho admin)
+                        order_url = reverse("tasks:task_detail", args=[order.id])
                         CoreService.create_notification(
                             recipient=staff,
                             title="Nhiệm vụ mới: Nhận việc",
-                            message=f"Bạn vừa được giao nhận việc cho đơn hàng {order.order_code}. Vui lòng kiểm tra và bắt đầu xử lý.",
+                            message=f"Bạn vừa được giao nhận việc cho đơn hàng {order.order_code}.",
                             link=order_url,
                         )
                 except (User.DoesNotExist, ValueError):
                     pass
+        
+        # 2. Bắt đầu giao hàng
         elif action == "start_shipping":
             order.status = "processing"
+            
+        # 3. Hoàn thành đơn hàng (Thu tiền & Kích hoạt bảo hành)
         elif action == "complete":
             order.status = "completed"
             order.payment_status = "da_thanh_toan"
             if proof_image:
                 order.proof_image = proof_image
 
+            # Tự động tính ngày bảo hành cho từng sản phẩm
             OrderService.process_warranty(order)
 
+        # 4. Hủy đơn hàng
         elif action == "cancel":
             order.status = "cancelled"
             if cancel_reason:
+                # Ghi lại ai là người đã hủy đơn
                 if user:
                     if user.is_staff or user.is_superuser:
                         user_info = "Dahuka"
@@ -167,6 +204,7 @@ class OrderService:
 
         order.save()
 
+        # --- GỬI THÔNG BÁO CẬP NHẬT CHO KHÁCH HÀNG ---
         if (
             action in ["assign_staff", "start_shipping", "complete", "cancel"]
             and order.customer
@@ -178,7 +216,8 @@ class OrderService:
                 "cancel": "đã bị hủy",
             }.get(action, "")
 
-            customer_url = reverse("purchase_detail", args=[order.id])
+            # Cần thêm namespace 'account:' vì URL này thuộc app account
+            customer_url = reverse("account:purchase_detail", args=[order.id])
             CoreService.create_notification(
                 recipient=order.customer,
                 title="Cập nhật đơn hàng",
@@ -186,6 +225,7 @@ class OrderService:
                 link=customer_url,
             )
 
+        # Thông báo cho Admin khi nhân viên hoàn thành việc
         if action == "complete":
             admins = User.objects.filter(is_superuser=True)
             order_url = reverse("orders:order_detail", args=[order.id])
@@ -198,7 +238,7 @@ class OrderService:
                 CoreService.create_notification(
                     recipient=admin,
                     title="Xác nhận hoàn thành đơn hàng",
-                    message=f"Nhân viên {staff_name} đã hoàn thành đơn hàng {order.order_code}. Vui lòng kiểm tra ảnh minh chứng và đối soát.",
+                    message=f"Nhân viên {staff_name} đã hoàn thành đơn hàng {order.order_code}. Vui lòng kiểm tra đối soát.",
                     link=order_url,
                 )
 
@@ -213,17 +253,20 @@ class OrderService:
                     link=order_url,
                 )
             if order.assigned_staff:
+                # Sửa link dẫn đến app tasks dành cho nhân viên
+                staff_url = reverse("tasks:task_detail", args=[order.id])
                 CoreService.create_notification(
                     recipient=order.assigned_staff,
                     title="Đơn hàng bị hủy",
                     message=f"Đơn hàng {order.order_code} bạn đang phụ trách đã bị khách hàng hủy.",
-                    link=order_url,
+                    link=staff_url,
                 )
 
         return order
 
     @staticmethod
     def calc_current_step(order: Order) -> int:
+        """Trả về chỉ số bước hiện tại (0-3) để vẽ thanh tiến trình trên giao diện."""
         status_steps = ["pending", "confirmed", "processing", "completed"]
         if order.status in status_steps:
             return status_steps.index(order.status)

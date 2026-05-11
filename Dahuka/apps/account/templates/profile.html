@@ -6,8 +6,11 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'account/css/profile.css' %}">
 
+    <!-- Trang cập nhật thông tin cá nhân của khách hàng -->
     <h1 class="account-heading">Thông tin tài khoản</h1>
 
+    <!-- Form gửi dữ liệu cập nhật thông tin (Tên, SDT, Email, Ngày sinh) -->
+    <!-- View xử lý: account.views.profile_view -->
     <form method="post" class="account-card profile-card" novalidate>
         {% csrf_token %}
         <div class="profile-panel">
@@ -76,6 +79,7 @@
                             {% endfor %}
                         </select>
                     </div>
+                    <!-- Trường ẩn lưu Ngày Sinh gom chung từ 3 select box ở trên (JS xử lý) -->
                     <input type="hidden" name="birthday" id="id_birthday" value="{{ form.instance.birthday|date:'Y-m-d' }}">
 
                     <div class="account-label">Mật khẩu</div>

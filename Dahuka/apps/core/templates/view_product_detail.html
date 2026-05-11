@@ -4,14 +4,20 @@
 {% block title %}Chi tiết sản phẩm - DAHUKA{% endblock %}
 
 {% block extra_css %}
+{# CSS riêng hỗ trợ layout phân tầng và Gallery ảnh #}
 <link rel="stylesheet" href="{% static 'core/css/view_product_detail.css' %}">
 {% endblock %}
 
 {% block content %}
 <main class="product-detail-page">
-    <!-- Top Section with Gray Background -->
+    <!-- 
+        PHẦN 1: HEADER THÔNG TIN TỔNG QUAN
+        - Hiển thị tên, giá, ưu đãi vận chuyển
+        - Chứa Gallery hình ảnh tương tác
+    -->
     <div class="product-detail-header-section">
         <div class="container-shell breadcrumb-padding-top">
+            {# Breadcrumbs: Đường dẫn điều hướng để người dùng quay lại danh mục dễ dàng #}
             <nav class="page-breadcrumbs">
                 <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
                 <a href="{% url 'core:product_catalog' %}{% if product.category %}?category={{ product.category.id }}{% endif %}">{% if product.category %}{{ product.category.name }}{% else %}Sản phẩm{% endif %}</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
@@ -21,27 +27,25 @@
             <h2 class="page-title">Thông tin chi tiết sản phẩm</h2>
             
             <div class="product-detail-main">
+                {# CỘT TRÁI: Thông tin chữ (Tên, Mã, Giá, Ưu đãi) #}
                 <div class="product-detail-info">
                     <h1 class="product-display-name">{{ product.name }}</h1>
                     <p class="product-sku-label">Mã sản phẩm: {{ product.id }}</p>
                     
                     <div class="product-highlights-list">
+                        <!-- Mô tả ngắn gọn về sản phẩm -->
                         {{ product.short_description|linebreaks }}
                     </div>
                     
+                    <!-- Giá tiền: Dùng filter 'intcomma' để ngăn cách hàng nghìn (VD: 1,000,000) -->
                     <p class="product-price-display">Giá bán: <span class="product-price-value">{{ product.price|intcomma }} đ</span></p>
 
                     <div class="shipping-section">
-                        <div class="shipping-row">
-                            <i class="fa fa-truck"></i>
-                            <span>Miễn phí vận chuyển và lắp đặt tại nhà</span>
-                        </div>
-                        <div class="shipping-row">
-                            <i class="fa fa-clock-o"></i>
-                            <span>Giao hàng nhanh từ 24-48 giờ</span>
-                        </div>
+                        <div class="shipping-row"><i class="fa fa-truck"></i> <span>Miễn phí vận chuyển và lắp đặt tại nhà</span></div>
+                        <div class="shipping-row"><i class="fa fa-clock-o"></i> <span>Giao hàng nhanh từ 24-48 giờ</span></div>
                     </div>
 
+                    {# NÚT HÀNH ĐỘNG: Phân biệt Mua ngay (Checkout luôn) và Thêm vào giỏ (Ở lại trang) #}
                     {% if not user.is_staff %}
                     <div class="product-action-buttons">
                         <form action="{% url 'cart:add_product_to_cart' %}" method="post" style="flex: 1; display: flex;">
@@ -61,14 +65,17 @@
                     {% endif %}
                 </div>
 
+                {# CỘT PHẢI: Hình ảnh (Ảnh lớn và các Thumbnail nhỏ bên dưới) #}
                 <div class="product-detail-visuals">
                     <div class="main-image-display">
                         <img id="mainImg" src="{{ product.main_image_url }}" alt="{{ product.name }}">
                     </div>
                     <div class="thumbnail-selection-grid">
+                        {# Ảnh chính đầu tiên #}
                         <div class="thumb-box active" onclick="updateMainImage(this)">
                             <img src="{{ product.main_image_url }}" alt="{{ product.name }}">
                         </div>
+                        {# Danh sách các ảnh bổ trợ khác #}
                         {% for img in images_by_type.gallery %}
                         <div class="thumb-box" onclick="updateMainImage(this)">
                             <img src="{{ img.image_url.url }}" alt="{{ img.product.name }}">
@@ -78,7 +85,7 @@
                 </div>
             </div>
 
-            <!-- Tab Header inside the gray section -->
+            {# THANH CHỌN TAB: Người dùng nhấn vào để xem các loại nội dung khác nhau #}
             <div class="tab-header-minimal">
                 <button class="tab-btn-minimal active" onclick="openTab(this, 'thong-so')">Thông số</button>
                 <button class="tab-btn-minimal" onclick="openTab(this, 'tinh-nang')">Tính năng</button>
@@ -87,8 +94,10 @@
         </div>
     </div>
 
-    <!-- Tab Content Section (White Background) -->
+    {# PHẦN 2: NỘI DUNG CHI TIẾT THEO TỪNG TAB #}
     <div class="container-shell tab-content-wrapper-padding">
+        
+        {# TAB 1: THÔNG SỐ KỸ THUẬT (Dạng bảng Specs Grid) #}
         <div id="thong-so" class="tab-content-minimal active">
             <div class="rich-text-content mb-5">
                 <div class="specs-grid">
@@ -106,50 +115,31 @@
                     {% if product.spec_warranty %}<div class="spec-label">Bảo hành</div><div class="spec-value">{{ product.spec_warranty }}</div>{% endif %}
                 </div>
             </div>
-            {% if product.image_specs %}
-                <div class="product-info-images mt-4">
-                    <div class="info-image-item text-center mb-4">
-                        <img src="{{ product.image_specs.url }}" alt="{{ product.name }}" class="product-info-img">
-                    </div>
-                </div>
-            {% endif %}
             {% if product.spec_other %}
-                <div class="rich-text-content mt-4">
-                    <h3 class="mb-3">Thông số khác</h3>
-                    {{ product.spec_other|linebreaks }}
-                </div>
+                <div class="rich-text-content mt-4"><h3 class="mb-3">Thông số khác</h3>{{ product.spec_other|linebreaks }}</div>
             {% endif %}
         </div>
 
+        {# TAB 2: TÍNH NĂNG NỔI BẬT #}
         <div id="tinh-nang" class="tab-content-minimal">
-            <div class="rich-text-content">
-                {{ product.spec_features|default:"Đang cập nhật tính năng..."|linebreaks }}
-            </div>
-            {% if product.image_features %}
-                <div class="product-info-images mt-4">
-                    <div class="info-image-item text-center mb-4">
-                        <img src="{{ product.image_features.url }}" alt="{{ product.name }}" class="product-info-img">
-                    </div>
-                </div>
+            <div class="rich-text-content">{{ product.spec_features|default:"Đang cập nhật tính năng..."|linebreaks }}</div>
+            {% if images_by_type.features %}
+                <div class="product-info-images mt-4"><div class="info-image-item text-center mb-4"><img src="{{ images_by_type.features.url }}" alt="{{ product.name }}" class="product-info-img"></div></div>
             {% endif %}
         </div>
 
+        {# TAB 3: MÔ TẢ CHI TIẾT #}
         <div id="mo-ta" class="tab-content-minimal">
-            {% if product.image_description %}
-                <div class="product-info-images mb-4">
-                    <div class="info-image-item text-center mb-4">
-                        <img src="{{ product.image_description.url }}" alt="{{ product.name }}" class="product-info-img">
-                    </div>
-                </div>
+            <div class="rich-text-content">{{ product.description|linebreaks }}</div>
+            {% if images_by_type.description %}
+                <div class="product-info-images mt-4"><div class="info-image-item text-center mb-4"><img src="{{ images_by_type.description.url }}" alt="{{ product.name }}" class="product-info-img"></div></div>
             {% endif %}
-            <div class="rich-text-content">
-                {{ product.description|linebreaks }}
-            </div>
         </div>
     </div>
 </main>
 {% endblock %}
 
 {% block extra_js %}
+{# Script điều khiển gallery ảnh và chuyển đổi Tab (Ẩn/Hiện bằng JS) #}
 <script src="{% static 'core/js/view_product_detail.js' %}"></script>
 {% endblock %}

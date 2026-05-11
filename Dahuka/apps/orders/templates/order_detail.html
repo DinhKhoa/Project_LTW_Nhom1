@@ -4,6 +4,7 @@
 {% block title %}Quản lý đơn hàng {{ order.order_code }} - Admin{% endblock %}
 
 {% block content %}
+<!-- Nhúng CSS dành riêng cho component thông tin đơn hàng -->
 <link rel="stylesheet" href="{% static 'css/components/order_info.css' %}">
 
 <section class="order-view-page">
@@ -11,14 +12,27 @@
         <i class="fa fa-angle-left"></i> Quay lại
     </a>
 
+    <!-- 
+        GIẢI THÍCH CƠ CHẾ INCLUDE COMPONENT:
+        Thay vì viết hàng trăm dòng code HTML lặp đi lặp lại cho trang Chi tiết đơn hàng, 
+        dự án tách phần hiển thị nội dung đơn hàng ra một file riêng là '_order_info.html'.
+        
+        Cú pháp mẫu: { % include 'duong_dan_file' with bien='gia_tri' % } (Lưu ý: Bỏ khoảng trắng giữa dấu ngoặc)
+        - 'components/_order_info.html': Đường dẫn tới file linh kiện dùng chung.
+        - with view_type='admin': Truyền một "biến điều khiển" vào bên trong linh kiện.
+    -->
     {% if user.is_superuser %}
+        <!-- Nếu là Admin: Nhúng component với chế độ quản trị cao nhất -->
         {% include 'components/_order_info.html' with view_type='admin' %}
     {% else %}
+        <!-- Nếu là Nhân viên: Nhúng component với chế độ thực thi nhiệm vụ -->
         {% include 'components/_order_info.html' with view_type='staff' %}
     {% endif %}
 
+    <!-- Toast notification để hiện thông báo nhanh sau khi gọi AJAX thành công -->
     <div class="toast" id="orderToast" style="position: fixed; top: 24px; right: 24px; background: #0f8b52; color: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.18); opacity: 0; transform: translateY(-10px); pointer-events: none; transition: 0.25s; z-index: 9999;"></div>
 </section>
 
+<!-- Nhúng JS xử lý logic AJAX cho trang chi tiết (nằm trong app orders) -->
 <script src="{% static 'orders/js/order_detail.js' %}"></script>
 {% endblock %}

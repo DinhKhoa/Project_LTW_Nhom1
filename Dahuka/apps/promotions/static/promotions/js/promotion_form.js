@@ -4,7 +4,7 @@
         if (!form) return;
 
         const isEdit = form.getAttribute('data-is-edit') === 'true';
-        const codeId = form.getAttribute('data-code-id');
+
         const typeId = form.getAttribute('data-type-id');
         const conditionId = form.getAttribute('data-condition-id');
         const valueId = form.getAttribute('data-value-id');
@@ -64,15 +64,9 @@
         const realSelect = document.getElementById(typeId);
 
         function handleFormat(input, isValueField = false) {
-            input.addEventListener('blur', function() {
+            input.addEventListener('input', function() {
                 if (isValueField && realSelect.value !== 'fixed') return;
                 this.value = formatVN(this.value);
-                const unit = isValueField ? document.getElementById('discountUnit') : this.parentElement.querySelector('.value-unit');
-                updateUnitPosition(this, unit);
-            });
-
-            input.addEventListener('focus', function() {
-                this.value = unformatVN(this.value);
                 const unit = isValueField ? document.getElementById('discountUnit') : this.parentElement.querySelector('.value-unit');
                 updateUnitPosition(this, unit);
             });
@@ -95,7 +89,7 @@
             if (!input || !unitSpan || !widthMeasure) return;
             
             // Copy text and font styles to measurement span
-            widthMeasure.textContent = input.value || "0";
+            widthMeasure.textContent = input.value || "";
             const style = window.getComputedStyle(input);
             widthMeasure.style.font = style.font;
             widthMeasure.style.letterSpacing = style.letterSpacing;
@@ -138,17 +132,7 @@
             }
         });
 
-        // Auto-generate code
-        const codeInput = document.getElementById(codeId);
-        if (!isEdit && codeInput && !codeInput.value) {
-            const generateCode = () => {
-                const prefix = "DHK";
-                const random = Math.random().toString(36).substring(2, 5).toUpperCase();
-                const date = new Date().toISOString().slice(2, 10).replace(/-/g, '');
-                return `${prefix}${random}${date}`;
-            };
-            codeInput.value = generateCode();
-        }
+
 
         // Logic "Kích hoạt ngay" -> Set start date to today
         const isActiveCheckbox = form.querySelector('input[name="is_active"]');

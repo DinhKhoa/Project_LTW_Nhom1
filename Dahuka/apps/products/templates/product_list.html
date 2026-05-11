@@ -5,6 +5,8 @@
 
 {% block content %}
 {% csrf_token %}
+<!-- Giao diện Quản lý Sản phẩm (Chỉ dành cho Admin/Staff) -->
+<!-- Render từ view: products.views.product_list -->
 <div class="content-wide-layout mt-4 mb-5">
     <nav class="page-breadcrumbs">
         <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
@@ -12,8 +14,10 @@
     </nav>
     <h1 class="page-title">Quản lý sản phẩm</h1>
 
+    <!-- Bộ lọc và tìm kiếm sản phẩm (xử lý bằng JS thông qua products/js/product_admin.js) -->
     <div class="filter-bar d-flex justify-content-between align-items-center mb-4 mt-3">
             <div class="d-flex align-items-center" style="gap: 10px;">
+                <!-- Nhập từ khóa tìm kiếm -->
                 <input type="text" class="search-input" id="searchInput"
                        placeholder="Tìm kiếm theo tên sản phẩm...">
 
@@ -106,8 +110,10 @@
                 </tr>
                 </thead>
                 <tbody id="productTableBody">
+                <!-- Duyệt qua biến page_obj (chứa danh sách sản phẩm đã phân trang) -->
                 {% for sp in page_obj %}
                     {% url "products:product_detail" sp.id as detail_url %}
+                    <!-- Render từng hàng sản phẩm. data-category và data-stock dùng cho bộ lọc JS -->
                     <tr class="{% if sp.stock == 0 %}row-hethang{% elif sp.stock < 10 %}row-thap{% else %}row-daydu{% endif %}" 
                         data-category="{{ sp.category.id }}" data-stock="{{ sp.stock }}"
                         onclick="handleRowClick(event, '{{ detail_url }}')">
@@ -121,6 +127,7 @@
                             </div>
                         </td>
                         <td class="text-center">
+                            <!-- Nút gạt ẩn/hiện sản phẩm. Gọi AJAX API khi click -->
                             <div class="switch-wrapper {% if sp.is_active %}active-toggle{% endif %}" 
                                  onclick="toggleVisibility(event, '{{ sp.id }}', this)" style="margin: 0 auto;">
                                 <div class="toggle-slider"></div>

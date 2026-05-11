@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 
+# Form đăng ký tài khoản mới cho khách hàng
+# Được dùng trong views.signup()
 class RegistrationForm(forms.Form):
     last_name = forms.CharField(
         max_length=50, widget=forms.TextInput(attrs={"placeholder": "Họ"})
@@ -10,6 +12,7 @@ class RegistrationForm(forms.Form):
     first_name = forms.CharField(
         max_length=50, widget=forms.TextInput(attrs={"placeholder": "Tên"})
     )
+    # Số điện thoại dùng làm username để đăng nhập
     phone = forms.CharField(
         max_length=20,
         widget=forms.TextInput(attrs={"placeholder": "Ví dụ: 0987654321"}),
@@ -28,12 +31,14 @@ class RegistrationForm(forms.Form):
         widget=forms.PasswordInput(attrs={"placeholder": "Nhập lại mật khẩu"})
     )
 
+    # Kiểm tra số điện thoại chưa được đăng ký (mỗi SĐT chỉ 1 tài khoản)
     def clean_phone(self):
         phone = self.cleaned_data.get("phone")
         if User.objects.filter(username=phone).exists():
             raise ValidationError("Số điện thoại này đã được đăng ký")
         return phone
 
+    # Kiểm tra 2 ô mật khẩu phải khớp nhau và đủ độ dài
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
@@ -48,6 +53,8 @@ class RegistrationForm(forms.Form):
         return cleaned_data
 
 
+# Form đổi mật khẩu dùng cho trang "Quên mật khẩu" (công khai)
+# Xác thực bằng SĐT + mật khẩu cũ, không cần đăng nhập trước
 class PublicPasswordChangeForm(forms.Form):
     phone = forms.CharField(
         max_length=20,
@@ -67,6 +74,7 @@ class PublicPasswordChangeForm(forms.Form):
         widget=forms.PasswordInput(attrs={"placeholder": "Nhập lại mật khẩu mới"}),
     )
 
+    # Kiểm tra mật khẩu mới và xác nhận phải khớp, đủ độ dài
     def clean(self):
         cleaned_data = super().clean()
         new_password = cleaned_data.get("new_password")

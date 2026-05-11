@@ -8,10 +8,12 @@
 <link rel="stylesheet" href="{% static 'css/signup.css' %}">
 
 <section class="login-page">
+    <!-- Form đăng ký — gửi POST đến /account/signup/ (views.signup xử lý) -->
     <form method="post" class="login-card" style="width: min(500px, 100%);">
-        {% csrf_token %}
+        {% csrf_token %} <!-- Token bảo mật bắt buộc -->
         <h1>Đăng ký tài khoản</h1>
 
+        <!-- Lỗi cấp form (VD: mật khẩu không khớp) — từ form.clean() trong forms.py -->
         {% if form.non_field_errors %}
             <div class="login-message error">
                 {% for error in form.non_field_errors %}
@@ -20,10 +22,11 @@
             </div>
         {% endif %}
 
+        <!-- Họ và Tên nằm cạnh nhau (2 cột) -->
         <div class="signup-grid">
             <div>
                 <label for="{{ form.last_name.id_for_label }}">Họ <span class="signup-required">*</span></label>
-                {{ form.last_name }}
+                {{ form.last_name }} <!-- Django render input từ RegistrationForm -->
                 {% if form.last_name.errors %}<div class="login-message error">{{ form.last_name.errors.0 }}</div>{% endif %}
             </div>
             <div>
@@ -33,10 +36,12 @@
             </div>
         </div>
 
+        <!-- SĐT → sẽ được lưu làm username để đăng nhập sau này -->
         <label for="{{ form.phone.id_for_label }}">Số điện thoại <span class="signup-required">*</span></label>
         {{ form.phone }}
         {% if form.phone.errors %}<div class="login-message error">{{ form.phone.errors.0 }}</div>{% endif %}
 
+        <!-- Email không bắt buộc -->
         <label for="{{ form.email.id_for_label }}">Email (Không bắt buộc)</label>
         {{ form.email }}
         {% if form.email.errors %}<div class="login-message error">{{ form.email.errors.0 }}</div>{% endif %}
@@ -53,9 +58,10 @@
         {{ form.confirm_password }}
         {% if form.confirm_password.errors %}<div class="login-message error">{{ form.confirm_password.errors.0 }}</div>{% endif %}
 
-
+        <!-- Nút submit → gọi view.signup() → validate form → AccountService.register_user() -->
         <button type="submit" class="btn-minimal" style="width: 100%; margin-top: 10px; height: 45px; font-weight: 600;">Đăng ký</button>
 
+        <!-- Link chuyển về trang đăng nhập -->
         <div class="signup-footer">
             Bạn đã có tài khoản? <a href="{% url 'login' %}" class="signup-login-link">Đăng nhập</a>
         </div>

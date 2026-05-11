@@ -186,7 +186,11 @@ class CartService:
     def apply_promotion(code: str, total_price: float) -> float:
         from django.utils import timezone
         today = timezone.localtime().date()
-        promo = Promotion.objects.filter(code=code, is_active=True, start_date__lte=today, end_date__gte=today, condition__lte=total_price).first()
+        try:
+            promo_id = int(code)
+        except ValueError:
+            return 0
+        promo = Promotion.objects.filter(id=promo_id, is_active=True, start_date__lte=today, end_date__gte=today, condition__lte=total_price).first()
         if not promo: return 0
         return float(promo.value) if promo.discount_type == 'fixed' else (float(promo.value) / 100 * total_price)
 
@@ -200,12 +204,12 @@ class CartService:
         for promo in promos.filter(discount_type='fixed').order_by('-value'):
             if current_total <= 0: break
             discount = min(float(promo.value), current_total)
-            applied.append({"name": promo.name, "code": promo.code, "discount_amount": discount})
+            applied.append({"name": promo.name, "code": str(promo.id), "discount_amount": discount})
             current_total -= discount
         for promo in promos.filter(discount_type='percent').order_by('-value'):
             if current_total <= 0: break
             discount = min((float(promo.value) / 100) * float(total_price), current_total)
-            applied.append({"name": promo.name, "code": promo.code, "discount_amount": discount})
+            applied.append({"name": promo.name, "code": str(promo.id), "discount_amount": discount})
             current_total -= discount
         return applied
 

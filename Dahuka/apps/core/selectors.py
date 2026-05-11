@@ -7,7 +7,15 @@ from apps.account.models import Customer
 from apps.products.models import Product
 from apps.categories.models import Category
 
-def get_admin_dashboard_data(filter_type='day', date_str=None):
+
+# --- SELECTORS: NƠI CHỨA CÁC TRUY VẤN DỮ LIỆU PHỨC TẠP ---
+# Mục tiêu: Giữ cho views.py sạch sẽ, chỉ gọi hàm và nhận kết quả.
+
+def get_admin_dashboard_data(filter_type="day", date_str=None):
+    """
+    Hàm chủ lực tính toán toàn bộ số liệu cho Admin Dashboard.
+    Bao gồm: Doanh thu, số đơn hàng, tỷ lệ hủy, biểu đồ tăng trưởng.
+    """
     if date_str:
         try:
             now = datetime.strptime(date_str, "%Y-%m-%d")
@@ -21,15 +29,17 @@ def get_admin_dashboard_data(filter_type='day', date_str=None):
     prev_date = None
     next_date = None
     display_label = ""
-    
-    if filter_type == 'day':
+
+    # --- BƯỚC 1: XÁC ĐỊNH KHOẢNG THỜI GIAN LỌC (TIME RANGE) ---
+    if filter_type == "day":
         start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
         end_date = start_date + timedelta(days=1)
         prev_date = (start_date - timedelta(days=1)).strftime("%Y-%m-%d")
         next_date = (start_date + timedelta(days=1)).strftime("%Y-%m-%d")
         display_label = start_date.strftime("%d/%m/%Y")
-        
-    elif filter_type == 'month':
+
+    elif filter_type == "month":
+        # Lấy từ ngày 1 của tháng hiện tại
         start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         if start_date.month == 12:
             end_date = start_date.replace(year=start_date.year + 1, month=1)
@@ -39,133 +49,276 @@ def get_admin_dashboard_data(filter_type='day', date_str=None):
         prev_date = last_day_prev_month.replace(day=1).strftime("%Y-%m-%d")
         next_date = end_date.strftime("%Y-%m-%d")
         display_label = f"Tháng {start_date.month}/{start_date.year}"
-        
-    elif filter_type == 'quarter':
+
+    elif filter_type == "quarter":
+        # Xác định quý (1, 2, 3, 4) dựa trên tháng hiện tại
         quarter = (now.month - 1) // 3 + 1
         start_month = (quarter - 1) * 3 + 1
-        start_date = now.replace(month=start_month, day=1, hour=0, minute=0, second=0, microsecond=0)
+        start_date = now.replace(
+            month=start_month, day=1, hour=0, minute=0, second=0, microsecond=0
+        )
         end_month = start_month + 2
         last_day = calendar.monthrange(now.year, end_month)[1]
-        end_date = now.replace(month=end_month, day=last_day, hour=23, minute=59, second=59) + timedelta(seconds=1)
+        end_date = now.replace(
+            month=end_month, day=last_day, hour=23, minute=59, second=59
+        ) + timedelta(seconds=1)
         prev_date = (start_date - timedelta(days=1)).replace(day=1).strftime("%Y-%m-%d")
         next_date = end_date.strftime("%Y-%m-%d")
         display_label = f"Quý {quarter}/{now.year}"
 
-    elif filter_type == 'year':
-        start_date = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    elif filter_type == "year":
+        start_date = now.replace(
+            month=1, day=1, hour=0, minute=0, second=0, microsecond=0
+        )
         end_date = start_date.replace(year=start_date.year + 1)
         prev_date = start_date.replace(year=start_date.year - 1).strftime("%Y-%m-%d")
         next_date = end_date.strftime("%Y-%m-%d")
         display_label = f"Năm {start_date.year}"
-    
+
     else:
         start_date = now - timedelta(days=30)
         end_date = now + timedelta(days=1)
         display_label = "30 ngày gần nhất"
 
+    # --- BƯỚC 2: TRUY VẤN DỮ LIỆU ĐƠN HÀNG (QUERIES) ---
     orders_qs = Order.objects.all()
+
+    # Đơn hàng phát sinh trong kỳ (bao gồm cả chưa thanh toán/đã hủy)
+    current_orders = orders_qs.filter(
+        created_at__gte=start_date, created_at__lt=end_date
+    )
+    # Đơn hàng ĐÃ HOÀN THÀNH (Dùng để tính doanh thu thực tế)
+    completed_orders = orders_qs.filter(
+        status="completed", updated_at__gte=start_date, updated_at__lt=end_date
+    )
+    # --- BƯỚC 3: TÍNH TOÁN CÁC CHỈ SỐ TÀI CHÍNH (KPIs) ---
     
-    current_orders = orders_qs.filter(created_at__gte=start_date, created_at__lt=end_date)
-    completed_orders = orders_qs.filter(status="completed", updated_at__gte=start_date, updated_at__lt=end_date)
+    # 1. Tổng doanh thu: Cộng dồn total_amount của các đơn 'completed'
     total_rev = completed_orders.aggregate(rev=Sum("total_amount"))["rev"] or 0
     total_orders = current_orders.count()
     pending_orders = current_orders.filter(status="pending").count()
     total_customers = Customer.objects.count()
 
+    # 2. Giá trị đơn hàng trung bình (AOV - Average Order Value)
+    # Công thức: Tổng doanh thu / Tổng số đơn thành công
     aov = total_rev / completed_orders.count() if completed_orders.count() > 0 else 0
-    finished_count = completed_orders.count() + orders_qs.filter(status="cancelled", created_at__gte=start_date, created_at__lt=end_date).count()
-    success_rate = (completed_orders.count() / finished_count * 100) if finished_count > 0 else 0
-    cancel_rate = (orders_qs.filter(status="cancelled", created_at__gte=start_date, created_at__lt=end_date).count() / finished_count * 100) if finished_count > 0 else 0
+    
+    # 3. Tổng số đơn đã xử lý xong (Bao gồm cả Thành công và Bị hủy)
+    finished_count = (
+        completed_orders.count()
+        + orders_qs.filter(
+            status="cancelled", created_at__gte=start_date, created_at__lt=end_date
+        ).count()
+    )
+    
+    # 4. Tỷ lệ chốt đơn thành công (Success Rate %)
+    success_rate = (
+        (completed_orders.count() / finished_count * 100) if finished_count > 0 else 0
+    )
+    
+    # 5. Tỷ lệ đơn bị hủy (Cancel Rate %)
+    cancel_rate = (
+        (
+            orders_qs.filter(
+                status="cancelled", created_at__gte=start_date, created_at__lt=end_date
+            ).count()
+            / finished_count
+            * 100
+        )
+        if finished_count > 0
+        else 0
+    )
 
+    # --- BƯỚC 4: PHÂN TÍCH KHÁCH HÀNG (CUSTOMER ANALYSIS) ---
+    
+    # Đếm khách vãng lai (không đăng ký tài khoản)
     guest_count = current_orders.filter(customer__isnull=True).count()
-    reg_ids = current_orders.exclude(customer__isnull=True).values_list('customer_id', flat=True).distinct()
-    new_count = 0
-    ret_count = 0
+    
+    # Lấy danh sách ID khách hàng (đã đăng nhập) mua hàng trong kỳ
+    reg_ids = (
+        current_orders.exclude(customer__isnull=True)
+        .values_list("customer_id", flat=True)
+        .distinct()
+    )
+    new_count = 0 # Khách mới (mua lần đầu tiên)
+    ret_count = 0 # Khách cũ quay lại (đã từng mua trước kỳ lọc hiện tại)
+    
     for cid in reg_ids:
-        if orders_qs.filter(customer_id=cid, created_at__lt=start_date).exists(): ret_count += 1
-        else: new_count += 1
+        # Nếu khách hàng này ĐÃ TỪNG có đơn hàng trước start_date -> Là khách cũ
+        if orders_qs.filter(customer_id=cid, created_at__lt=start_date).exists():
+            ret_count += 1
+        else:
+            new_count += 1
 
-    if filter_type == 'month':
+    if filter_type == "month":
         start_date_prev = (start_date - timedelta(days=1)).replace(day=1)
         prev_period_label = f"tháng {start_date_prev.month}/{start_date_prev.year}"
-    elif filter_type == 'year':
+    elif filter_type == "year":
         start_date_prev = start_date.replace(year=start_date.year - 1)
         prev_period_label = f"năm {start_date_prev.year}"
-    elif filter_type == 'day':
+    elif filter_type == "day":
         start_date_prev = start_date - timedelta(days=1)
         prev_period_label = "hôm qua"
     else:
         start_date_prev = start_date - (end_date - start_date)
         prev_period_label = "kỳ trước"
-    
-    end_date_prev = start_date
-    prev_rev = orders_qs.filter(status="completed", updated_at__gte=start_date_prev, updated_at__lt=end_date_prev).aggregate(rev=Sum("total_amount"))["rev"] or 0
-    rev_growth = ((total_rev - prev_rev) / prev_rev * 100) if prev_rev > 0 else (100 if total_rev > 0 else 0)
 
+    end_date_prev = start_date
+    prev_rev = (
+        orders_qs.filter(
+            status="completed",
+            updated_at__gte=start_date_prev,
+            updated_at__lt=end_date_prev,
+        ).aggregate(rev=Sum("total_amount"))["rev"]
+        or 0
+    )
+    rev_growth = (
+        ((total_rev - prev_rev) / prev_rev * 100)
+        if prev_rev > 0
+        else (100 if total_rev > 0 else 0)
+    )
+
+    # --- PHẦN 2: TÍNH TOÁN DỮ LIỆU BIỂU ĐỒ (CHART DATA) ---
     chart_labels, chart_values = [], []
-    if filter_type == 'day':
+    if filter_type == "day":
         for h in [0, 4, 8, 12, 16, 20]:
             chart_labels.append(f"{h}h")
-            rev = completed_orders.filter(updated_at__hour__gte=h, updated_at__hour__lt=h+4).aggregate(r=Sum("total_amount"))["r"] or 0
+            rev = (
+                completed_orders.filter(
+                    updated_at__hour__gte=h, updated_at__hour__lt=h + 4
+                ).aggregate(r=Sum("total_amount"))["r"]
+                or 0
+            )
             chart_values.append(int(rev))
-    elif filter_type == 'month':
+    elif filter_type == "month":
         num_days = calendar.monthrange(start_date.year, start_date.month)[1]
         for i in range(1, num_days + 1):
             chart_labels.append(str(i))
-            rev = completed_orders.filter(updated_at__date=start_date.replace(day=i).date()).aggregate(r=Sum("total_amount"))["r"] or 0
+            rev = (
+                completed_orders.filter(
+                    updated_at__date=start_date.replace(day=i).date()
+                ).aggregate(r=Sum("total_amount"))["r"]
+                or 0
+            )
             chart_values.append(int(rev))
-    elif filter_type == 'quarter':
+    elif filter_type == "quarter":
         for i in range(3):
             month = start_date.month + i
             chart_labels.append(f"Tháng {month}")
-            rev = completed_orders.filter(updated_at__month=month, updated_at__year=start_date.year).aggregate(r=Sum("total_amount"))["r"] or 0
+            rev = (
+                completed_orders.filter(
+                    updated_at__month=month, updated_at__year=start_date.year
+                ).aggregate(r=Sum("total_amount"))["r"]
+                or 0
+            )
             chart_values.append(int(rev))
-    elif filter_type == 'year':
+    elif filter_type == "year":
         for month in range(1, 13):
             chart_labels.append(f"T.{month}")
-            rev = completed_orders.filter(updated_at__month=month, updated_at__year=start_date.year).aggregate(r=Sum("total_amount"))["r"] or 0
+            rev = (
+                completed_orders.filter(
+                    updated_at__month=month, updated_at__year=start_date.year
+                ).aggregate(r=Sum("total_amount"))["r"]
+                or 0
+            )
             chart_values.append(int(rev))
     else:
         for i in range(29, -1, -1):
             day = (timezone.localtime() - timedelta(days=i)).date()
             chart_labels.append(day.strftime("%d/%m"))
-            rev = completed_orders.filter(updated_at__date=day).aggregate(r=Sum("total_amount"))["r"] or 0
+            rev = (
+                completed_orders.filter(updated_at__date=day).aggregate(
+                    r=Sum("total_amount")
+                )["r"]
+                or 0
+            )
             chart_values.append(int(rev))
 
-    items_qs = OrderItem.objects.filter(order__updated_at__gte=start_date, order__updated_at__lt=end_date)
-    cat_revenue = items_qs.filter(order__status="completed").values("product__category__name").annotate(total=Sum(F("price") * F("quantity"))).order_by("-total")
+    items_qs = OrderItem.objects.filter(
+        order__updated_at__gte=start_date, order__updated_at__lt=end_date
+    )
+    cat_revenue = (
+        items_qs.filter(order__status="completed")
+        .values("product__category__name")
+        .annotate(total=Sum(F("price") * F("quantity")))
+        .order_by("-total")
+    )
     cat_labels = [c["product__category__name"] or "Khác" for c in cat_revenue]
     cat_values = [int(c["total"]) for c in cat_revenue]
 
-    top_products_data = items_qs.filter(order__status="completed").values("product__name").annotate(total_qty=Sum("quantity")).order_by("-total_qty")[:5]
+    top_products_data = (
+        items_qs.filter(order__status="completed")
+        .values("product__name")
+        .annotate(total_qty=Sum("quantity"))
+        .order_by("-total_qty")[:5]
+    )
     top_products = list(top_products_data)
     is_fallback = False
     if not top_products:
         is_fallback = True
-        top_products = list(OrderItem.objects.filter(order__status="completed").values("product__name").annotate(total_qty=Sum("quantity")).order_by("-total_qty")[:5])
+        top_products = list(
+            OrderItem.objects.filter(order__status="completed")
+            .values("product__name")
+            .annotate(total_qty=Sum("quantity"))
+            .order_by("-total_qty")[:5]
+        )
 
     if top_products:
         total_top_qty = sum(item["total_qty"] for item in top_products)
         for item in top_products:
-            item["percentage"] = int((item["total_qty"] / total_top_qty * 100)) if total_top_qty > 0 else 0
+            item["percentage"] = (
+                int((item["total_qty"] / total_top_qty * 100))
+                if total_top_qty > 0
+                else 0
+            )
 
     return {
-        "total_rev": total_rev, "total_orders": total_orders, "pending_orders": pending_orders,
-        "total_customers": total_customers, "aov": aov, "success_rate": success_rate,
-        "cancel_rate": cancel_rate, "new_customers": new_count, "returning_customers": ret_count,
-        "guest_customers": guest_count, "rev_growth": rev_growth, "rev_growth_abs": abs(rev_growth),
-        "chart_labels": chart_labels, "chart_values": chart_values, "cat_labels": cat_labels,
-        "cat_values": cat_values, "top_products": top_products, "top_products_is_fallback": is_fallback,
-        "display_label": display_label, "prev_date": prev_date, "next_date": next_date,
-        "prev_period_label": prev_period_label, "current_filter": filter_type,
+        "total_rev": total_rev,
+        "total_orders": total_orders,
+        "pending_orders": pending_orders,
+        "total_customers": total_customers,
+        "aov": aov,
+        "success_rate": success_rate,
+        "cancel_rate": cancel_rate,
+        "new_customers": new_count,
+        "returning_customers": ret_count,
+        "guest_customers": guest_count,
+        "rev_growth": rev_growth,
+        "rev_growth_abs": abs(rev_growth),
+        "chart_labels": chart_labels,
+        "chart_values": chart_values,
+        "cat_labels": cat_labels,
+        "cat_values": cat_values,
+        "top_products": top_products,
+        "top_products_is_fallback": is_fallback,
+        "display_label": display_label,
+        "prev_date": prev_date,
+        "next_date": next_date,
+        "prev_period_label": prev_period_label,
+        "current_filter": filter_type,
         "current_date_iso": start_date.strftime("%Y-%m-%d"),
         "current_month_iso": start_date.strftime("%Y-%m"),
         "current_year": start_date.year,
         "current_quarter": (start_date.month - 1) // 3 + 1,
     }
 
-def get_catalog_products(category_id=None, category_slug=None, sort_by='newest', filter_cores=None, filter_prices=None, query=None):
-    products_list = Product.objects.filter(is_active=True)
+
+# --- SELECTOR LỌC DANH SÁCH SẢN PHẨM ---
+def get_catalog_products(
+    category_id=None,
+    category_slug=None,
+    sort_by="newest",
+    filter_cores=None,
+    filter_prices=None,
+    query=None,
+):
+    """
+    Hàm xử lý logic lọc sản phẩm nâng cao (theo danh mục, số lõi lọc, khoảng giá, từ khóa).
+    Tách biệt logic này giúp code dễ bảo trì và tái sử dụng ở nhiều View khác nhau.
+    """
+    # SỬ DỤNG select_related('category') để tối ưu hóa truy vấn (JOIN bảng)
+    # Giúp lấy thông tin sản phẩm và danh mục trong 1 câu lệnh SQL duy nhất (Tránh lỗi N+1)
+    products_list = Product.objects.select_related('category').filter(is_active=True)
     if query:
         products_list = products_list.filter(name__icontains=query).distinct()
 
@@ -174,30 +327,42 @@ def get_catalog_products(category_id=None, category_slug=None, sort_by='newest',
 
     if category_id:
         current_category = Category.objects.filter(id=category_id).first()
-        if current_category and current_category.slug in ['linh-kien', 'dich-vu']: is_water_purifier = False
+        if current_category and current_category.slug in ["linh-kien", "dich-vu"]:
+            is_water_purifier = False
         products_list = products_list.filter(category_id=category_id)
     elif category_slug:
         current_category = Category.objects.filter(slug=category_slug).first()
-        if category_slug in ['linh-kien', 'dich-vu']: is_water_purifier = False
+        if category_slug in ["linh-kien", "dich-vu"]:
+            is_water_purifier = False
         products_list = products_list.filter(category__slug=category_slug)
     else:
-        products_list = products_list.exclude(category__slug__in=['linh-kien', 'dich-vu'])
+        products_list = products_list.exclude(
+            category__slug__in=["linh-kien", "dich-vu"]
+        )
 
     if filter_cores and is_water_purifier:
         core_q = Q()
-        for core in filter_cores: core_q |= Q(spec_filters_count__icontains=core)
+        for core in filter_cores:
+            core_q |= Q(spec_filters_count__icontains=core)
         products_list = products_list.filter(core_q)
 
+    # [Sử dụng Q Objects để tạo câu điều kiện lọc OR (Hoặc) khoảng giá]
     if filter_prices:
         price_q = Q()
         for p in filter_prices:
-            if p == '4-6': price_q |= Q(price__gte=4000000, price__lte=6000000)
-            elif p == '6-8': price_q |= Q(price__gte=6000000, price__lte=8000000)
-            elif p == '8-10': price_q |= Q(price__gte=8000000, price__lte=10000000)
-            elif p == '10+': price_q |= Q(price__gt=10000000)
+            if p == "4-6":
+                price_q |= Q(price__gte=4000000, price__lte=6000000)
+            elif p == "6-8":
+                price_q |= Q(price__gte=6000000, price__lte=8000000)
+            elif p == "8-10":
+                price_q |= Q(price__gte=8000000, price__lte=10000000)
+            elif p == "10+":
+                price_q |= Q(price__gt=10000000)
         products_list = products_list.filter(price_q)
 
-    if sort_by == 'oldest': products_list = products_list.order_by("spec_release_year", "id")
-    else: products_list = products_list.order_by("-spec_release_year", "-id")
+    if sort_by == "oldest":
+        products_list = products_list.order_by("spec_release_year", "id")
+    else:
+        products_list = products_list.order_by("-spec_release_year", "-id")
 
     return products_list, current_category, is_water_purifier

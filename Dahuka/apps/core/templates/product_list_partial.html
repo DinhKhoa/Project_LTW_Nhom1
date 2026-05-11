@@ -1,5 +1,13 @@
+<!-- 
+    LƯỚI HIỂN THỊ SẢN PHẨM 
+    - Sử dụng CSS Grid để tự động điều chỉnh số cột theo chiều rộng màn hình (Responsive)
+-->
 <div id="productList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">
     {% for sp in products %}
+    <!-- 
+        Mỗi card sản phẩm chứa các 'data-attributes' để Javascript có thể đọc thông tin 
+        mà không cần gọi lại Database (Phục vụ cho tính năng So sánh nhanh)
+    -->
     <article class="catalog-card" data-id="{{ sp.id }}" data-name="{{ sp.name }}" data-price="{{ sp.price|floatformat:'0' }}đ" 
              data-img="{{ sp.main_image_url }}">
         <div class="catalog-product-visual">
@@ -7,9 +15,13 @@
         </div>
         <h3>{{ sp.name }}</h3>
         <p class="catalog-price">{{ sp.price|floatformat:"0" }}đ</p>
+        
         <div class="catalog-card-actions">
+            <!-- Nút xem chi tiết chuyển sang trang slug của sản phẩm -->
             <a href="{% url 'core:view_product_detail' sp.slug %}" class="account-btn-dark" style="flex: 1;">Tìm hiểu thêm</a>
+            
             {% if not user.is_staff %}
+            <!-- Form AJAX thêm vào giỏ hàng: giúp người dùng mua hàng mà không bị reload trang -->
             <form action="{% url 'cart:add_product_to_cart' %}" method="post" style="display: inline;" class="ajax-cart-form">
                 {% csrf_token %}
                 <input type="hidden" name="product_id" value="{{ sp.id }}">
@@ -19,6 +31,8 @@
             </form>
             {% endif %}
         </div>
+        
+        <!-- Nút so sánh: Kích hoạt logic lưu ID sản phẩm vào LocalStorage/Session qua JS -->
         <button class="compare-btn" type="button" style="margin-top: 12px; height: 36px; width: 100%; gap: 8px;">
             <i class="fa fa-plus-circle"></i> So sánh
         </button>
@@ -28,14 +42,20 @@
     {% endfor %}
 </div>
 
+<!-- 
+    HỆ THỐNG PHÂN TRANG (PAGINATION)
+    - Chỉ hiển thị nếu tổng số sản phẩm lớn hơn số lượng trên 1 trang
+-->
 {% if products.has_other_pages %}
 <div class="catalog-pagination" style="margin-top: 60px;">
+    {# Nút quay lại trang trước #}
     {% if products.has_previous %}
         <a href="javascript:void(0)" class="account-btn-outline pagination-link" data-page="{{ products.previous_page_number }}"><i class="fa fa-angle-left"></i></a>
     {% else %}
         <button class="account-btn-outline" disabled><i class="fa fa-angle-left"></i></button>
     {% endif %}
 
+    {# Hiển thị dải số trang (Giới hạn hiển thị 2 trang trước/sau trang hiện tại) #}
     {% for num in products.paginator.page_range %}
         {% if products.number == num %}
             <button class="account-btn-dark" style="width: 42px;">{{ num }}</button>
@@ -44,6 +64,7 @@
         {% endif %}
     {% endfor %}
 
+    {# Nút sang trang kế tiếp #}
     {% if products.has_next %}
         <a href="javascript:void(0)" class="account-btn-outline pagination-link" data-page="{{ products.next_page_number }}"><i class="fa fa-angle-right"></i></a>
     {% else %}

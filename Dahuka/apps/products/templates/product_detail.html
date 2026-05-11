@@ -124,6 +124,8 @@
 {% endblock extra_css %}
 
 {% block content %}
+    <!-- Giao diện Thêm/Sửa Sản phẩm (Dành cho Admin) -->
+    <!-- Mode = 'create' (thêm mới) hoặc 'edit' (cập nhật) -->
     <div class="content-wide-layout py-4">
         <nav class="page-breadcrumbs">
             <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
@@ -131,6 +133,7 @@
             <b>{% if mode == 'create' %}Thêm sản phẩm mới{% else %}Chi tiết: {{ product.name }}{% endif %}</b>
         </nav>
 
+        <!-- Form gửi POST chứa file ảnh (enctype="multipart/form-data") -->
         <form method="POST" enctype="multipart/form-data" id="productForm">
             {% csrf_token %}
             <h1 class="page-title mb-3">{% if mode == 'create' %}Thêm sản phẩm mới{% else %}Xem chi tiết sản phẩm{% endif %}</h1>
@@ -154,15 +157,20 @@
                             {% endif %}
                         </div>
                         <div class="main-image-label">Ảnh chính</div>
+                        <!-- Vùng ẩn chứa input file của Django Form -->
+                        <!-- Input file cho ảnh chính, ảnh thông số, ảnh tính năng... -->
                         <div class="d-none">
                             {{ form.image }}
-                            {{ form.image_specs }}
+
                             {{ form.image_features }}
                             {{ form.image_description }}
+                            <!-- Các checkbox ẩn để đánh dấu xóa ảnh -->
                             <input type="checkbox" name="image-clear" id="id_image-clear">
-                            <input type="checkbox" name="image_specs-clear" id="id_image_specs-clear">
+
                             <input type="checkbox" name="image_features-clear" id="id_image_features-clear">
                             <input type="checkbox" name="image_description-clear" id="id_image_description-clear">
+                            <!-- Danh sách ID ảnh gallery cần xóa -->
+                            <input type="hidden" name="delete_image_ids" id="deleteImageIds" value="">
                         </div>
                     </div>
 
@@ -204,23 +212,7 @@
                             </div>
                         </div>
 
-                        <div class="acc-item">
-                            <div class="acc-header" onclick="toggleAcc(this)">
-                                <span><i class="fa fa-chevron-right mr-2 icon-chevron"></i> Ảnh thông số</span>
-                            </div>
-                            <div class="acc-content">
-                                <div class="thumb-list">
-                                    <div class="thumb-item {% if product.image_specs %}has-image{% else %}empty-state{% endif %}" onclick="document.querySelector('input[name=\'image_specs\']').click()">
-                                        {% if product.image_specs %}
-                                            <img src="{{ product.image_specs.url }}" alt="">
-                                            <button type="button" class="btn-delete-thumb" onclick="clearSingleField(event, 'image_specs')" title="Xóa ảnh"><i class="fa fa-times"></i></button>
-                                        {% else %}
-                                            <i class="fa fa-plus"></i>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
 
                         <div class="acc-item">
                             <div class="acc-header" onclick="toggleAcc(this)">
@@ -261,6 +253,7 @@
                 </div>
 
                 <div class="product-data-main">
+                    <!-- Phân vùng thông tin cơ bản: Tên, giá, danh mục, tồn kho -->
                     <div class="form-section-card">
                         <div class="section-header">
                             <i class="fa fa-cog icon-green"></i> Thông tin cơ bản
@@ -323,6 +316,7 @@
                         </div>
                     </div>
 
+                    <!-- Phân vùng các trường thông số kỹ thuật (Spec fields) -->
                     <div class="form-section-card mt-4">
                         <div class="section-header">
                             <i class="fa fa-television icon-green"></i> Thông số kỹ thuật
@@ -362,7 +356,7 @@
                                     <div class="form-group-dahuka input-addon-right">
                                         <label>Nhiệt độ lạnh</label>
                                         <div class="input-unit-box">
-                                            {{ form.spec_hot_temp }}
+                                            {{ form.spec_cold_temp }}
                                             <span class="unit-text">°C</span>
                                         </div>
                                     </div>
@@ -528,21 +522,27 @@
         closeConfirmModal();
 
         if (type === 'gallery') {
-            try {
-                const response = await fetch(`/products/delete-image/${idOrName}/`, {
-                    method: 'POST',
-                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
-                });
-                if (response.ok) {
-                    const thumbItem = btn.closest('.thumb-item');
-                    thumbItem.style.opacity = '0';
-                    setTimeout(() => thumbItem.remove(), 300);
-                    window.showToast('Đã xóa ảnh chi tiết!', 'success');
-                }
-            } catch (err) { console.error(err); }
+            const deleteInput = document.getElementById('deleteImageIds');
+            let currentIds = deleteInput.value ? deleteInput.value.split(',') : [];
+            if (!currentIds.includes(idOrName)) {
+                currentIds.push(idOrName);
+                deleteInput.value = currentIds.join(',');
+            }
+            
+            const thumbItem = btn.closest('.thumb-item');
+            thumbItem.style.opacity = '0';
+            setTimeout(() => thumbItem.remove(), 300);
+            window.showToast('Ảnh chi tiết đã được đánh dấu để xóa. Nhấn "Lưu thay đổi" để xác nhận.', 'info');
         } else {
             const checkbox = document.getElementById(`id_${idOrName}-clear`);
-            if (checkbox) checkbox.checked = true;
+            if (checkbox) {
+                checkbox.checked = true;
+                // Đảm bảo value là 'on' để khớp với xử lý ở backend
+                checkbox.value = 'on';
+            }
+            
+            const fileInput = document.querySelector(`input[name="${idOrName}"]`);
+            if (fileInput) fileInput.value = '';
             
             const thumbItem = btn.closest('.thumb-item');
             thumbItem.classList.remove('has-image');
@@ -554,7 +554,7 @@
                 mainImgBox.innerHTML = '<div class="empty-main-box"><i class="fa fa-picture-o fa-3x" style="color: #cbd5e1;"></i><p class="mt-2" style="color: #94a3b8; font-size: 13px;">Chưa có ảnh chính</p></div>';
             }
             
-            window.showToast('Ảnh đã được đánh dấu để xóa. Hãy nhấn "Lưu thay đổi" để hoàn tất.', 'info');
+            window.showToast('Ảnh đã được đánh dấu để xóa. Nhấn "Lưu thay đổi" để xác nhận xóa khỏi hệ thống.', 'info');
         }
     });
 

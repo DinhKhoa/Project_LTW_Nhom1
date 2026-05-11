@@ -6,35 +6,45 @@
 {% block nav_qlbh_active %}font-weight-bold{% endblock %}
 
 {% block extra_css %}
+<!-- Nhúng file CSS riêng của app categories để xử lý giao diện bảng và modal -->
 <link rel="stylesheet" href="{% static 'categories/categories.css' %}">
 {% endblock %}
 
 {% block content %}
+<!-- ======================================================================= -->
+<!-- GIAO DIỆN QUẢN LÝ DANH MỤC (DÀNH CHO ADMIN)                             -->
+<!-- Được điều khiển bởi View: apps.categories.views.category_list           -->
+<!-- ======================================================================= -->
 <div class="content-wide-layout mt-4 mb-5">
-    <!-- Breadcrumb -->
+    
+    <!-- 1. THANH ĐIỀU HƯỚNG (Breadcrumbs) - Giúp người dùng biết mình đang ở đâu -->
     <nav class="page-breadcrumbs">
         <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
         <b>Quản lý danh mục sản phẩm</b>
     </nav>
 
-    <!-- Title -->
+    <!-- 2. TIÊU ĐỀ TRANG -->
     <h1 class="page-title">Quản lý danh mục sản phẩm</h1>
 
-    <!-- Filter Bar -->
+    <!-- 3. THANH CÔNG CỤ (Filter Bar) - Chứa ô tìm kiếm và nút thêm mới -->
     <div class="filter-bar d-flex justify-content-between align-items-center mb-4 mt-3">
+        
+        <!-- Form Tìm kiếm: Sử dụng phương thức GET để đẩy từ khóa 'q' lên URL -->
         <form method="GET" class="d-flex align-items-center">
+            <!-- Ô nhập từ khóa, giữ lại giá trị cũ thông qua biến {{ query }} -->
             <input type="text" name="q" class="search-input" id="searchInput"
                    placeholder="Tìm kiếm theo tên danh mục..." value="{{ query }}">
 
             <button type="submit" class="btn-search">Tìm kiếm</button>
         </form>
 
+        <!-- Nút Thêm danh mục: Gọi hàm Javascript openCategoryModal('add') để hiện Popup -->
         <button type="button" class="btn-dahuka-main" onclick="openCategoryModal('add')">
             <i class="fa fa-plus"></i> Thêm danh mục
         </button>
     </div>
 
-    <!-- Category Table Wrapper -->
+    <!-- 4. BẢNG HIỂN THỊ DANH MỤC (Main Category Table) -->
     <div class="categories-table-wrapper">
         <table class="categories-table">
             <thead>
@@ -46,30 +56,44 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- ======================================================================= -->
+                <!-- [PHẦN A: LOAD DANH MỤC SẢN PHẨM]                                        -->
+                <!-- Duyệt qua danh sách danh mục đã được View phân trang (page_obj)           -->
+                <!-- ======================================================================= -->
                 {% for dm in page_obj %}
+                
+                <!-- Dòng hiển thị thông tin cơ bản: data-dm-id dùng để JS nhận diện khi click -->
                 <tr class="dm-row" data-dm-id="{{ dm.pk }}">
                     <td class="text-center">{{ dm.pk }}</td>
                     <td class="font-weight-bold">{{ dm.name }}</td>
                     <td class="text-center">
+                        <!-- Đếm số sản phẩm thuộc danh mục này thông qua quan hệ ngược (Reverse Relationship) -->
                         <span class="badge-count">{{ dm.products.count }}</span>
                     </td>
                     <td class="text-center">
+                        <!-- Nút Sửa: Truyền ID và Tên vào hàm JS để điền sẵn vào Modal -->
                         <button type="button" class="btn-edit-dm" title="Sửa" 
                                 onclick="event.stopPropagation(); openCategoryModal('edit', '{{ dm.pk }}', '{{ dm.name|escapejs }}')">
                             <i class="fa fa-pencil-square-o"></i>
                         </button>
+                        <!-- Nút Xóa: Hiện Modal xác nhận xóa -->
                         <button type="button" class="btn-delete-dm" title="Xóa" 
                                 onclick="event.stopPropagation(); openDeleteModal('{{ dm.pk }}', '{{ dm.name|escapejs }}')">
                             <i class="fa fa-trash"></i>
                         </button>
                     </td>
                 </tr>
-                <!-- Sub-table for products -->
+
+                <!-- ======================================================================= -->
+                <!-- [PHẦN B: LOAD CHI TIẾT SẢN PHẨM - DẠNG SUB-TABLE]                       -->
+                <!-- Dòng này mặc định ẩn (style="display: none").                            -->
+                <!-- Khi click vào dòng danh mục bên trên, AJAX sẽ đổ dữ liệu vào đây.         -->
+                <!-- ======================================================================= -->
                 <tr class="product-detail-row" id="detail-{{ dm.pk }}" style="display: none;">
                     <td colspan="4" class="p-0 border-0">
                         <div class="product-detail-content">
 
-                            <!-- Stock Legend -->
+                            <!-- Chú thích màu sắc trạng thái tồn kho (Stock Legend) -->
                             <div class="stock-legend mb-3 d-flex align-items-center">
                                 <span class="legend-label">Báo màu tồn kho:</span>
                                 <span class="d-flex align-items-center"><span class="legend-dot dot-full"></span> Đầy đủ (≥10)</span>
@@ -77,7 +101,7 @@
                                 <span class="d-flex align-items-center"><span class="legend-dot dot-empty"></span> Hết hàng (0)</span>
                             </div>
 
-                            <!-- Products Inner Table -->
+                            <!-- Bảng con hiển thị danh sách sản phẩm thực tế -->
                             <table class="table product-inner-table">
                                 <thead>
                                     <tr>
@@ -89,6 +113,7 @@
                                         <th class="text-center">TRẠNG THÁI HIỂN THỊ</th>
                                     </tr>
                                 </thead>
+                                <!-- Vùng Placeholder: JS sẽ thay thế nội dung này bằng dữ liệu thật từ AJAX -->
                                 <tbody class="product-tbody">
                                     <tr>
                                         <td colspan="6" class="text-center py-4">
@@ -100,7 +125,9 @@
                         </div>
                     </td>
                 </tr>
+
                 {% empty %}
+                <!-- Trường hợp không có danh mục nào (ví dụ khi tìm kiếm không ra kết quả) -->
                 <tr>
                     <td colspan="4" class="text-center py-5 text-muted">Không tìm thấy danh mục nào.</td>
                 </tr>
@@ -109,10 +136,11 @@
         </table>
     </div>
 
-    <!-- Pagination -->
+    <!-- 5. PHÂN TRANG (Pagination) - Giúp trang load nhanh hơn khi có hàng nghìn danh mục -->
     {% if page_obj.has_other_pages %}
     <nav aria-label="Page navigation" class="d-flex justify-content-center mt-3 mb-5">
         <ul class="pagination custom-pagination">
+            <!-- Nút Quay lại (Previous) -->
             {% if page_obj.has_previous %}
                 <li class="page-item">
                     <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}">&lsaquo;</a>
@@ -123,12 +151,14 @@
                 </li>
             {% endif %}
 
+            <!-- Danh sách số trang (1, 2, 3...) -->
             {% for num in page_obj.paginator.page_range %}
                 <li class="page-item {% if page_obj.number == num %}active{% endif %}">
                     <a class="page-link" href="?page={{ num }}&q={{ query }}">{{ num }}</a>
                 </li>
             {% endfor %}
 
+            <!-- Nút Tiếp theo (Next) -->
             {% if page_obj.has_next %}
                 <li class="page-item">
                     <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}">&rsaquo;</a>
@@ -144,19 +174,22 @@
 
 </div>
 
-<!-- Add/Edit Category Modal -->
+<!-- 6. MODAL THÊM/SỬA DANH MỤC (Popup Form) -->
+<!-- Sử dụng chung một Modal để tiết kiệm code, JS sẽ thay đổi Title và Action tùy theo nút bấm -->
 <div class="modal-overlay" id="categoryModal">
     <div class="modal-box">
         <div class="modal-header-custom">
             <h4 id="modalTitle">THÊM DANH MỤC</h4>
             <span class="modal-close-icon" onclick="closeCategoryModal()">✕</span>
         </div>
-        <form id="categoryForm" method="POST" action="{% url 'categories:category_add' %}">
-            {% csrf_token %}
+        <!-- Form gửi POST request lên server -->
+        <form id="categoryForm" method="POST" action="{% url 'categories:category_add' %}" enctype="multipart/form-data">
+            {% csrf_token %} <!-- Mã bảo mật bắt buộc của Django -->
             <div class="modal-body-custom">
                 <div class="form-group">
                     <label>Tên danh mục <span class="text-danger-custom">*</span></label>
-                    <input type="text" name="name" id="category_name" class="form-control" required placeholder="Nhập tên danh mục">
+                    <input type="text" name="name" id="category_name" class="form-control" 
+                           required placeholder="Nhập tên danh mục sản phẩm">
                 </div>
             </div>
             <div class="modal-footer-custom">
@@ -167,17 +200,20 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- 7. MODAL XÁC NHẬN XÓA (Delete Confirmation) -->
+<!-- Ngăn chặn việc xóa nhầm dữ liệu quan trọng -->
 <div class="modal-overlay" id="deleteModal">
     <div class="modal-box delete-modal-width">
         <div class="modal-header-custom border-0">
             <h4 class="text-danger-custom font-weight-bold">XÁC NHẬN XÓA</h4>
             <span class="modal-close-icon" onclick="closeDeleteModal()">✕</span>
         </div>
+        <!-- Form xóa: Action sẽ được JS điền vào khi nhấn nút Xóa tương ứng với ID -->
         <form id="deleteForm" method="POST" action="">
             {% csrf_token %}
             <div class="modal-body-custom pt-0">
-                <p>Bạn có chắc chắn muốn xóa danh mục <b id="deleteTargetName"></b>? Hành động này không thể hoàn tác.</p>
+                <p>Bạn có chắc chắn muốn xóa danh mục <b id="deleteTargetName"></b>?</p>
+                <p class="text-muted small">Lưu ý: Hành động này có thể làm ảnh hưởng đến các sản phẩm thuộc danh mục này.</p>
             </div>
             <div class="modal-footer-custom">
                 <button type="button" class="btn btn-light" onclick="closeDeleteModal()">Hủy</button>
@@ -189,5 +225,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Nhúng file logic xử lý AJAX và Modal cho trang này -->
 <script src="{% static 'categories/categories.js' %}"></script>
 {% endblock %}

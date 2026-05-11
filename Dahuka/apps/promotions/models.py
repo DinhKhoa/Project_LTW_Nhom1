@@ -1,5 +1,5 @@
 from django.db import models
-from apps.products.models import Product
+
 
 
 class Promotion(models.Model):
@@ -9,11 +9,13 @@ class Promotion(models.Model):
     ]
 
     name = models.CharField(max_length=255, verbose_name="Tên khuyến mãi")
-    code = models.CharField(max_length=50, unique=True, verbose_name="Mã khuyến mãi")
+
     condition = models.DecimalField(
         max_digits=12,
         decimal_places=0,
-        default=0,
+        default=None,
+        null=True,
+        blank=True,
         verbose_name="Điều kiện áp dụng (Giá tối thiểu)",
     )
     discount_type = models.CharField(
@@ -24,9 +26,7 @@ class Promotion(models.Model):
     start_date = models.DateField(verbose_name="Ngày bắt đầu")
     end_date = models.DateField(verbose_name="Ngày kết thúc")
 
-    products = models.ManyToManyField(
-        Product, blank=True, verbose_name="Sản phẩm áp dụng"
-    )
+
     is_active = models.BooleanField(default=True, verbose_name="Trạng thái")
     notification_sent = models.BooleanField(
         default=False, verbose_name="Đã gửi thông báo"

@@ -9,6 +9,8 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Giao diện Quản lý Đơn đặt hàng (Dành cho Admin/Staff) -->
+    <!-- Render từ view: orders.views.order_list -->
     <div class="content-wide-layout mt-4 mb-5">
         <nav class="page-breadcrumbs">
             <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
@@ -17,6 +19,8 @@
 
         <h1 class="page-title mb-4">Quản lý đơn đặt hàng</h1>
 
+        <!-- Khu vực Thống kê: Hiển thị tổng số đơn và phân loại theo trạng thái -->
+        <!-- Biến stats được truyền từ view (selectors.get_order_statistics()) -->
         <div class="summary-container-dahuka d-flex gap-3 mb-4 align-items-stretch">
             <a href="?trang_thai=" class="summary-box-card flex-fill">
                 <div class="label">Tổng đơn hàng</div>
@@ -25,6 +29,7 @@
             <div class="summary-box-card" style="flex: 3; padding: 15px; min-width: 450px; display: flex; flex-direction: row; align-items: center; justify-content: space-around;">
                 <div style="text-align: left;">
                     <div class="label" style="margin-bottom: 12px;">Trạng thái</div>
+                    <!-- Các nút lọc nhanh tích hợp trong khung thống kê -->
                     <div class="d-flex flex-wrap gap-x-4 gap-y-2" style="max-width: 300px;">
                         <a href="?trang_thai=pending" class="text-decoration-none d-flex align-items-center mr-3" title="Lọc: Chờ xử lý" style="font-size: 13px; font-weight: 600; color: #d97706;">
                             <span style="width: 10px; height: 10px; background: #d97706; border-radius: 50%; margin-right: 8px;"></span>
@@ -54,7 +59,13 @@
             </div>
         </div>
 
+        <!-- 
+            THANH LỌC & TÌM KIẾM:
+            Sử dụng method="GET" để các tham số (q, trang_thai) hiện lên URL.
+            Việc này giúp người dùng có thể copy link đã lọc để gửi cho người khác hoặc quay lại sau.
+        -->
         <div class="filter-bar d-flex justify-content-between align-items-center mb-4">
+            <!-- Form gửi GET request: /orders/?q=...&trang_thai=... -->
             <form method="GET" class="d-flex align-items-center" style="gap: 10px;">
                 <input type="text" name="q" class="search-input"
                        placeholder="Tìm kiếm theo mã đơn hoặc tên khách..." value="{{ query }}">
@@ -101,6 +112,11 @@
             </form>
         </div>
 
+        <!-- 
+            KHU VỰC HIỂN THỊ DANH SÁCH ĐƠN HÀNG (LIST ORDERS):
+            Vòng lặp này sẽ duyệt qua danh sách 'page_obj' (đã được phân trang từ Selector).
+            Mỗi đơn hàng sẽ được hiển thị trong một khối 'order-card'.
+        -->
         {% for order in page_obj %}
             <div class="order-card mb-4">
                 <div class="order-card-body">
@@ -189,6 +205,11 @@
 {% endblock %}
 
 {% block extra_js %}
+    <!-- 
+        TRUYỀN DỮ LIỆU SANG JAVASCRIPT:
+        Sử dụng tag 'json_script' của Django để truyền dữ liệu từ Backend sang Frontend một cách an toàn.
+        Sau đó, file order_list.js sẽ đọc các ID này để vẽ biểu đồ Chart.js.
+    -->
     {{ stats.pending|default:0|json_script:"pending-data" }}
     {{ stats.confirmed|default:0|json_script:"confirmed-data" }}
     {{ stats.processing|default:0|json_script:"processing-data" }}

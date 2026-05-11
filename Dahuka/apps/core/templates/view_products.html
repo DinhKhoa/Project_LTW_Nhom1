@@ -4,11 +4,16 @@
 {% block title %}Máy lọc nước Dahuka - Công nghệ lọc nước đỉnh cao{% endblock %}
 
 {% block extra_css %}
-
+<!-- CSS đặc thù cho trang danh mục và bộ lọc -->
 <link rel="stylesheet" href="{% static 'core/css/view_products.css' %}">
 {% endblock %}
 
 {% block content %}
+<!-- 
+    TRANG DANH MỤC SẢN PHẨM (CATALOG)
+    - Hiển thị danh sách sản phẩm theo từng loại (Máy lọc nước, linh kiện...)
+    - Tích hợp bộ lọc AJAX (Lọc không cần load lại trang)
+-->
 <section class="catalog-hero">
     <img src="{% static 'img/BANNER.png' %}" alt="Máy lọc nước Dahuka">
     <div class="catalog-hero-overlay">
@@ -20,6 +25,7 @@
 </section>
 
 <main class="catalog-page container-shell catalog-page-padding">
+    <!-- breadcrumbs: Thanh dẫn hướng giúp người dùng biết mình đang ở đâu -->
     <nav class="page-breadcrumbs">
         <a href="{% url 'core:home' %}">Trang chủ</a> <span class="sep"><i class="fa fa-chevron-right"></i></span>
         <b>{% if current_category %}{{ current_category.name }}{% else %}Máy lọc nước{% endif %}</b>
@@ -30,6 +36,7 @@
             <h2 class="catalog-title-h2">Danh mục sản phẩm</h2>
             <div class="line catalog-title-line"></div>
         </div>
+        <!-- Dropdown Sắp xếp (Mới nhất/Cũ nhất) -->
         <div class="catalog-sort dropdown">
             <button class="account-btn-outline sort-btn-custom" type="button" onclick="toggleSort()">
                 <span id="sortLabel" class="label">Sắp xếp: {% if current_sort == 'oldest' %}Cũ nhất{% else %}Mới nhất{% endif %}</span>
@@ -43,13 +50,19 @@
     </div>
 
     <section class="catalog-layout">
+        <!-- Sidebar bên trái: Chứa bộ lọc (Filters) -->
         <aside class="catalog-filters">
+            <!-- 
+                Form này sẽ gửi dữ liệu lọc lên Server mỗi khi người dùng tick vào Checkbox 
+                Hàm applyFilters() trong view_products.js sẽ xử lý việc gửi yêu cầu AJAX.
+            -->
             <form id="filterForm" onchange="applyFilters()">
                 {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
                 {% if cat_slug %}<input type="hidden" name="cat" value="{{ cat_slug }}">{% endif %}
                 <input type="hidden" name="sort" id="sortInput" value="{{ current_sort }}">
                 
                 {% if is_water_purifier %}
+                <!-- Lọc theo số lõi (Chỉ hiện khi đang xem danh mục máy lọc nước) -->
                 <div class="filter-group">
                     <h3>Hệ thống lõi lọc</h3>
                     <div class="filter-options">
@@ -64,6 +77,7 @@
                 </div>
                 {% endif %}
                 
+                <!-- Lọc theo khoảng giá tiền -->
                 <div class="filter-group">
                     <h3>Khoảng giá</h3>
                     <div class="filter-options">
@@ -76,24 +90,28 @@
             </form>
         </aside>
 
+        <!-- Khu vực hiển thị danh sách sản phẩm bên phải -->
         <div id="productListContainer" class="catalog-products">
+            <!-- Lớp phủ Loading khi đang tải dữ liệu AJAX -->
             <div id="loadingOverlay" class="loading-overlay">
                 <div class="spinner"></div>
             </div>
+            
+            <!-- 
+                Khu vực quan trọng: Dữ liệu bên trong id="productListWrapper" sẽ được 
+                thay thế bằng kết quả trả về từ Server khi thực hiện Lọc.
+            -->
             <div id="productListWrapper">
-                {% include 'partials/product_list_partial.html' %}
+                {% include 'product_list_partial.html' %}
             </div>
         </div>
-    </section>
-</main>
-
-
     </section>
 </main>
 
 {% endblock %}
 
 {% block extra_js %}
+<!-- Script xử lý logic AJAX, hiệu ứng Dropdown và cập nhật URL -->
 <script src="{% static 'core/js/view_products.js' %}"></script>
 {% endblock %}
 

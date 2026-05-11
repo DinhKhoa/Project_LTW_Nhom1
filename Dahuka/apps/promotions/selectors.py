@@ -25,7 +25,7 @@ class PromotionSelector:
         queryset = Promotion.objects.all().order_by('id')
         
         if query:
-            queryset = queryset.filter(Q(name__icontains=query) | Q(code__icontains=query))
+            queryset = queryset.filter(Q(name__icontains=query) | Q(id__icontains=query))
             
         if status == 'active':
             queryset = queryset.filter(is_active=True, start_date__lte=today, end_date__gte=today)

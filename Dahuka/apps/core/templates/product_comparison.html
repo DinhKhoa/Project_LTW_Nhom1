@@ -4,6 +4,7 @@
 {% block title %}So sánh sản phẩm - DAHUKA{% endblock %}
 
 {% block extra_css %}
+<!-- Sử dụng lại CSS của Detail để đồng bộ style và CSS riêng cho bảng so sánh -->
 <link rel="stylesheet" href="{% static 'core/css/view_product_detail.css' %}">
 <link rel="stylesheet" href="{% static 'core/css/product_comparison.css' %}">
 {% endblock %}
@@ -23,12 +24,15 @@
 
     <div class="container-shell compare-container">
         <div class="table-responsive">
+            <!-- BẢNG SO SÁNH CHÍNH -->
             <table class="compare-table">
                 <thead>
                     <tr>
                         <th class="spec-name" style="border-bottom: 2px solid #846a6a;"></th>
+                        <!-- Duyệt qua danh sách sản phẩm do người dùng chọn để tạo cột -->
                         {% for p in products %}
                         <th class="compare-product-header">
+                            <!-- Nút xóa sản phẩm khỏi bảng so sánh -->
                             <span class="remove-compare-item" onclick="removeItem('{{ p.id }}')"><i class="fa fa-times-circle"></i></span>
                             <a href="{% url 'core:view_product_detail' p.slug %}">
                                 <img src="{{ p.main_image_url }}" alt="{{ p.name }}">
@@ -46,6 +50,7 @@
                         </th>
                         {% endfor %}
 
+                        <!-- Hiển thị các ô "Thêm sản phẩm" trống nếu chưa đủ 3 sản phẩm -->
                         {% if products|length < 3 %}
                             {% for i in "123"|make_list %}
                                 {% if forloop.counter > products|length %}
@@ -62,11 +67,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Dòng: Công nghệ lọc -->
                     <tr class="spec-row">
                         <td class="spec-name">Công nghệ lọc</td>
                         {% for p in products %}
                         <td class="spec-value">{{ p.spec_technology|default:"-" }}</td>
                         {% endfor %}
+                        {# Căn chỉnh các ô trống còn lại để bảng không bị vỡ layout #}
                         {% if products|length == 1 %}
                             <td colspan="2" style="background: #fafafa;"></td>
                         {% elif products|length == 2 %}
@@ -75,6 +82,7 @@
                             <td colspan="3" style="background: #fafafa;"></td>
                         {% endif %}
                     </tr>
+                    <!-- Dòng: Công suất lọc -->
                     <tr class="spec-row">
                         <td class="spec-name">Công suất lọc</td>
                         {% for p in products %}
@@ -88,6 +96,7 @@
                             <td colspan="3" style="background: #fafafa;"></td>
                         {% endif %}
                     </tr>
+                    <!-- Dòng: Số lõi lọc -->
                     <tr class="spec-row">
                         <td class="spec-name">Số lõi lọc</td>
                         {% for p in products %}
@@ -101,6 +110,7 @@
                             <td colspan="3" style="background: #fafafa;"></td>
                         {% endif %}
                     </tr>
+                    <!-- Dòng: Dung tích -->
                     <tr class="spec-row">
                         <td class="spec-name">Dung tích bình chứa</td>
                         {% for p in products %}
@@ -114,6 +124,7 @@
                             <td colspan="3" style="background: #fafafa;"></td>
                         {% endif %}
                     </tr>
+                    <!-- Dòng: Kích thước -->
                     <tr class="spec-row">
                         <td class="spec-name">Kích thước</td>
                         {% for p in products %}
@@ -127,6 +138,7 @@
                             <td colspan="3" style="background: #fafafa;"></td>
                         {% endif %}
                     </tr>
+                    <!-- Dòng: Khối lượng -->
                     <tr class="spec-row">
                         <td class="spec-name">Khối lượng</td>
                         {% for p in products %}
@@ -140,6 +152,7 @@
                             <td colspan="3" style="background: #fafafa;"></td>
                         {% endif %}
                     </tr>
+                    <!-- Dòng: Bảo hành -->
                     <tr class="spec-row">
                         <td class="spec-name">Bảo hành</td>
                         {% for p in products %}
@@ -159,7 +172,7 @@
     </div>
 </main>
 
-<!-- Selection Modal -->
+<!-- SELECTION MODAL: Bảng chọn sản phẩm để thêm vào so sánh -->
 <div class="modal-overlay" id="selectionModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -167,6 +180,7 @@
             <button class="btn-close-modal" onclick="closeSelectionModal()">&times;</button>
         </div>
         <div class="product-grid-mini">
+            <!-- Danh sách sản phẩm khả dụng để chọn -->
             {% for ap in all_products %}
             <div class="product-item-mini" onclick="selectProduct('{{ ap.id }}')">
                 <img src="{{ ap.main_image_url }}" alt="{{ ap.name }}">
@@ -178,9 +192,11 @@
     </div>
 </div>
 
+{# Dùng json_script để truyền dữ liệu từ Django sang Javascript một cách an toàn #}
 {{ current_product_ids|json_script:"current-product-ids" }}
 
 {% block extra_js %}
+<!-- Logic xử lý việc chọn/xóa sản phẩm và cập nhật bảng bằng Javascript -->
 <script src="{% static 'core/js/product_comparison.js' %}"></script>
 {% endblock %}
 {% endblock %}

@@ -1,7 +1,21 @@
 {% load humanize %}
+<!-- 
+    COMPONENT: _ORDER_INFO.HTML
+    Đây là một "Linh kiện" (Component) dùng chung. Nó không phải là một trang web hoàn chỉnh.
+    Nhiệm vụ: Hiển thị toàn bộ layout chi tiết của một đơn hàng.
+    
+    CƠ CHẾ NHẬN DỮ LIỆU:
+    Linh kiện này nhận biến 'view_type' từ file cha (order_detail.html) truyền vào.
+    - view_type == 'admin': Hiện giao diện cho Quản lý (Có quyền phân công nhân sự).
+    - view_type == 'staff': Hiện giao diện cho Nhân viên (Có nút xác nhận giao hàng).
+    - view_type == 'customer': Hiện giao diện cho Khách hàng (Chỉ xem, không có nút bấm).
+-->
 <div class="order-view-grid">
     <div class="order-view-left">
+        <!-- 1. MÃ ĐƠN HÀNG: data-order-id dùng để JS lấy ID đơn hàng khi thực hiện gọi API (AJAX) -->
         <span class="order-id-label" data-order-id="{{ order.id }}">{{ order.order_code }}</span>
+
+        <!-- 2. THÔNG TIN NGƯỜI NHẬN -->
         <div class="info-card">
             <div class="info-card-title">Thông tin nhận hàng</div>
             <div class="receiver-grid">
@@ -20,6 +34,7 @@
             {% endif %}
         </div>
 
+        <!-- 3. DANH SÁCH SẢN PHẨM TRONG ĐƠN HÀNG -->
         <div class="order-product-list-scroll">
             {% for item in order.items.all %}
             <div class="order-product-card">
@@ -43,6 +58,10 @@
         </div>
 
         {% if view_type == 'staff' %}
+            <!-- 
+                CHẾ ĐỘ NHÂN VIÊN: 
+                Chỉ hiển thị các nút thao tác giao hàng khi người xem là Nhân viên được gán đơn.
+            -->
             <div class="order-actions-left" style="margin-top: 24px; display: flex; gap: 12px;">
                 {% if order.status == 'confirmed' %}
                     <button type="button" onclick="openModal('startShippingModal')" class="account-btn-dark" style="padding: 12px 24px; border-radius: 8px; flex: 1; max-width: 250px;">Bắt đầu giao hàng</button>
@@ -78,10 +97,12 @@
             </div>
         </div>
 
+        <!-- 4. QUẢN LÝ NHÂN VIÊN PHỤ TRÁCH (Logic phân quyền Admin/Khách) -->
         <div class="summary-section">
             <div class="summary-label">Nhân viên phụ trách</div>
             <div class="summary-value">
                 {% if view_type == 'admin' %}
+                    <!-- CHẾ ĐỘ ADMIN: Cho phép gán đơn cho nhân viên (Dropdown lựa chọn) -->
                     {% if order.status == 'pending' %}
                         <div class="staff-select-wrapper" id="staffSelectWrapper">
                             <div class="staff-select-trigger" id="staffSelectTrigger">
@@ -106,6 +127,7 @@
                         </div>
                         <button type="button" id="confirmAssignBtn" class="account-btn-dark" style="padding:8px 16px; width:100%; margin-top:8px; font-size:13px; border-radius:6px;">Xác nhận & Giao việc</button>
                     {% else %}
+                        <!-- Nếu đơn đã xử lý: Chỉ hiện tên nhân viên, không cho đổi nữa -->
                         {% if order.assigned_staff %}
                             <div class="assigned-staff-info">
                                 <div style="font-weight: 500; color: var(--figma-ink); font-size: 15px;">{{ order.assigned_staff.get_full_name|default:order.assigned_staff.username }}</div>
@@ -118,6 +140,7 @@
                         {% endif %}
                     {% endif %}
                 {% else %}
+                    <!-- CHẾ ĐỘ KHÁCH HÀNG/STAFF: Chỉ xem thông tin, không thấy Dropdown chọn nhân viên -->
                     {% if order.assigned_staff %}
                         <div class="assigned-staff-info">
                             <div style="font-weight: 500; color: var(--figma-ink); font-size: 15px;">{{ order.assigned_staff.get_full_name|default:order.assigned_staff.username }}</div>
@@ -132,14 +155,16 @@
             </div>
         </div>
 
+        <!-- 5. HÌNH THỨC THANH TOÁN -->
         <div class="summary-section">
             <div class="summary-label">Hình thức thanh toán</div>
             <div class="summary-value">
                 {% if order.payment_method == 'full' %}
-                    Thanh toán toàn bộ - <span class="highlight">{{ order.get_payment_status_display }}</span>
+                    Thanh toán toàn bộ (COD)
                 {% else %}
-                    Thanh toán cọc - <span class="highlight">{{ order.get_payment_status_display }}</span>
+                    Thanh toán cọc (Phải chuyển khoản trước)
                 {% endif %}
+                - <span class="highlight">{{ order.get_payment_status_display }}</span>
             </div>
         </div>
 
@@ -148,6 +173,7 @@
             <div class="summary-value">Dahuka giao hàng</div>
         </div>
 
+        <!-- 6. TỔNG KẾT TIỀN (Thanh toán & Cọc) -->
         <div class="summary-section" style="border-bottom:0">
             <div class="summary-row">
                 <span>Tổng tiền hàng:</span>
@@ -170,6 +196,7 @@
             {% endif %}
         </div>
 
+        <!-- 6. CÁC NÚT HÀNH ĐỘNG (Dựa trên trạng thái đơn hàng) -->
         <div class="order-actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
             {% if order.status != 'cancelled' and order.status != 'completed' %}
                 <button type="button" onclick="openModal('cancelOrderModal')" class="cancel-btn">Hủy đơn hàng</button>
@@ -192,6 +219,9 @@
     </aside>
 </div>
 
+<!-- 8. CÁC CỬA SỔ MODAL (AJAX) -->
+
+<!-- Modal Xác nhận bắt đầu giao hàng -->
 <div class="modal" id="startShippingModal">
     <div class="modal-box" style="max-width: 500px; border-radius: 12px; overflow: hidden;">
         <div class="modal-header">
@@ -208,6 +238,7 @@
     </div>
 </div>
 
+<!-- Modal Hủy đơn hàng kèm lý do -->
 {% if order.status != 'cancelled' and order.status != 'completed' %}
 <div class="modal" id="cancelOrderModal">
     <div class="modal-box" style="max-width: 500px; border-radius: 12px; overflow: hidden;">
@@ -234,7 +265,9 @@
 </div>
 {% endif %}
 
+<!-- Modal: Hoàn thành & Tải ảnh minh chứng (Dành riêng cho Staff khi giao xong) -->
 {% if order.status == 'processing' %}
+<!-- Modal upload ảnh minh chứng khi giao hàng hoàn tất (Dành cho Staff) -->
 <div class="modal" id="completeTaskModal">
     <div class="modal-box" style="max-width: 500px; border-radius: 12px; overflow: hidden;">
         <div class="modal-header">

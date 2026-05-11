@@ -82,16 +82,7 @@ def delete_promotion(request, pk):
 def api_promotion_detail(request, pk):
     promotion = get_object_or_404(Promotion, pk=pk)
 
-    products_data = [
-        {
-            "name": p.name,
-            "id": p.id,
-            "image": p.image.url if p.image else "/static/img/product-placeholder.png",
-            "price": f"{p.price:,.0f}đ",
-            "url": reverse("core:view_product_detail", args=[p.slug]),
-        }
-        for p in promotion.products.all()
-    ]
+
 
     discount_display = (
         f"{promotion.value:,.0f}%"
@@ -103,14 +94,13 @@ def api_promotion_detail(request, pk):
         {
             "status": "success",
             "name": promotion.name,
-            "code": promotion.code,
+            "code": promotion.id,
             "discount_display": discount_display,
             "description": getattr(
                 promotion,
                 "description",
                 "Ưu đãi đặc biệt cho dòng sản phẩm của Dahuka.",
             ),
-            "condition": f"{promotion.condition:,.0f}",
-            "products": products_data,
+            "condition": f"{promotion.condition:,.0f}" if promotion.condition else "",
         }
     )

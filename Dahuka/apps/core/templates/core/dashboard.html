@@ -5,7 +5,11 @@
 
 {% block extra_css %}
 <style>
-    /* Synchronized with Dahuka Design System */
+    /* 
+       HỆ THỐNG GIAO DIỆN DASHBOARD (DAHUKA DESIGN SYSTEM)
+       - summary-container-dahuka: Lưới chứa 4 thẻ chỉ số KPI ở đầu trang.
+       - summary-box-card: Thẻ hiển thị các con số tổng quát (Doanh thu, Đơn hàng...).
+    */
     .summary-container-dahuka {
         display: flex;
         gap: 15px;
@@ -483,7 +487,11 @@
              data-current-year="{{ current_year|stringformat:'d' }}"
              style="display:none;"></div>
 
-        <!-- Unified Filter Control -->
+        <!-- 
+            BỘ LỌC DỮ LIỆU ĐA NĂNG (UNIFIED FILTER)
+            - Cho phép lọc theo Ngày, Tháng, Quý, Năm.
+            - Mỗi chế độ lọc sẽ hiển thị Picker tương ứng (VD: Quý thì hiện chọn Quý + Năm).
+        -->
         <div class="modern-filter-bar">
             <!-- Dynamic Contextual Picker (Moved to Left) -->
             <div class="picker-container" style="padding-left: 10px;">
@@ -607,9 +615,12 @@
 
 
 
-    <!-- Quick Stats Row -->
+    <!-- 
+        DÃY CHỈ SỐ KPI NHANH (QUICK STATS)
+        Dữ liệu được tính toán từ 'selectors.py' thông qua View đổ vào.
+    -->
     <section class="summary-container-dahuka">
-        <!-- Revenue Card -->
+        <!-- Doanh thu: Hiển thị kèm theo % tăng trưởng so với kỳ trước -->
         <div class="summary-box-card">
             <div class="summary-box-header">
                 <span class="summary-box-title">Tổng doanh thu</span>
@@ -659,9 +670,13 @@
     </section>
 
 
-    <!-- Charts & Analytics Row -->
+    <!-- 
+        KHU VỰC BIỂU ĐỒ & PHÂN TÍCH CHUYÊN SÂU
+        - Sử dụng thư viện Chart.js để vẽ biểu đồ doanh thu.
+        - Có các nút điều hướng nhanh sang Kỳ trước/Kỳ sau.
+    -->
     <div class="row mb-4">
-        <!-- Revenue Chart (8/12) -->
+        <!-- Biểu đồ doanh thu (Chiếm 8/12 chiều rộng) -->
         <div class="col-lg-8">
             <div class="dashboard-card" style="height: 100%;">
                 <div class="dashboard-card-title d-flex justify-content-between align-items-center">
@@ -772,7 +787,11 @@
         </div>
     </div>
 
-    <!-- Inventory Warning Row (Full Width Focus) -->
+    <!-- 
+        HỆ THỐNG CẢNH BÁO TỒN KHO (INVENTORY WARNING)
+        - Tự động lấy các sản phẩm có số lượng dưới định mức (VD: < 5 sản phẩm).
+        - Có nút liên kết nhanh để Admin thực hiện nhập hàng.
+    -->
     <div class="row">
         <div class="col-12">
             <div class="dashboard-card" style="border-left: 4px solid #dc2626; background: #fff;">
@@ -809,7 +828,11 @@
     </div>
 </div>
 
-<!-- Truyền dữ liệu an toàn từ Django sang JS -->
+<!-- 
+    CƠ CHẾ TRUYỀN DỮ LIỆU (DATA BRIDGE)
+    - Django sử dụng filter 'json_script' để đóng gói dữ liệu Python (List/Dict) thành các thẻ <script type="application/json">.
+    - Cách này giúp Javascript đọc được dữ liệu một cách an toàn, tránh lỗi cú pháp và lỗ hổng XSS.
+-->
 {{ chart_labels|json_script:"chart-labels" }}
 {{ chart_values|json_script:"chart-values" }}
 {{ success_rate|json_script:"success-rate" }}
@@ -820,7 +843,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-    // 0. Biểu đồ Doughnut (Hiệu suất vận hành)
+    // 1. Biểu đồ Doughnut (Hiệu suất vận hành)
+    // Tính toán tỷ lệ Thành công / Hủy / Đang xử lý để vẽ biểu đồ tròn khuyết (cutout)
     const successRate = JSON.parse(document.getElementById('success-rate').textContent);
     const cancelRate = JSON.parse(document.getElementById('cancel-rate').textContent);
     const otherRate = Math.max(0, 100 - successRate - cancelRate);
@@ -833,16 +857,16 @@
                 labels: ['Thành công', 'Hủy đơn', 'Đang xử lý'],
                 datasets: [{
                     data: [successRate, cancelRate, otherRate],
-                    backgroundColor: ['#16a34a', '#dc2626', '#f1f5f9'],
+                    backgroundColor: ['#16a34a', '#dc2626', '#f1f5f9'], // Xanh / Đỏ / Xám
                     borderWidth: 0,
-                    cutout: '75%'
+                    cutout: '75%' // Tạo hiệu ứng vòng tròn mảnh (Donut)
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
+                    legend: { display: false }, // Ẩn chú thích mặc định vì đã có HTML bên ngoài
                     tooltip: { enabled: true }
                 }
             }
@@ -869,7 +893,8 @@
         }
     });
 
-    // 1. Biểu đồ Đường (Doanh thu)
+    // 2. Biểu đồ Đường (Revenue Line Chart)
+    // Hiển thị biến động doanh thu theo thời gian (Ngày/Tháng)
     const chartLabels = JSON.parse(document.getElementById('chart-labels').textContent);
     const chartValues = JSON.parse(document.getElementById('chart-values').textContent);
 
@@ -881,14 +906,15 @@
             datasets: [{
                 label: 'Doanh thu (đ)',
                 data: chartValues,
-                borderColor: '#1a6b3c',
+                borderColor: '#1a6b3c', // Màu xanh Dahuka đặc trưng
                 backgroundColor: 'rgba(26, 107, 60, 0.05)',
                 borderWidth: 3,
-                tension: 0.4,
+                tension: 0.4, // Tạo đường cong mềm mại (Spline)
                 fill: true,
                 pointBackgroundColor: '#1a6b3c',
                 pointBorderColor: '#fff',
                 pointBorderWidth: 2,
+                // Ẩn các điểm tròn nếu có quá nhiều dữ liệu (>31 ngày) để tránh rối mắt
                 pointRadius: chartLabels.length > 31 ? 0 : 4,
                 pointHoverRadius: 6
             }]
@@ -902,6 +928,7 @@
                     grid: { color: '#f1f5f9' },
                     ticks: {
                         font: { size: 10 },
+                        // Định dạng tiền tệ rút gọn: Triệu (M), Nghìn (K)
                         callback: value => value >= 1000000 ? (value/1000000)+'M' : (value >= 1000 ? (value/1000)+'K' : value)
                     }
                 },
@@ -928,7 +955,8 @@
         if (el.dataset.width) el.style.width = el.dataset.width;
     });
 
-    // 4. Biểu đồ Treemap (Danh mục)
+    // 3. Biểu đồ Treemap (Category Distribution)
+    // Sử dụng thư viện ApexCharts để vẽ bản đồ tỷ trọng danh mục (Ô càng to = doanh thu càng cao)
     const catLabels = JSON.parse(document.getElementById('cat-labels').textContent);
     const catValues = JSON.parse(document.getElementById('cat-values').textContent);
     
@@ -946,7 +974,7 @@
                 show: false
             },
             chart: {
-                height: 450, // Tăng chiều cao để ép chia ô ngang dọc
+                height: 450, // Chiều cao cố định để đảm bảo hiển thị rõ các ô
                 type: 'treemap',
                 toolbar: { show: false },
                 fontFamily: 'Inter, sans-serif'
@@ -973,27 +1001,26 @@
             },
             theme: {
                 mode: 'light',
-                palette: 'palette1', // Có thể dùng các palette từ 1-10
+                palette: 'palette1',
             },
-            // Thuật toán sinh màu Tự động - Phong cách Retro Dahuka (Vô hạn)
+            // THUẬT TOÁN SINH MÀU TỰ ĐỘNG (DYNAMIC COLOR GENERATION)
+            // Đảm bảo mỗi danh mục có màu sắc phân biệt nhưng vẫn theo phong cách Dahuka
             colors: catLabels.map((_, i) => {
-                // Màu chủ đạo Dahuka Green: HSL(145, 61%, 26%)
                 const dahukaGreen = '#1a6b3c';
                 
-                // Quy tắc xen kẽ:
-                // Cứ 3 ô thì 1 ô tông Xanh Dahuka, 1 ô tông Retro Nhấn, 1 ô Vùng đệm
+                // Quy tắc 3-Phase: Xen kẽ tông Xanh / Tông Nhấn (Vàng, Cam, Đỏ) / Tông Trung tính (Xám)
                 if (i % 3 === 0) {
-                    // Dải màu Xanh Dahuka (biến thiên độ sáng và bão hòa)
+                    // Dải màu Xanh Dahuka biến thiên
                     const lightness = 25 + (i % 5) * 5;
                     const saturation = 40 + (i % 3) * 10;
                     return `hsl(145, ${saturation}%, ${lightness}%)`;
                 } else if (i % 3 === 1) {
-                    // Dải màu Retro nhấn (Cam, Vàng, Slate)
-                    const retroHues = [35, 25, 200, 180, 10]; // Vàng, Cam, Blue, Teal, Red
+                    // Dải màu Nhấn Retro
+                    const retroHues = [35, 25, 200, 180, 10]; 
                     const hue = retroHues[Math.floor(i / 3) % retroHues.length];
                     return `hsl(${hue}, 35%, 50%)`;
                 } else {
-                    // Vùng đệm trung tính (Xám, Be, Kem)
+                    // Vùng đệm trung tính giúp biểu đồ hài hòa
                     const neutrals = ['#d1d5db', '#e2e8f0', '#f1f5f9', '#f8fafc', '#e5e7eb'];
                     return neutrals[Math.floor(i / 3) % neutrals.length];
                 }

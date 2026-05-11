@@ -4,28 +4,37 @@
 {% block title %}DAHUKA - Nâng tầm sống khỏe chuẩn Nhật{% endblock %}
 
 {% block extra_css %}
+<!-- File CSS riêng cho trang chủ để tối ưu tốc độ tải trang -->
 <link rel="stylesheet" href="{% static 'core/css/home.css' %}">
 {% endblock %}
 
 {% block content %}
-    <!-- 1. Hero Banner -->
+    <!-- 
+        TRANG CHỦ DAHUKA
+        - View xử lý: apps.core.views.index
+        - Dữ liệu chính: home_settings (Cấu hình banner, tiêu đề), featured_products (Sản phẩm nổi bật)
+    -->
+
+    <!-- 1. PHẦN HERO BANNER (Ảnh lớn đầu trang) -->
     <section class="home-hero-banner admin-edit-overlay">
         {% if user.is_superuser %}
+        <!-- Nút sửa dành riêng cho Admin, gọi Modal bằng Javascript -->
         <button class="admin-edit-btn" onclick="openModal('modalBanner')"><i class="fa fa-pencil"></i> Sửa Banner</button>
         {% endif %}
         
         {% if home_settings.banner_image %}
         <img src="{{ home_settings.banner_image.url }}" alt="Dahuka Home Banner">
         {% else %}
+        <!-- Nếu trong DB chưa có ảnh thì hiển thị ảnh mặc định từ static -->
         <img src="{% static 'img/BANNER.png' %}" alt="Dahuka Home Banner Default">
         {% endif %}
     </section>
 
-    <!-- 2. Main Categories -->
+    <!-- 2. PHẦN DANH MỤC NỔI BẬT (Main Categories) -->
     <section class="main-categories-section">
         <div class="container-shell">
             <div class="category-grid">
-                <!-- Cat One -->
+                <!-- Danh mục nổi bật 1 (VD: Máy lọc nước) -->
                 <div class="category-card admin-edit-overlay">
                     {% if user.is_superuser %}
                     <button class="admin-edit-btn" style="top:10px; right:10px;" onclick="location.href='/admin/core/homepagesettings/'">
@@ -42,7 +51,7 @@
                     {% endwith %}
                 </div>
                 
-                <!-- Cat Two -->
+                <!-- Danh mục nổi bật 2 (VD: Cây nước nóng lạnh) -->
                 <div class="category-card admin-edit-overlay">
                     {% if user.is_staff %}
                     <button class="admin-edit-btn" style="top:10px; right:10px;" onclick="location.href='/admin/core/homepagesettings/'">
@@ -62,7 +71,7 @@
         </div>
     </section>
 
-    <!-- 3. Dahuka Pro Section -->
+    <!-- 3. PHẦN DAHUKA PRO (Giới thiệu thương hiệu/công nghệ mới) -->
     <div class="dahuka-pro-full-wrap admin-edit-overlay">
         {% if user.is_superuser %}
         <button class="admin-edit-btn" onclick="openModal('modalDahuka')"><i class="fa fa-pencil"></i> Sửa nội dung & Ảnh</button>
@@ -75,6 +84,7 @@
             
             <div class="dahuka-pro-content-grid">
                 <div class="promo-text-box">
+                    <!-- Tiêu đề và mô tả được lấy động từ Database -->
                     <h2>{{ home_settings.dahuka_pro_title|linebreaksbr }}</h2>
                     <p>{{ home_settings.dahuka_pro_desc }}</p>
                     <b>{{ home_settings.dahuka_pro_highlight }}</b>
@@ -91,9 +101,10 @@
         </div>
     </div>
 
-    <!-- 4. Khám phá máy lọc nước -->
+    <!-- 4. PHẦN SẢN PHẨM NỔI BẬT (Featured Products Carousel) -->
     <section class="home-section pt-4 pb-5 admin-edit-overlay">
         {% if user.is_superuser %}
+        <!-- Admin có thể gán sản phẩm nổi bật trực tiếp từ Django Admin -->
         <button class="admin-edit-btn" onclick="location.href='/admin/core/homepagesettings/'"><i class="fa fa-plus"></i> Thêm từ sản phẩm</button>
         {% endif %}
         
@@ -102,6 +113,7 @@
             <div class="carousel-wrapper">
                 <div class="showcase-grid" id="productCarousel">
                     {% for sp in featured_products %}
+                    <!-- Vòng lặp hiển thị từng sản phẩm nổi bật -->
                     <div class="showcase-item" data-id="{{ sp.id }}" data-img="{{ sp.main_image_url }}">
                         <a href="{% url 'core:view_product_detail' sp.slug %}" style="text-decoration: none; color: inherit;">
                             {% if sp.image %}
@@ -117,13 +129,14 @@
                     {% endfor %}
                 </div>
             </div>
+            <!-- Các chấm điều hướng cho slider (Được điều khiển bởi home.js) -->
             <div class="carousel-dots" id="productDots"></div>
         </div>
     </section>
 
-    <!-- Modals for Editing -->
+    <!-- --- CÁC MODAL CHỈNH SỬA (CHỈ LOAD KHI LÀ ADMIN) --- -->
     {% if user.is_superuser %}
-    <!-- Modal Banner -->
+    <!-- 5. Modal cập nhật Banner -->
     <div id="modalBanner" class="modal-dahuka">
         <div class="modal-dahuka-content modal-dahuka-content-custom">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -134,7 +147,7 @@
             <form action="{% url 'core:update_home_settings' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 
-                <!-- Current Preview -->
+                <!-- Xem trước ảnh hiện tại -->
                 <div class="current-preview-section">
                     <p class="current-preview-label">Banner Hiện Tại</p>
                     <div class="preview-image-wrapper">
@@ -146,7 +159,7 @@
                     </div>
                 </div>
 
-                <!-- Custom File Upload -->
+                <!-- Khu vực tải ảnh mới lên -->
                 <div class="form-group-dahuka">
                     <label class="form-label-dahuka-custom">Tải lên Banner mới</label>
                     <div class="custom-upload-zone" onclick="document.getElementById('bannerInput').click()">
@@ -166,7 +179,7 @@
         </div>
     </div>
 
-    <!-- Modal Dahuka Pro -->
+    <!-- 6. Modal cập nhật nội dung Dahuka Pro -->
     <div id="modalDahuka" class="modal-dahuka">
         <div class="modal-dahuka-content modal-dahuka-content-custom">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -178,6 +191,7 @@
                 {% csrf_token %}
                 
                 <div class="row">
+                    <!-- Cột trái: Tiêu đề và Mô tả -->
                     <div class="col-md-7">
                         <div class="form-group-dahuka">
                             <label class="form-label-dahuka-custom">Tiêu đề Hydrogen Pro</label>
@@ -189,6 +203,7 @@
                         </div>
                     </div>
                     
+                    <!-- Cột phải: Xem trước và đổi ảnh -->
                     <div class="col-md-5">
                         <p class="current-preview-label">Ảnh Đại Diện Hiện Tại</p>
                         <div class="mb-3 preview-image-wrapper text-center">
@@ -218,10 +233,11 @@
             </form>
         </div>
     </div>
-{% endif %}
+    {% endif %}
 
 {% endblock content %}
 
 {% block extra_js %}
+<!-- File JS xử lý hiệu ứng cuộn và điều khiển Modal -->
 <script src="{% static 'core/js/home.js' %}"></script>
 {% endblock %}

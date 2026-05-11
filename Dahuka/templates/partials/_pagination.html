@@ -1,32 +1,46 @@
 {% if page_obj.has_other_pages %}
+<!-- 
+    COMPONENT PHÂN TRANG (PAGINATION)
+    - Hiển thị các nút số trang (1, 2, 3...) và nút Trước/Sau.
+    - Kỹ thuật đặc biệt: Giữ lại các tham số lọc trên URL (ví dụ: ?q=mayloc&page=2)
+-->
 <nav aria-label="Page navigation" class="d-flex justify-content-center mt-3 mb-5">
     <ul class="pagination custom-pagination">
+        
+        <!-- NÚT TRƯỚC (PREVIOUS) -->
         {% if page_obj.has_previous %}
             <li class="page-item">
+                <!-- Giải thích đoạn href: Nó lặp qua mọi tham số GET hiện có (trừ 'page') để nối lại vào link, giúp không bị mất bộ lọc khi chuyển trang -->
                 <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">&lsaquo;</a>
             </li>
         {% else %}
+            <!-- Nếu đang ở trang 1 thì nút này sẽ bị mờ đi (disabled) -->
             <li class="page-item disabled">
                 <span class="page-link">&lsaquo;</span>
             </li>
         {% endif %}
 
+        <!-- HIỂN THỊ CÁC CON SỐ TRANG -->
         {% for num in page_obj.paginator.page_range %}
             {% if page_obj.paginator.num_pages <= 7 %}
+                <!-- Nếu tổng số trang ít (<= 7): Hiển thị tất cả các số -->
                 <li class="page-item {% if page_obj.number == num %}active{% endif %}">
                     <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
                 </li>
             {% else %}
+                <!-- Nếu quá nhiều trang: Chỉ hiện trang đầu, trang cuối và các trang xung quanh trang hiện tại -->
                 {% if num == 1 or num == 2 or num == page_obj.paginator.num_pages or num == page_obj.paginator.num_pages|add:"-1" or num == page_obj.number or num == page_obj.number|add:"-1" or num == page_obj.number|add:"1" %}
                     <li class="page-item {% if page_obj.number == num %}active{% endif %}">
                         <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
                     </li>
                 {% elif num == 3 and page_obj.number > 4 %}
+                    <!-- Hiển thị dấu ba chấm (...) để rút gọn -->
                     <li class="page-item disabled"><span class="page-link">...</span></li>
                 {% endif %}
             {% endif %}
         {% endfor %}
 
+        <!-- NÚT SAU (NEXT) -->
         {% if page_obj.has_next %}
             <li class="page-item">
                 <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">&rsaquo;</a>
