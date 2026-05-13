@@ -109,8 +109,8 @@ python manage.py runserver
 
 ### 4. Tài Khoản Demo
 
-- **Tên**: testuser
-- **Mật khẩu**: password123
+- **Tên**: admin
+- **Mật khẩu**: admin123
 
 ## Chi Tiết Kỹ Thuật
 
